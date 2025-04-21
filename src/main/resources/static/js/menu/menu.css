@@ -1,0 +1,77 @@
+.menu_box {
+    float: left;
+    max-width: 250px;
+    padding: 10px;
+    align-self: flex-start;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .menu_box {
+        display: none;
+    }
+}
+
+.menuButton {
+    align-self: center;
+    justify-content: center;
+}
+
+.filters {
+    margin-bottom: 10px;
+}
+
+.filters h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+}
+
+#selected-filters {
+    margin-bottom: 5px;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    padding: 2px 5px;
+    margin: 2px 0;
+}
+
+.filter-item span {
+    margin-right: 5px;
+}
+
+.filter-remove {
+    font-weight: bold;
+}
+
+.menu {
+    list-style-type: none;
+    padding: 0;
+}
+
+.menu-item {
+    padding: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.menu-checkbox {
+    margin-right: 5px;
+}
+
+.menu-text {
+    flex-grow: 1;
+}
+
+.submenu {
+    list-style-type: none;
+    padding-left: 20px;
+    transition: height 0.3s ease;
+    overflow: hidden;
+    height: 0; /* Kapalıyken */
+}
+
+.submenu[style*="block"] {
+    height: auto; /* Açıkken */
+}

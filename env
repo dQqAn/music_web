@@ -1,0 +1,7 @@
+sslPW=456987
+keyAlias=sampleAlias
+databaseURL=jdbc:postgresql://localhost:5432/postgres
+databaseDriver=org.postgresql.Driver
+databaseUser=postgres
+databasePW=456789
+encryptionKey=sbndvfsnb23423ASDBVB

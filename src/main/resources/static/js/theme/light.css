@@ -1,0 +1,50 @@
+body {
+    background-color: #edf6eb;
+    color: black;
+}
+
+header, footer {
+    background-color: #c3cac1;
+    color: black;
+}
+
+header a, footer a {
+    color: black;
+}
+
+.main_box a {
+    color: black;
+}
+
+button {
+    background-color: white;
+    color: black;
+}
+
+.navbar {
+    background-color: #d9e1d5;
+}
+
+.navbar ul li a {
+    color: black;
+}
+
+.menu-item:hover {
+    background-color: black;
+    color: white;
+}
+
+.menu_box {
+    background-color: #c3cac1;
+    color: black;
+}
+
+.pagination a {
+    background-color: #353434;
+    color: white;
+}
+
+.pagination a.active {
+    background-color: white;
+    color: black;
+}

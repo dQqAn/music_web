@@ -1,0 +1,22 @@
+ktor:
+  application:
+    modules:
+      - com.example.ApplicationKt.module
+  deployment:
+    port: 8083
+    sslPort: 8444
+  localization:
+    bundles: [ "localization" ]
+    defaultLocale: "tr"
+  security:
+    ssl:
+      keyStore: keystore.jks
+      keyAlias: $keyAlias
+      keyStorePassword: $sslPW
+      privateKeyPassword: $sslPW
+
+database:
+  url: "jdbc:mysql://localhost:3306/music"
+  driver: "com.mysql.cj.jdbc.Driver"
+  user: $dbUSER
+  password: $dbPW
