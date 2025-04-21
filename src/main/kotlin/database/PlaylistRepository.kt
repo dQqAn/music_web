@@ -1,6 +1,7 @@
 package com.example.database
 
 import com.example.model.PlaylistTable
+import com.example.util.UserPlaylists
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -61,4 +62,33 @@ class PlaylistRepository(database: Database) {
             -1
         }
     }
+
+    suspend fun searchUserPlaylist(name: String, userID: Int, soundID: String): List<UserPlaylists> =
+        suspendTransaction {
+            val status = PlaylistTable.selectAll().where {
+                (PlaylistTable.name eq name) and
+                        (PlaylistTable.soundID eq soundID)
+            }.any()
+
+            PlaylistTable.selectAll().where {
+                (PlaylistTable.name eq name) and (PlaylistTable.userID eq userID)
+            }.orderBy(PlaylistTable.name to SortOrder.ASC)
+                .map { row ->
+                    UserPlaylists(
+                        playlistID = row[PlaylistTable.id].toString(),
+                        soundStatus = status
+                    )
+                }
+        }
+
+    suspend fun checkSoundInPlaylist(name: String, soundID: String): Boolean = suspendTransaction {
+        PlaylistTable.selectAll().where {
+            (PlaylistTable.name eq name) and
+                    (PlaylistTable.soundID eq soundID)
+        }.any()
+    }
+
+    /*suspend fun userPlaylist(userID:Int): List<Int> = suspendTransaction {
+
+    }*/
 }

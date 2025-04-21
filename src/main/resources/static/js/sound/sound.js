@@ -107,3 +107,86 @@ async function changeSoundFavouriteStatus(soundID) {
         console.error('Error');
     }
 }
+
+const playlistDiv = document.getElementById("playlistResult");
+
+document.getElementById("playlistInput").addEventListener("input", async (event) => {
+    const query = event.target.value.trim();
+    if (query.length < 2) {
+        playlistDiv.style.display = "none";
+        playlistDiv.innerHTML = "";
+        return;
+    }
+
+    basicSelected = [];
+    basicUnSelected = [];
+    const params = new URLSearchParams(window.location.search);
+    const soundID = params.get('soundID');
+    try {
+        const response = await fetch(`/database/search_user_playlist?query=${encodeURIComponent(query)}&soundID=${soundID}`);
+        if (!response.ok) {
+            playlistDiv.innerHTML = "<p style='color: red;'>Error while searching.</p>";
+            return;
+        }
+
+        playlistDiv.innerHTML = "";
+        const results = await response.json();
+
+        if (results.length === 0) {
+            playlistDiv.innerHTML = "<p>No results found.</p>";
+            return;
+        }
+
+        results.forEach(item => {
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.id = "playlist-checkbox-" + item.playlistID
+            input.checked = item.soundStatus;
+            if (item.soundStatus && !selected.includes(item.playlistID)) {
+                basicSelected.push(item.playlistID)
+            }
+            input.textContent = item.name;
+            playlistDiv.appendChild(input);
+        });
+        playlistDiv.style.display = "block";
+    } catch (error) {
+        playlistDiv.innerHTML = `<p style="color: red;">Error: ${error}</p>`;
+        playlistDiv.style.display = "none";
+    }
+});
+
+async function showPlaylists() {
+    basicSelected = [];
+    basicUnSelected = [];
+    const params = new URLSearchParams(window.location.search);
+    const soundID = params.get('soundID');
+    try {
+        const response = await fetch(`/database/user_playlist&soundID=${soundID}`);
+        if (!response.ok) {
+            return;
+        }
+
+        playlistDiv.innerHTML = "";
+        const results = await response.json();
+
+        if (results.length === 0) {
+            playlistDiv.innerHTML = "<p>No results found.</p>";
+            return;
+        }
+
+        results.forEach(item => {
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.id = "playlist-checkbox-" + item.playlistID
+            input.checked = item.soundStatus;
+            if (item.soundStatus && !selected.includes(item.playlistID)) {
+                basicSelected.push(item.playlistID)
+            }
+            input.textContent = item.name;
+            playlistDiv.appendChild(input);
+        });
+        playlistDiv.style.display = "block";
+    } catch (error) {
+        console.log(error)
+    }
+}

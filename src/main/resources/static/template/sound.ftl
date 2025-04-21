@@ -41,6 +41,67 @@
             margin: 5px 0;
             line-height: 1.5;
         }
+
+        .dropdown-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        #playlistModal {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 320px;
+            background: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 100;
+        }
+
+        #playlistModal input[type="text"] {
+            width: 100%;
+            padding: 6px;
+            margin-bottom: 10px;
+        }
+
+        #playlistList {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        #playlistList li {
+            padding: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        #playlistList li:hover {
+            background-color: #f0f0f0;
+        }
+
+        #playlistList input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        #addToPlaylistBtn {
+            width: 100%;
+            padding: 8px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #addToPlaylistBtn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -72,6 +133,19 @@
                     </#if>
                 </button>
             </div>
+
+            <div class="dropdown-wrapper">
+                <button onclick="togglePlaylist()">Add Playlist</button>
+
+                <div id="playlistContainer">
+                    <label for="playlistInput">Search</label>
+                    <input type="text" id="playlistInput" placeholder="Search">
+
+                    <div id="playlistResult" style="display: none;"></div>
+                    <button id="addToPlaylistBtn" onclick="selectedToPlaylists(['${sound.soundID}'])">Add</button>
+                </div>
+            </div>
+
             <button class="pointer" onclick="downloadSound('${sound.soundID}')">Download</button>
             <div id="playerWrapper">
                 <button class="pointer" onclick="playSound('${sound.soundID}')">Listen</button>
@@ -96,6 +170,71 @@
         const soundID = getIDFromUrl();
         getSound(soundID);
     };*/
+
+    let basicSelected = [];
+    let basicUnSelected = [];
+
+    function togglePlaylist() {
+        const container = document.getElementById('playlistContainer');
+        container.style.display = container.style.display === 'block' ? 'none' : 'block';
+        if (container.style.display === 'block') {
+            showPlaylists()
+        }
+    }
+
+    let selected = [];
+    let unSelected = [];
+    document.querySelectorAll('#playlistResult input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', function () {
+            const id = this.id;
+            if (this.checked) {
+                if (!selected.includes(id)) selected.push(id);
+                const i = unSelected.indexOf(id);
+                if (i !== -1) unSelected.splice(i, 1);
+            } else {
+                if (!unSelected.includes(id)) unSelected.push(id);
+                const i = selected.indexOf(id);
+                if (i !== -1) selected.splice(i, 1);
+            }
+        });
+    });
+
+    async function selectedToPlaylists(soundIDs) {
+        if (!Array.isArray(soundIDs)) {
+            console.error("soundIDs must be an array");
+            return;
+        }
+
+        const different = selected.filter(id => !basicSelected.includes(id))
+
+        const payload = {
+            soundIDs: soundIDs,
+            playlistNames: different
+        };
+
+        const response = await fetch('/database/saveToPlaylist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            console.log("Error backend.")
+            return;
+        }
+
+        const result = await response.text();
+        if (result.status === 200) {
+            console.log("1")
+        } else {
+            console.log("2")
+        }
+
+        togglePlaylist();
+        document.getElementById('playlistInput').value = '';
+    }
 </script>
 
 </body>

@@ -259,6 +259,28 @@ fun Application.databaseApi() {
                 val newStatus = !exists
                 call.respond(FavouriteStatusResponse(newStatus))
             }
+
+            get("/database/search_user_playlist") {
+                val query = call.request.queryParameters["query"]?.trim()
+                val userSession = call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.NotFound)
+                val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+                val id = userSession.id
+
+                if (query.isNullOrBlank()) {
+                    call.respond(HttpStatusCode.BadRequest, "Search bar is empty")
+                    return@get
+                }
+                val results = playlistRepository.searchUserPlaylist(query, id, soundID)
+                call.respond(results)
+            }
+
+            /*get("/database/user_playlist") {
+                val userSession = call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.NotFound)
+                val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+                val id = userSession.id
+                val results = playlistRepository.userPlaylist(id)
+                call.respond(results)
+            }*/
         }
     }
 }
@@ -268,3 +290,6 @@ private data class SelectedSoundIds(val soundIDs: List<String>)
 
 @Serializable
 data class FavouriteStatusResponse(val favouriteStatus: Boolean)
+
+@Serializable
+data class UserPlaylists(val playlistID: String, val soundStatus: Boolean)
