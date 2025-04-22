@@ -239,6 +239,8 @@ async function addSound(soundIDs) {
         return;
     }
 
+    showPlaylists();
+
     // const result = await response.json();
     // console.log(result)
 }
