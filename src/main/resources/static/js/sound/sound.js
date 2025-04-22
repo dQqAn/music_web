@@ -190,17 +190,18 @@ async function showPlaylists() {
         results.forEach(item => {
             const input = document.createElement("input");
             input.type = "checkbox";
-            input.id = "playlist-checkbox-" + item.playlistID
+            input.id = "playlist-checkbox-" + item.playlist.playlistID
 
             const label = document.createElement("label");
             label.htmlFor = input.id;
-            label.textContent = item.name;
+            label.textContent = item.playlist.name;
 
-            // input.checked = item.soundStatus;
-            /*
-            if (item.soundStatus && !selected.includes(item.playlistID)) {
-                basicSelected.push(item.playlistID)
-            }*/
+            if (item.soundStatus) {
+                input.checked = item.soundStatus;
+                if (item.soundStatus && !selected.includes(item.playlist.playlistID)) {
+                    basicSelected.push(item.playlist.playlistID)
+                }
+            }
 
             const container = document.createElement("div");
             container.appendChild(input);
@@ -268,6 +269,6 @@ async function handleCheckboxes(event) {
         if (i !== -1) selected.splice(i, 1);
     }
 
-    console.log("selected:", selected);
-    console.log("unSelected:", unSelected);
+    // console.log("selected:", selected);
+    // console.log("unSelected:", unSelected);
 }

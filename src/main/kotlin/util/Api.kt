@@ -278,8 +278,14 @@ fun Application.databaseApi() {
             get("/database/user_playlist") {
                 val userSession = call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.NotFound)
                 val id = userSession.id
-                val results = playlistRepository.allUserPlaylist(id)
-                call.respond(results)
+                val soundID = call.parameters["soundID"]
+                if (soundID.isNullOrBlank()) {
+                    val results = playlistRepository.allUserPlaylist(id)
+                    call.respond(results)
+                } else {
+                    val results = playlistRepository.basicUserPlaylist(id, soundID)
+                    call.respond(results)
+                }
             }
 
             post("/database/soundsToPlaylist") {
@@ -287,17 +293,18 @@ fun Application.databaseApi() {
                 val userID = userSession.id
                 val selectedSoundIds = call.receive<SelectedSoundIdsToPlaylists>()
 
-                selectedSoundIds.selected.forEach { id ->
-                    val check = playlistRepository.addSounds(userID, id, selectedSoundIds.soundIDs)
-                    if (check == -1) {
-                        call.respond(HttpStatusCode.BadRequest)
-                    }
+                val check1 = playlistRepository.addSounds(userID, selectedSoundIds.selected, selectedSoundIds.soundIDs)
+                if (check1 == -1) {
+                    call.respond(HttpStatusCode.BadRequest)
                 }
-                selectedSoundIds.unselected.forEach { id ->
-                    val check = playlistRepository.removeSoundsInPlaylist(userID, id, selectedSoundIds.soundIDs)
-                    if (check) {
-                        call.respond(HttpStatusCode.BadRequest)
-                    }
+
+                val check2 = playlistRepository.removeSoundsInPlaylist(
+                    userID,
+                    selectedSoundIds.unselected,
+                    selectedSoundIds.soundIDs
+                )
+                if (check2) {
+                    call.respond(HttpStatusCode.BadRequest)
                 }
                 call.respond(HttpStatusCode.OK)
             }
