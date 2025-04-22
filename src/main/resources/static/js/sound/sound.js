@@ -171,6 +171,8 @@ async function handlePlaylistInput(event) {
 async function showPlaylists() {
     basicSelected = [];
     basicUnSelected = [];
+    selected = [];
+    unSelected = [];
     const params = new URLSearchParams(window.location.search);
     const soundID = params.get('soundID');
     try {

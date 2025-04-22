@@ -293,19 +293,25 @@ fun Application.databaseApi() {
                 val userID = userSession.id
                 val selectedSoundIds = call.receive<SelectedSoundIdsToPlaylists>()
 
-                val check1 = playlistRepository.addSounds(userID, selectedSoundIds.selected, selectedSoundIds.soundIDs)
-                if (check1 == -1) {
-                    call.respond(HttpStatusCode.BadRequest)
+                if (selectedSoundIds.selected.isNotEmpty()) {
+                    val check1 =
+                        playlistRepository.addSounds(userID, selectedSoundIds.selected, selectedSoundIds.soundIDs)
+                    if (check1 == -1) {
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
                 }
 
-                val check2 = playlistRepository.removeSoundsInPlaylist(
-                    userID,
-                    selectedSoundIds.unselected,
-                    selectedSoundIds.soundIDs
-                )
-                if (!check2) {
-                    call.respond(HttpStatusCode.BadRequest)
+                if (selectedSoundIds.unselected.isNotEmpty()) {
+                    val check2 = playlistRepository.removeSoundsInPlaylist(
+                        userID,
+                        selectedSoundIds.unselected,
+                        selectedSoundIds.soundIDs
+                    )
+                    if (!check2) {
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
                 }
+
                 call.respond(HttpStatusCode.OK)
             }
         }
