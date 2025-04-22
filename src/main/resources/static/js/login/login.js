@@ -59,7 +59,7 @@ registerForm.addEventListener('submit', async function (event) {
             setTimeout(function () {
                 loader.style.display = 'none';
                 window.location.href = "/dashboard";
-            }, 2000);
+            }, 500);
         } else {
             loader.style.display = 'none';
             regMessageArea.textContent = 'Registration failed: ' + response.statusText;
@@ -105,7 +105,7 @@ loginForm.addEventListener('submit', async function (event) {
             setTimeout(function () {
                 loader.style.display = 'none';
                 window.location.href = "/dashboard";
-            }, 2000);
+            }, 500);
         } else {
             loader.style.display = 'none';
             loginMessageArea.textContent = 'Signing failed: ' + response.statusText;

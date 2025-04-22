@@ -137,16 +137,17 @@
             <div class="dropdown-wrapper">
                 <button onclick="togglePlaylist()">Add Playlist</button>
 
-                <div id="playlistContainer">
+                <div id="playlistContainer" style="display: none">
                     <label for="playlistInput">Search</label>
                     <input type="text" id="playlistInput" placeholder="Search">
 
                     <div id="playlistResult" style="display: none;"></div>
-                    <button id="addToPlaylistBtn" onclick="selectedToPlaylists(['${sound.soundID}'])">Add</button>
+                    <button onclick="addSound(['${sound.soundID}'])">addSound</button>
                 </div>
             </div>
-
-            <button class="pointer" onclick="downloadSound('${sound.soundID}')">Download</button>
+            <div>
+                <button class="pointer" onclick="downloadSound('${sound.soundID}')">Download</button>
+            </div>
             <div id="playerWrapper">
                 <button class="pointer" onclick="playSound('${sound.soundID}')">Listen</button>
                 <audio id="audioPlayer" controls></audio>
@@ -161,80 +162,6 @@
 </main>
 
 <script>
-    /*function getIDFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('soundID') || 'none';
-    }
-
-    window.onload = function () {
-        const soundID = getIDFromUrl();
-        getSound(soundID);
-    };*/
-
-    let basicSelected = [];
-    let basicUnSelected = [];
-
-    function togglePlaylist() {
-        const container = document.getElementById('playlistContainer');
-        container.style.display = container.style.display === 'block' ? 'none' : 'block';
-        if (container.style.display === 'block') {
-            showPlaylists()
-        }
-    }
-
-    let selected = [];
-    let unSelected = [];
-    document.querySelectorAll('#playlistResult input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', function () {
-            const id = this.id;
-            if (this.checked) {
-                if (!selected.includes(id)) selected.push(id);
-                const i = unSelected.indexOf(id);
-                if (i !== -1) unSelected.splice(i, 1);
-            } else {
-                if (!unSelected.includes(id)) unSelected.push(id);
-                const i = selected.indexOf(id);
-                if (i !== -1) selected.splice(i, 1);
-            }
-        });
-    });
-
-    async function selectedToPlaylists(soundIDs) {
-        if (!Array.isArray(soundIDs)) {
-            console.error("soundIDs must be an array");
-            return;
-        }
-
-        const different = selected.filter(id => !basicSelected.includes(id))
-
-        const payload = {
-            soundIDs: soundIDs,
-            playlistNames: different
-        };
-
-        const response = await fetch('/database/saveToPlaylist', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            console.log("Error backend.")
-            return;
-        }
-
-        const result = await response.text();
-        if (result.status === 200) {
-            console.log("1")
-        } else {
-            console.log("2")
-        }
-
-        togglePlaylist();
-        document.getElementById('playlistInput').value = '';
-    }
 </script>
 
 </body>

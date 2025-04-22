@@ -110,14 +110,20 @@ async function changeSoundFavouriteStatus(soundID) {
 
 const playlistDiv = document.getElementById("playlistResult");
 
-document.getElementById("playlistInput").addEventListener("input", async (event) => {
-    const query = event.target.value.trim();
+function setupPlaylistInputListener() {
+    const input = document.getElementById("playlistInput");
+    if (!input) return;
+
+    input.addEventListener("input", handlePlaylistInput);
+}
+
+async function handlePlaylistInput(event) {
+    const query = event.target.value;
     if (query.length < 2) {
         playlistDiv.style.display = "none";
         playlistDiv.innerHTML = "";
         return;
     }
-
     basicSelected = [];
     basicUnSelected = [];
     const params = new URLSearchParams(window.location.search);
@@ -131,7 +137,6 @@ document.getElementById("playlistInput").addEventListener("input", async (event)
 
         playlistDiv.innerHTML = "";
         const results = await response.json();
-
         if (results.length === 0) {
             playlistDiv.innerHTML = "<p>No results found.</p>";
             return;
@@ -140,20 +145,28 @@ document.getElementById("playlistInput").addEventListener("input", async (event)
         results.forEach(item => {
             const input = document.createElement("input");
             input.type = "checkbox";
-            input.id = "playlist-checkbox-" + item.playlistID
+            input.id = "playlist-checkbox-" + item.playlist.playlistID
+
+            const label = document.createElement("label");
+            label.htmlFor = input.id;
+            label.textContent = item.playlist.name;
+
             input.checked = item.soundStatus;
-            if (item.soundStatus && !selected.includes(item.playlistID)) {
-                basicSelected.push(item.playlistID)
+            if (item.soundStatus && !selected.includes(item.playlist.playlistID)) {
+                basicSelected.push(item.playlist.playlistID)
             }
-            input.textContent = item.name;
-            playlistDiv.appendChild(input);
+
+            const container = document.createElement("div");
+            container.appendChild(input);
+            container.appendChild(label);
+            playlistDiv.appendChild(container);
         });
         playlistDiv.style.display = "block";
     } catch (error) {
         playlistDiv.innerHTML = `<p style="color: red;">Error: ${error}</p>`;
         playlistDiv.style.display = "none";
     }
-});
+}
 
 async function showPlaylists() {
     basicSelected = [];
@@ -161,7 +174,7 @@ async function showPlaylists() {
     const params = new URLSearchParams(window.location.search);
     const soundID = params.get('soundID');
     try {
-        const response = await fetch(`/database/user_playlist&soundID=${soundID}`);
+        const response = await fetch(`/database/user_playlist?soundID=${soundID}`);
         if (!response.ok) {
             return;
         }
@@ -178,15 +191,83 @@ async function showPlaylists() {
             const input = document.createElement("input");
             input.type = "checkbox";
             input.id = "playlist-checkbox-" + item.playlistID
-            input.checked = item.soundStatus;
+
+            const label = document.createElement("label");
+            label.htmlFor = input.id;
+            label.textContent = item.name;
+
+            // input.checked = item.soundStatus;
+            /*
             if (item.soundStatus && !selected.includes(item.playlistID)) {
                 basicSelected.push(item.playlistID)
-            }
-            input.textContent = item.name;
-            playlistDiv.appendChild(input);
+            }*/
+
+            const container = document.createElement("div");
+            container.appendChild(input);
+            container.appendChild(label);
+            playlistDiv.appendChild(container);
         });
         playlistDiv.style.display = "block";
+        setupCheckboxListener();
     } catch (error) {
         console.log(error)
     }
+}
+
+function togglePlaylist() {
+    const container = document.getElementById('playlistContainer');
+    container.style.display = container.style.display === 'block' ? 'none' : 'block';
+    if (container.style.display === 'block') {
+        showPlaylists();
+        setupPlaylistInputListener();
+    }
+}
+
+async function addSound(soundIDs) {
+    const newSelected = selected.filter(id => !basicSelected.includes(id));
+    const newUnselected = unSelected.filter(id => !basicUnSelected.includes(id));
+
+    const response = await fetch(`/database/soundsToPlaylist`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({soundIDs: soundIDs, selected: newSelected, unselected: newUnselected})
+    });
+    if (!response.ok) {
+        return;
+    }
+
+    // const result = await response.json();
+    // console.log(result)
+}
+
+let basicSelected = [];
+let basicUnSelected = [];
+let selected = [];
+let unSelected = [];
+
+function setupCheckboxListener() {
+    const checkboxes = document.querySelectorAll('#playlistResult input[type="checkbox"]')
+    if (!checkboxes) return;
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', handleCheckboxes);
+    });
+}
+
+async function handleCheckboxes(event) {
+    const id = event.target.id;
+    if (event.target.checked) {
+        if (!selected.includes(id)) selected.push(id);
+        const i = unSelected.indexOf(id);
+        if (i !== -1) unSelected.splice(i, 1);
+    } else {
+        if (!unSelected.includes(id)) unSelected.push(id);
+        const i = selected.indexOf(id);
+        if (i !== -1) selected.splice(i, 1);
+    }
+
+    console.log("selected:", selected);
+    console.log("unSelected:", unSelected);
 }

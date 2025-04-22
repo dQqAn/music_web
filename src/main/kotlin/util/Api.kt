@@ -5,6 +5,7 @@ import com.example.auth.UserSession
 import com.example.database.FavouriteRepository
 import com.example.database.PlaylistRepository
 import com.example.database.SoundRepository
+import com.example.model.Playlist
 import com.example.model.SoundStatus
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -274,13 +275,32 @@ fun Application.databaseApi() {
                 call.respond(results)
             }
 
-            /*get("/database/user_playlist") {
+            get("/database/user_playlist") {
                 val userSession = call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.NotFound)
-                val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
                 val id = userSession.id
-                val results = playlistRepository.userPlaylist(id)
+                val results = playlistRepository.allUserPlaylist(id)
                 call.respond(results)
-            }*/
+            }
+
+            post("/database/soundsToPlaylist") {
+                val userSession = call.sessions.get<UserSession>() ?: return@post call.respond(HttpStatusCode.NotFound)
+                val userID = userSession.id
+                val selectedSoundIds = call.receive<SelectedSoundIdsToPlaylists>()
+
+                selectedSoundIds.selected.forEach { id ->
+                    val check = playlistRepository.addSounds(userID, id, selectedSoundIds.soundIDs)
+                    if (check == -1) {
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
+                }
+                selectedSoundIds.unselected.forEach { id ->
+                    val check = playlistRepository.removeSoundsInPlaylist(userID, id, selectedSoundIds.soundIDs)
+                    if (check) {
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
+                }
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
@@ -289,7 +309,14 @@ fun Application.databaseApi() {
 private data class SelectedSoundIds(val soundIDs: List<String>)
 
 @Serializable
+private data class SelectedSoundIdsToPlaylists(
+    val soundIDs: List<String>,
+    val selected: List<String>,
+    val unselected: List<String>
+)
+
+@Serializable
 data class FavouriteStatusResponse(val favouriteStatus: Boolean)
 
 @Serializable
-data class UserPlaylists(val playlistID: String, val soundStatus: Boolean)
+data class UserPlaylists(val playlist: Playlist, val soundStatus: Boolean)

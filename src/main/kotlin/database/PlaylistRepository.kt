@@ -1,11 +1,15 @@
 package com.example.database
 
+import com.example.model.Playlist
 import com.example.model.PlaylistTable
+import com.example.model.toPlaylist
 import com.example.util.UserPlaylists
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.SQLException
+import java.util.*
 
 class PlaylistRepository(database: Database) {
     init {
@@ -19,6 +23,7 @@ class PlaylistRepository(database: Database) {
             PlaylistTable.insert {
                 it[this.name] = name
                 it[this.userID] = userID
+                it[this.playlistID] = UUID.randomUUID().toString()
             }[PlaylistTable.id]
         } catch (e: SQLException) {
             e.printStackTrace()
@@ -26,13 +31,26 @@ class PlaylistRepository(database: Database) {
         }
     }
 
-    suspend fun removePlaylist(id: Int): Boolean = suspendTransaction {
-        val rowsDeleted = PlaylistTable.deleteWhere { PlaylistTable.id eq id }
+    suspend fun removePlaylist(playlistID: String): Boolean = suspendTransaction {
+        val rowsDeleted = PlaylistTable.deleteWhere { PlaylistTable.playlistID eq playlistID }
         rowsDeleted > 0
     }
 
+    suspend fun removeSoundsInPlaylist(
+        userID: Int, playlistID: String,
+        soundIDs: List<String>
+    ): Boolean = suspendTransaction {
+        val rowDeleted = PlaylistTable.deleteWhere {
+            (PlaylistTable.userID eq userID) and
+                    (PlaylistTable.playlistID eq playlistID) and
+                    (PlaylistTable.soundID inList soundIDs)
+        }
+
+        rowDeleted > 0
+    }
+
     suspend fun addSounds(
-        userID: Int, playlistName: String,
+        userID: Int, playlistID: String,
         soundIDs: List<String>
     ): Int = suspendTransaction {
         try {
@@ -40,23 +58,46 @@ class PlaylistRepository(database: Database) {
                 .selectAll()
                 .where {
                     (PlaylistTable.userID eq userID) and
-                            (PlaylistTable.name eq playlistName) and
+                            (PlaylistTable.playlistID eq playlistID) and
                             (PlaylistTable.soundID inList soundIDs)
                 }
                 .map { it[PlaylistTable.soundID] }
                 .toSet()
 
             val toInsert = soundIDs.filterNot { it in existingSoundIDs }
+            val playlistName = PlaylistTable.selectAll().where { PlaylistTable.playlistID eq playlistID }
+                .map { it[PlaylistTable.name] }.singleOrNull()
 
             if (toInsert.isEmpty()) return@suspendTransaction 0
+            if (playlistName != null) {
+                PlaylistTable.batchInsert(toInsert) { soundID ->
+                    this[PlaylistTable.userID] = userID
+                    this[PlaylistTable.playlistID] = playlistID
+                    this[PlaylistTable.soundID] = soundID
+                    this[PlaylistTable.name] = playlistName
+                }
+                toInsert.size
+            } else {
+                val newPlaylistID = UUID.randomUUID().toString()
+                val newPlaylistName = "My Playlist"
+                val id = PlaylistTable.insert {
+                    it[this.name] = newPlaylistName
+                    it[this.userID] = userID
+                    it[this.playlistID] = newPlaylistID
+                }[PlaylistTable.id]
 
-            PlaylistTable.batchInsert(toInsert) { soundID ->
-                this[PlaylistTable.userID] = userID
-                this[PlaylistTable.name] = playlistName
-                this[PlaylistTable.soundID] = soundID
+                if (id != -1) {
+                    PlaylistTable.batchInsert(toInsert) { soundID ->
+                        this[PlaylistTable.userID] = userID
+                        this[PlaylistTable.playlistID] = newPlaylistID
+                        this[PlaylistTable.soundID] = soundID
+                        this[PlaylistTable.name] = newPlaylistName
+                    }
+                    toInsert.size
+                } else {
+                    -1
+                }
             }
-
-            toInsert.size
         } catch (e: SQLException) {
             e.printStackTrace()
             -1
@@ -65,30 +106,37 @@ class PlaylistRepository(database: Database) {
 
     suspend fun searchUserPlaylist(name: String, userID: Int, soundID: String): List<UserPlaylists> =
         suspendTransaction {
-            val status = PlaylistTable.selectAll().where {
-                (PlaylistTable.name eq name) and
-                        (PlaylistTable.soundID eq soundID)
-            }.any()
-
-            PlaylistTable.selectAll().where {
-                (PlaylistTable.name eq name) and (PlaylistTable.userID eq userID)
+            val allPlaylists = PlaylistTable.selectAll().where {
+                (PlaylistTable.name.lowerCase() like "%${name.lowercase()}%") and
+                        (PlaylistTable.userID eq userID)
             }.orderBy(PlaylistTable.name to SortOrder.ASC)
-                .map { row ->
+                .map { it.toPlaylist() }
+
+            val matchedPlaylistIDs = PlaylistTable.selectAll().where {
+                (PlaylistTable.name.lowerCase() like "%${name.lowercase()}%") and
+                        (PlaylistTable.soundID eq soundID)
+            }.map { it[PlaylistTable.playlistID] }
+                .toSet()
+
+            allPlaylists
+                .map { playlist ->
                     UserPlaylists(
-                        playlistID = row[PlaylistTable.id].toString(),
-                        soundStatus = status
+                        playlist,
+                        playlist.playlistID in matchedPlaylistIDs
                     )
                 }
+                .distinctBy { it.playlist.playlistID }
         }
 
-    suspend fun checkSoundInPlaylist(name: String, soundID: String): Boolean = suspendTransaction {
+    suspend fun userPlaylistWithSoundID(userID: Int, soundID: String): List<String> = suspendTransaction {
         PlaylistTable.selectAll().where {
-            (PlaylistTable.name eq name) and
-                    (PlaylistTable.soundID eq soundID)
-        }.any()
+            (PlaylistTable.userID eq userID) and (PlaylistTable.soundID eq soundID)
+        }.map { (it[PlaylistTable.playlistID]) }
     }
 
-    /*suspend fun userPlaylist(userID:Int): List<Int> = suspendTransaction {
-
-    }*/
+    suspend fun allUserPlaylist(userID: Int): List<Playlist> = suspendTransaction {
+        PlaylistTable.selectAll().where {
+            (PlaylistTable.userID eq userID)
+        }.map { it.toPlaylist() }.distinctBy { it.playlistID }
+    }
 }
