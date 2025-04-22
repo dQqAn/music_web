@@ -228,21 +228,23 @@ async function addSound(soundIDs) {
     const newSelected = selected.filter(id => !basicSelected.includes(id));
     const newUnselected = unSelected.filter(id => !basicUnSelected.includes(id));
 
-    const response = await fetch(`/database/soundsToPlaylist`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({soundIDs: soundIDs, selected: newSelected, unselected: newUnselected})
-    });
-    if (!response.ok) {
-        return;
+    if (newSelected.length !== 0 || newUnselected.length !== 0) {
+        const response = await fetch(`/database/soundsToPlaylist`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({soundIDs: soundIDs, selected: newSelected, unselected: newUnselected})
+        });
+        if (!response.ok) {
+            return;
+        }
+
+        showPlaylists();
+
+        // const result = await response.json();
+        // console.log(result)
     }
-
-    showPlaylists();
-
-    // const result = await response.json();
-    // console.log(result)
 }
 
 let basicSelected = [];
@@ -271,6 +273,6 @@ async function handleCheckboxes(event) {
         if (i !== -1) selected.splice(i, 1);
     }
 
-    // console.log("selected:", selected);
-    // console.log("unSelected:", unSelected);
+    console.log("selected:", selected);
+    console.log("unSelected:", unSelected);
 }
