@@ -303,7 +303,7 @@ fun Application.databaseApi() {
                     selectedSoundIds.unselected,
                     selectedSoundIds.soundIDs
                 )
-                if (check2) {
+                if (!check2) {
                     call.respond(HttpStatusCode.BadRequest)
                 }
                 call.respond(HttpStatusCode.OK)

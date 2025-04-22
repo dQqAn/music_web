@@ -273,6 +273,6 @@ async function handleCheckboxes(event) {
         if (i !== -1) selected.splice(i, 1);
     }
 
-    console.log("selected:", selected);
-    console.log("unSelected:", unSelected);
+    // console.log("selected:", selected);
+    // console.log("unSelected:", unSelected);
 }
