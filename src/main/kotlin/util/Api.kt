@@ -5,6 +5,7 @@ import com.example.auth.UserSession
 import com.example.database.FavouriteRepository
 import com.example.database.PlaylistRepository
 import com.example.database.SoundRepository
+import com.example.model.Playlist
 import com.example.model.SoundStatus
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -259,6 +260,60 @@ fun Application.databaseApi() {
                 val newStatus = !exists
                 call.respond(FavouriteStatusResponse(newStatus))
             }
+
+            get("/database/search_user_playlist") {
+                val query = call.request.queryParameters["query"]?.trim()
+                val userSession = call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.NotFound)
+                val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+                val id = userSession.id
+
+                if (query.isNullOrBlank()) {
+                    call.respond(HttpStatusCode.BadRequest, "Search bar is empty")
+                    return@get
+                }
+                val results = playlistRepository.searchUserPlaylist(query, id, soundID)
+                call.respond(results)
+            }
+
+            get("/database/user_playlist") {
+                val userSession = call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.NotFound)
+                val id = userSession.id
+                val soundID = call.parameters["soundID"]
+                if (soundID.isNullOrBlank()) {
+                    val results = playlistRepository.allUserPlaylist(id)
+                    call.respond(results)
+                } else {
+                    val results = playlistRepository.basicUserPlaylist(id, soundID)
+                    call.respond(results)
+                }
+            }
+
+            post("/database/soundsToPlaylist") {
+                val userSession = call.sessions.get<UserSession>() ?: return@post call.respond(HttpStatusCode.NotFound)
+                val userID = userSession.id
+                val selectedSoundIds = call.receive<SelectedSoundIdsToPlaylists>()
+
+                if (selectedSoundIds.selected.isNotEmpty()) {
+                    val check1 =
+                        playlistRepository.addSounds(userID, selectedSoundIds.selected, selectedSoundIds.soundIDs)
+                    if (check1 == -1) {
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
+                }
+
+                if (selectedSoundIds.unselected.isNotEmpty()) {
+                    val check2 = playlistRepository.removeSoundsInPlaylist(
+                        userID,
+                        selectedSoundIds.unselected,
+                        selectedSoundIds.soundIDs
+                    )
+                    if (!check2) {
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
+                }
+
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
@@ -267,4 +322,14 @@ fun Application.databaseApi() {
 private data class SelectedSoundIds(val soundIDs: List<String>)
 
 @Serializable
+private data class SelectedSoundIdsToPlaylists(
+    val soundIDs: List<String>,
+    val selected: List<String>,
+    val unselected: List<String>
+)
+
+@Serializable
 data class FavouriteStatusResponse(val favouriteStatus: Boolean)
+
+@Serializable
+data class UserPlaylists(val playlist: Playlist, val soundStatus: Boolean)
