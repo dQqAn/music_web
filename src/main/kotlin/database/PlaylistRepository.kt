@@ -65,17 +65,18 @@ class PlaylistRepository(database: Database) {
                 .toSet()
 
             val toInsert = soundIDs.filterNot { it in existingSoundIDs }
-            val playlistName = PlaylistTable.selectAll().where { PlaylistTable.playlistID inList playlistID }
-                .map { it[PlaylistTable.name] }.singleOrNull()
-
             if (toInsert.isEmpty()) return@suspendTransaction 0
-            if (playlistName != null) {
-                for (item in playlistID) {
+
+            val playlistNames = PlaylistTable.selectAll().where { PlaylistTable.playlistID inList playlistID }
+                .map { it.toPlaylist() }
+
+            if (playlistNames.isNotEmpty()) {
+                for (item in playlistNames) {
                     PlaylistTable.batchInsert(toInsert) { soundID ->
                         this[PlaylistTable.userID] = userID
-                        this[PlaylistTable.playlistID] = item
+                        this[PlaylistTable.playlistID] = item.playlistID
                         this[PlaylistTable.soundID] = soundID
-                        this[PlaylistTable.name] = playlistName
+                        this[PlaylistTable.name] = item.name
                     }
                 }
                 toInsert.size
