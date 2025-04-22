@@ -228,13 +228,16 @@ async function addSound(soundIDs) {
     const newSelected = selected.filter(id => !basicSelected.includes(id));
     const newUnselected = unSelected.filter(id => !basicUnSelected.includes(id));
 
+    const cleanedSelected = newSelected.map(id => id.replace("playlist-checkbox-", ""));
+    const cleanedUnselected = newUnselected.map(id => id.replace("playlist-checkbox-", ""));
+
     if (newSelected.length !== 0 || newUnselected.length !== 0) {
         const response = await fetch(`/database/soundsToPlaylist`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({soundIDs: soundIDs, selected: newSelected, unselected: newUnselected})
+            body: JSON.stringify({soundIDs: soundIDs, selected: cleanedSelected, unselected: cleanedUnselected})
         });
         if (!response.ok) {
             return;
