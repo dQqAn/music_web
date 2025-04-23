@@ -17,3 +17,7 @@ async function checkLoginStatus() {
     }
     user_section.appendChild(route)
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    checkLoginStatus();
+});

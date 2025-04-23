@@ -114,10 +114,6 @@ function toSlug(str) {
     }
 }*/
 
-document.addEventListener('DOMContentLoaded', function () {
-    checkLoginStatus();
-});
-
 function getPageFromUrl(totalPages) {
     const params = new URLSearchParams(window.location.search);
     const page = parseInt(params.get('page')) || 1;
