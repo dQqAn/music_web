@@ -50,25 +50,25 @@ class PlaylistRepository(database: Database) {
     }
 
     suspend fun addSounds(
-        userID: Int, playlistID: List<String>,
+        userID: Int, playlistIDs: List<String>,
         soundIDs: List<String>
     ): Int = suspendTransaction {
         try {
             val existingTriplets = PlaylistTable
                 .selectAll().where {
                     (PlaylistTable.userID eq userID) and
-                            (PlaylistTable.playlistID inList playlistID)
+                            (PlaylistTable.playlistID inList playlistIDs)
                 }
                 .map {
                     Triple(
                         it[PlaylistTable.userID],
                         it[PlaylistTable.playlistID],
-                        (it[PlaylistTable.soundID] ?: "__NULL__")
+                        it[PlaylistTable.soundID] ?: "__NULL__"
                     )
                 }
                 .toSet()
 
-            val toInsertTriplets = playlistID.flatMap { playlistID ->
+            val toInsertTriplets = playlistIDs.flatMap { playlistID ->
                 soundIDs.map { soundID ->
                     Triple(userID, playlistID, soundID ?: "__NULL__")
                 }
@@ -77,10 +77,35 @@ class PlaylistRepository(database: Database) {
             if (toInsertTriplets.isEmpty()) return@suspendTransaction 0
 
             val playlistNames = PlaylistTable
-                .selectAll().where { PlaylistTable.playlistID inList playlistID }
+                .selectAll().where { PlaylistTable.playlistID inList playlistIDs }
                 .associate {
                     it[PlaylistTable.playlistID] to it[PlaylistTable.name]
                 }
+
+            if (playlistNames.isEmpty()) {
+                val newPlaylistID = UUID.randomUUID().toString()
+                val newPlaylistName = "My Playlist"
+
+                val inserted = PlaylistTable
+                    .insertReturning {
+                        it[this.name] = newPlaylistName
+                        it[this.userID] = userID
+                        it[this.playlistID] = newPlaylistID
+                    }
+                val insertedID = inserted.firstOrNull()?.get(PlaylistTable.id)
+
+                if (insertedID == null) return@suspendTransaction -1
+
+                PlaylistTable.batchInsert(toInsertTriplets) { (_, _, safeSoundID) ->
+                    this[PlaylistTable.userID] = userID
+                    this[PlaylistTable.playlistID] = newPlaylistID
+                    this[PlaylistTable.name] = newPlaylistName
+                    this[PlaylistTable.soundID] =
+                        if (safeSoundID == "__NULL__") null else safeSoundID
+                }
+
+                return@suspendTransaction toInsertTriplets.size
+            }
 
             toInsertTriplets
                 .groupBy { it.second } // group by playlistID
