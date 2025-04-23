@@ -18,13 +18,15 @@ class PlaylistRepository(database: Database) {
         }
     }
 
-    suspend fun createPlaylist(name: String, userID: Int): Int = suspendTransaction {
+    suspend fun createPlaylist(name: String?, userID: Int): Int = suspendTransaction {
         try {
-            PlaylistTable.insert {
-                it[this.name] = name
+            val tempName = if (name.isNullOrBlank()) "My Playlist" else name
+            val inserted = PlaylistTable.insertReturning {
+                it[this.name] = tempName
                 it[this.userID] = userID
                 it[this.playlistID] = UUID.randomUUID().toString()
-            }[PlaylistTable.id]
+            }
+            inserted.firstOrNull()?.get(PlaylistTable.id) ?: -1
         } catch (e: SQLException) {
             e.printStackTrace()
             -1

@@ -314,6 +314,18 @@ fun Application.databaseApi() {
 
                 call.respond(HttpStatusCode.OK)
             }
+
+            post("/database/createPlaylist") {
+                val userSession = call.sessions.get<UserSession>() ?: return@post call.respond(HttpStatusCode.NotFound)
+                val userID = userSession.id
+                val name = call.receiveParameters()["name"]?.trim()
+                val checkID = playlistRepository.createPlaylist(name, userID)
+                if (checkID != -1) {
+                    call.respond(HttpStatusCode.OK, "OK")
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Error")
+                }
+            }
         }
     }
 }

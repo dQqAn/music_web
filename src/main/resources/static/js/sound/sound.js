@@ -55,9 +55,8 @@ function setupPlaylistInputListener() {
 
 async function handlePlaylistInput(event) {
     const query = event.target.value;
-    if (query.length < 2) {
-        playlistDiv.style.display = "none";
-        playlistDiv.innerHTML = "";
+    if (query.length < 1) {
+        showPlaylists()
         return;
     }
     basicSelected = [];
@@ -216,4 +215,22 @@ async function handleCheckboxes(event) {
 
     // console.log("selected:", selected);
     // console.log("unSelected:", unSelected);
+}
+
+async function createPlaylist() {
+    const value = document.getElementById("playlistInput").value;
+
+    const response = await fetch('/database/createPlaylist', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `name=${encodeURIComponent(value)}`
+    });
+
+    const statusCode = response.status;
+    if (statusCode === 200) {
+        showPlaylists()
+    }
+    // const result = await response.text();
 }

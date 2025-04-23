@@ -128,8 +128,11 @@
                 <button onclick="togglePlaylist()">Add Playlist</button>
 
                 <div id="playlistContainer" style="display: none">
-                    <label for="playlistInput">Search</label>
-                    <input type="text" id="playlistInput" placeholder="Search">
+                    <div>
+                        <label for="playlistInput">Search</label>
+                        <input type="text" id="playlistInput" placeholder="Search">
+                        <button onclick="createPlaylist()">Create Playlist</button>
+                    </div>
 
                     <div id="playlistResult" style="display: none;"></div>
                     <button id="addToPlaylistBtn" onclick="addSound(['${sound.soundID}'])">Submit</button>
