@@ -15,6 +15,11 @@
     <link href="/js/index/index.css" rel="stylesheet">
     <script src="/js/index/index.js" defer></script>
     <script src="/js/index/auth.js" defer></script>
+
+    <#--    <script src="https://cdn.tailwindcss.com" defer></script>-->
+
+    <link href="/js/audio_player/audio_player.css" rel="stylesheet">
+    <script type="module" src="/js/audio_player/audio_player.js" defer></script>
 </head>
 <body>
 
@@ -92,6 +97,14 @@
 
             <div class="pointer pagination" id="pagination"></div>
         </div>
+    </div>
+
+    <div>
+        <button style="min-width: 5em" id="play">Play</button>
+        <button style="margin: 0 1em 2em" id="randomize">Randomize points</button>
+
+        Volume: <label id="tempLabel">0</label>
+        <div id="container" style="border: 1px solid #ddd;"></div>
     </div>
 </main>
 
