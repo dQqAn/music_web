@@ -14,14 +14,6 @@
     <script src="/js/index/auth.js" defer></script>
 
     <style>
-        .sound-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
         .sound-image img {
             max-width: 100%;
             height: auto;
@@ -47,7 +39,7 @@
             display: inline-block;
         }
 
-        #playlistModal {
+        #playlistContainer {
             display: none;
             position: absolute;
             top: 100%;
@@ -61,13 +53,13 @@
             z-index: 100;
         }
 
-        #playlistModal input[type="text"] {
+        #playlistContainer input[type="text"] {
             width: 100%;
             padding: 6px;
             margin-bottom: 10px;
         }
 
-        #playlistList {
+        #playlistResult {
             list-style: none;
             padding: 0;
             margin-bottom: 10px;
@@ -75,17 +67,17 @@
             overflow-y: auto;
         }
 
-        #playlistList li {
+        #playlistResult li {
             padding: 6px;
             display: flex;
             align-items: center;
         }
 
-        #playlistList li:hover {
+        #playlistResult li:hover {
             background-color: #f0f0f0;
         }
 
-        #playlistList input[type="checkbox"] {
+        #playlistResult input[type="checkbox"] {
             margin-right: 10px;
         }
 
@@ -109,8 +101,6 @@
 <#include "source/header.ftl">
 
 <main role="main">
-    <#--    <div class="sound-container"></div>-->
-
     <#macro soundCard sound>
         <div class="sound-image">
             <img src="/${sound.image1Path}" alt="${sound.name}"
@@ -142,7 +132,7 @@
                     <input type="text" id="playlistInput" placeholder="Search">
 
                     <div id="playlistResult" style="display: none;"></div>
-                    <button onclick="addSound(['${sound.soundID}'])">addSound</button>
+                    <button id="addToPlaylistBtn" onclick="addSound(['${sound.soundID}'])">Submit</button>
                 </div>
             </div>
             <div>
