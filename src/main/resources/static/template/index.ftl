@@ -10,6 +10,7 @@
     <link href="/js/common.css" rel="stylesheet">
     <link href="/js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="/js/theme/theme.js" defer></script>
+    <script src="/js/language/language.js" defer></script>
     <link href="/js/menu/menu.css" rel="stylesheet">
     <script src="/js/menu/menu.js" defer></script>
     <link href="/js/index/index.css" rel="stylesheet">
