@@ -1,3 +1,10 @@
+tailwinds: https://tailwindcss.com/docs/installation/tailwind-cli
+
+(npx @tailwindcss/cli -i ./src/main/resources/static/tailwind/input.css -o
+./src/main/resources/static/tailwind/output.css --watch)
+
+wavesurfer: https://wavesurfer.xyz/docs/
+
 # music_web
 
 This project was created using the [Ktor Project Generator](https://start.ktor.io).

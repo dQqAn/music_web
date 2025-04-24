@@ -16,8 +16,7 @@
     <script src="/js/index/index.js" defer></script>
     <script src="/js/index/auth.js" defer></script>
 
-    <script src="https://cdn.tailwindcss.com" defer></script>
-    <#--    <link href="/tailwind/output.css" rel="stylesheet">-->
+    <link href="/tailwind/output.css" rel="stylesheet">
 
     <link href="/js/audio_player/audio_player.css" rel="stylesheet">
     <script type="module" src="/js/audio_player/audio_player.js" defer></script>
