@@ -1,28 +1,35 @@
-<footer class="fixed bottom-0 w-full bg-gray-900 text-white shadow-lg z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+<footer class="fixed bottom-0 w-full bg-gray-900 z-50">
+    <div class="w-full flex justify-between">
 
-        <!-- Şarkı bilgisi ve görsel yeri -->
-        <div class="flex items-center space-x-4">
-            <!-- Albüm görseli -->
+        <div class="flex content-center items-center justify-start m-2">
             <div class="w-12 h-12 bg-gray-700 rounded overflow-hidden">
-                <!-- <img src="/path-to-album.jpg" alt="Album" class="w-full h-full object-cover"> -->
+                <img src="/uploads/image/2/113eff2e-4e54-4668-ac1c-ad03c0246d29_keystore.png"
+                     class="w-full h-full object-cover" alt="">
             </div>
-            <!-- Şarkı bilgisi -->
-            <div>
-                <p class="text-sm font-semibold">Şarkı Adı</p>
-                <p class="text-xs text-gray-400">Sanatçı Adı</p>
+            <div class="ml-4">
+                <p class="text-sm font-semibold">Sound Name</p>
+                <p class="text-xs text-gray-400">Artist Name</p>
+            </div>
+            <div class="ml-4">
+                <p>Fav</p>
+                <p>Playlist</p>
             </div>
         </div>
 
-        <!-- Audio player alanı (boş bırakıldı, sen dolduracaksın) -->
-        <div class="flex-1 px-6">
-            <!-- Audio player veya waveform burada olabilir -->
-            <!-- Örnek: <audio controls class="w-full">...</audio> -->
+        <div class="flex items-center justify-center">
+            <audio controls>
+                <source src="/uploads/sound/2/787de5f8-a139-49c1-b8cd-895c6148c707_asda.mp3">
+            </audio>
         </div>
 
-        <!-- Ekstra butonlar / kontrol ikonları -->
-        <div class="flex items-center space-x-3">
-            <!-- Örnek: <button class="text-white hover:text-pink-400">⏯</button> -->
+        <div class="content-center justify-end">
+            <button class="hover:text-pink-400"><i data-lucide="shuffle" class="w-6 h-6"></i></button>
+            <button class="hover:text-pink-400"><i data-lucide="skip-back" class="w-6 h-6"></i></button>
+            <button class="hover:text-pink-400"><i data-lucide="play" class="w-6 h-6"></i></button>
+            <button class="hover:text-pink-400"><i data-lucide="pause" class="w-6 h-6"></i></button>
+            <button class="hover:text-pink-400"><i data-lucide="skip-forward" class="w-6 h-6"></i></button>
+            <button class="hover:text-pink-400"><i data-lucide="repeat" class="w-6 h-6"></i></button>
+            <button class="hover:text-pink-400"><i data-lucide="repeat-1" class="w-6 h-6"></i></button>
         </div>
 
     </div>

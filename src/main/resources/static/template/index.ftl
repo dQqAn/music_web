@@ -20,6 +20,8 @@
 
     <link href="/js/audio_player/audio_player.css" rel="stylesheet">
     <script type="module" src="/js/audio_player/audio_player.js" defer></script>
+
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
 <body>
 
@@ -118,6 +120,10 @@
 <#include "source/music_box.ftl">
 
 <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+    });
+
     function formatDuration(seconds) {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
