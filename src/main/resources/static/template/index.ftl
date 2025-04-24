@@ -16,7 +16,8 @@
     <script src="/js/index/index.js" defer></script>
     <script src="/js/index/auth.js" defer></script>
 
-    <#--    <script src="https://cdn.tailwindcss.com" defer></script>-->
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <#--    <link href="/tailwind/output.css" rel="stylesheet">-->
 
     <link href="/js/audio_player/audio_player.css" rel="stylesheet">
     <script type="module" src="/js/audio_player/audio_player.js" defer></script>
@@ -26,6 +27,13 @@
 <#include "source/header.ftl">
 
 <main role="main">
+    <h1 class="text-3xl font-normal underline">
+        Hello world!
+    </h1>
+    <h1 class="text-4xl font-normal underline">
+        Hello world!
+    </h1>
+
     <#setting url_escaping_charset="UTF-8">
 
     <div class="search_box">
@@ -107,6 +115,8 @@
         <div id="container" style="border: 1px solid #ddd;"></div>
     </div>
 </main>
+
+<#include "source/music_box.ftl">
 
 <script>
     function formatDuration(seconds) {

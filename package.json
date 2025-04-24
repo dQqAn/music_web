@@ -1,12 +1,7 @@
 {
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.4",
-    "postcss": "^8.5.3",
-    "wavesurfer.js": "^7.9.4"
-  },
   "dependencies": {
-    "@tailwindcss/postcss": "^4.1.4",
-    "postcss": "^8.5.3",
+    "@tailwindcss/cli": "^4.1.4",
+    "tailwindcss": "^4.1.4",
     "wavesurfer.js": "^7.9.4"
   }
 }
