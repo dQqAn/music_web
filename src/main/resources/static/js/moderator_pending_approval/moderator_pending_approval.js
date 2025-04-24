@@ -33,10 +33,8 @@ function getSounds(page) {
 
         window.history.pushState({page: tempPage}, `Page ${tempPage}`, `/moderator/pending_approval?page=${tempPage}`);
 
-        soundsCount().then(r => {
-            const totalPages = (r + 20 - 1) / 20
-            updatePagination('pagination', tempPage, Math.floor(totalPages), getSounds)
-        })
+        const totalPages = (sounds.length + 20 - 1) / 20
+        updatePagination('pagination', tempPage, Math.floor(totalPages), getSounds)
     }).catch(error => {
         console.error('Error:', error)
     });
@@ -46,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     getSounds(1)
 });
 
-async function soundsCount() {
+/*async function soundsCount() {
     try {
         const response = await fetch("/database/moderator_sounds_count", {});
         if (!response.ok) {
@@ -66,7 +64,7 @@ async function soundsCount() {
         console.error('Error:', error);
         throw error;
     }
-}
+}*/
 
 function getSelectedSoundIds() {
     const checkboxes = document.querySelectorAll('.sound-checkbox:checked');

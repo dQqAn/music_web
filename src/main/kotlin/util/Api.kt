@@ -197,12 +197,12 @@ fun Application.databaseApi() {
         }*/
 
         authenticate("auth-session") {
-            get("/database/moderator_sounds_count") {
+            /*get("/database/moderator_sounds_count") {
                 val userSession = call.sessions.get<UserSession>()
                 if (userSession?.role == Role.MODERATOR.toString()) {
                     call.respond(soundRepository.getModeratorSoundsCount())
                 }
-            }
+            }*/
 
             get("/database/moderatorSounds") {
                 val userSession = call.sessions.get<UserSession>()
