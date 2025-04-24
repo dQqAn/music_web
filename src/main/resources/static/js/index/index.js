@@ -1,9 +1,11 @@
+// import { playSoundToMusicBox } from '/js/audio_player/audio_player.js';
+
 function changeGrid(columns) {
     const grid = document.getElementById('grid');
     grid.style.gridTemplateColumns = `repeat(${columns}, minmax(200px, 1fr))`;
 }
 
-function loadSounds(page) {
+export function loadSounds(page) {
     if (!Number.isInteger(page)) {
         throw new Error('page is not a number');
     }
@@ -148,6 +150,7 @@ function fetchSoundsWithPagination({url, page, gridId, paginationId}) {
                              style="max-width: 200px; max-height: 300px;">
                     </a>
                     <h1>${item.name}</h1>
+                    <button class="pointer" onclick="playSoundToMusicBox('${item.soundID}')">Listen</button>
                 `;
                 grid.appendChild(soundDiv);
             });

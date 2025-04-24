@@ -1,3 +1,5 @@
+import {loadSounds} from '/js/index/index.js';
+
 function toggleSubmenu(element) {
     const submenu = element.nextElementSibling;
     if (submenu && submenu.classList.contains('submenu')) {

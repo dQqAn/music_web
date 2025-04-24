@@ -8,7 +8,7 @@ const wavesurfer = WaveSurfer.create({
     container: '#container',
     waveColor: 'rgb(200, 0, 200)',
     progressColor: 'rgb(100, 0, 100)',
-    url: '/uploads/sound/2/787de5f8-a139-49c1-b8cd-895c6148c707_asda.mp3',
+    url: '',
 })
 
 const isMobile = top.matchMedia('(max-width: 900px)').matches
@@ -57,7 +57,8 @@ document.querySelector('#randomize').onclick = randomizePoints
 // Show the current volume
 const volumeLabel = document.getElementById('tempLabel')
 const showVolume = () => {
-    volumeLabel.textContent = envelope.getCurrentVolume().toFixed(2)
+    const volume = envelope.getCurrentVolume().toFixed(2)
+    volumeLabel.textContent = volume
 }
 envelope.on('volume-change', showVolume)
 wavesurfer.on('ready', showVolume)
@@ -75,3 +76,27 @@ wavesurfer.on('play', () => {
 wavesurfer.on('pause', () => {
     button.textContent = 'Play'
 })
+
+//
+//
+//
+
+let currentTrack = {
+    soundID: "",
+    playlistID: "",
+    currentTime: 0.0,     // second
+    volume: 1.0         // 0.0 - 1.0
+};
+
+function playSoundToMusicBox(soundID) {
+    currentTrack.soundID = soundID
+    localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+
+    const src = `/uploads/sound/2/787de5f8-a139-49c1-b8cd-895c6148c707_asda.mp3`;
+    wavesurfer.load(src);
+    wavesurfer.once('ready', () => {
+        wavesurfer.playPause();
+    })
+}
+
+window.playSoundToMusicBox = playSoundToMusicBox;
