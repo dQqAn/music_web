@@ -160,6 +160,13 @@ fun Application.databaseApi() {
             call.respond(mapOf("sounds" to sounds))
         }
 
+        get("/loadFavourites/{userID}") {
+            val userID = call.parameters["userID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val sounds = favouriteRepository.favouriteSounds(userID.toInt(), 20, page)
+            call.respond(mapOf("sounds" to sounds))
+        }
+
         /*get("/database/sound_count") {
             call.respond(soundRepository.getSoundsCount())
         }*/

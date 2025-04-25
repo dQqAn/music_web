@@ -12,8 +12,9 @@
     <script src="../js/index/auth.js" defer></script>
 
     <link href="../tailwind/output.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 
+    <script type="module" src="../js/audio_player/audio_player.js" defer></script>
     <style>
     </style>
 </head>
@@ -48,15 +49,17 @@
         </div>
     </div>
     <div class="flex justify-evenly">
-        <a href="">
-            <h6>Favourites</h6>
-        </a>
-        <a href="">
-            <h6>Playlists</h6>
-        </a>
+        <button class="pointer" onclick="loadFavourites('${user.id}', 'soundList', 1)">Favourites</button>
+        <button class="pointer" onclick="loadPlaylists('${user.id}')">Playlists</button>
     </div>
 
+    <div id="soundList"></div>
+
 </main>
+
+<footer>
+    <#include "source/music_box.ftl">
+</footer>
 
 <script>
 </script>

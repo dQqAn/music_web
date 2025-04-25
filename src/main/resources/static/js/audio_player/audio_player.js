@@ -10,7 +10,7 @@ const wavesurfer = WaveSurfer.create({
     url: '',
 })
 
-const isMobile = top.matchMedia('(max-width: 900px)').matches
+/*const isMobile = top.matchMedia('(max-width: 900px)').matches*/
 
 // Initialize the Envelope plugin"@tailwindcss/postcss": "^4.1.4",
 //     "postcss": "^8.5.3",
@@ -117,3 +117,92 @@ document.addEventListener("DOMContentLoaded", () => {
 
     lucide.createIcons();
 });
+
+function loadFavourites(userID, containerID, page = 1) {
+    if (isNaN(page)) {
+        console.error(`${page} is not a number`);
+        return null;
+    }
+    fetch(`/loadFavourites/${userID}?page=${page}`, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    }).then(response => {
+        if (!response.ok) {
+            console.log(`HTTP error! Status: ${response.status}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    }).then(data => {
+        const container = document.getElementById(containerID)
+        if (!container) return;
+        container.innerHTML = '';
+
+        const sounds = Array.isArray(data) ? data : (data.sounds || []);
+        sounds.forEach(item => {
+            const listItem = document.createElement('div');
+            listItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
+
+            const infos = document.createElement('div')
+            infos.className = "content-center items-center justify-start m-2"
+            infos.innerHTML = `
+                <p>${item.name}</p>
+                <p>${item.artist}</p>
+            `;
+            listItem.appendChild(infos)
+            container.appendChild(listItem)
+
+            const waveSurferDiv = document.createElement('div');
+            waveSurferDiv.id = 'div_' + item.soundID
+            waveSurferDiv.className = "w-full content-center items-center justify-center"
+            waveSurferDiv.style.border = "1px solid #ddd";
+
+            listItem.appendChild(waveSurferDiv);
+            container.appendChild(listItem);
+
+            const listWaveSurfer = WaveSurfer.create({
+                container: waveSurferDiv,
+                waveColor: 'rgb(200, 0, 200)',
+                progressColor: 'rgb(100, 0, 100)',
+                url: '',
+            })
+            const src = `/stream/sound/${encodeURIComponent(item.soundID)}`;
+            listWaveSurfer.load(src)
+
+            const playButton = document.createElement('button')
+            playButton.className = "pointer"
+            playButton.innerHTML = `<i data-lucide="play" class="${'icon_' + item.soundID} w-6 h-6"></i>`;
+
+            listWaveSurfer.once('ready', () => {
+                playButton.onclick = () => {
+                    listWaveSurfer.playPause()
+                }
+            })
+            listWaveSurfer.on('play', () => {
+                const icon = document.querySelector('.icon_' + item.soundID);
+                icon.setAttribute('data-lucide', 'pause');
+                lucide.createIcons();
+            })
+            listWaveSurfer.on('pause', () => {
+                const icon = document.querySelector('.icon_' + item.soundID);
+                icon.setAttribute('data-lucide', 'play');
+                lucide.createIcons();
+            })
+
+            const controllerDiv = document.createElement('div')
+            controllerDiv.className = "content-center items-center justify-end m-2"
+            controllerDiv.appendChild(playButton)
+
+            listItem.appendChild(controllerDiv)
+            container.appendChild(listItem)
+        });
+        lucide.createIcons();
+        window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
+
+        const totalPages = Math.floor((sounds.length + 20 - 1) / 20);
+    }).catch(error => {
+        console.error("Error:", error);
+    });
+}
+
+window.loadFavourites = loadFavourites;

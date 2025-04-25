@@ -1,4 +1,4 @@
-<footer class="fixed bottom-0 w-full bg-gray-900 z-50">
+<div class="fixed bottom-0 w-full bg-gray-900 z-50">
     <div class="w-full flex justify-between">
 
         <div class="flex content-center items-center justify-start m-2">
@@ -29,7 +29,8 @@
             <button class="hover:text-pink-400" id="musicBoxSkipBack"><i data-lucide="skip-back" class="w-6 h-6"></i>
             </button>
 
-            <button class="hover:text-pink-400" id="musicBoxPlayPause"><i id="playPauseIcon" data-lucide="play" class="w-6 h-6"></i>
+            <button class="hover:text-pink-400" id="musicBoxPlayPause">
+                <i id="playPauseIcon" data-lucide="play" class="w-6 h-6"></i>
             </button>
 
             <button class="hover:text-pink-400" id="musicBoxSkipForward"><i data-lucide="skip-forward"
@@ -42,4 +43,4 @@
         </div>
 
     </div>
-</footer>
+</div>

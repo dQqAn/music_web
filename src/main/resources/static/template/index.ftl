@@ -112,7 +112,9 @@
     </div>-->
 </main>
 
-<#include "source/music_box.ftl">
+<footer>
+    <#include "source/music_box.ftl">
+</footer>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
