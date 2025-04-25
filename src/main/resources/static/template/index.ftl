@@ -30,13 +30,6 @@
 <#include "source/header.ftl">
 
 <main role="main">
-    <h1 class="text-3xl font-normal underline">
-        Hello world!
-    </h1>
-    <h1 class="text-4xl font-normal underline">
-        Hello world!
-    </h1>
-
     <#setting url_escaping_charset="UTF-8">
 
     <div class="search_box">
@@ -110,13 +103,13 @@
         </div>
     </div>
 
-    <div>
+    <#--<div>
         <button style="min-width: 5em" id="play">Play</button>
         <button style="margin: 0 1em 2em" id="randomize">Randomize points</button>
 
         Volume: <label id="tempLabel">0</label>
         <div id="container" style="border: 1px solid #ddd;"></div>
-    </div>
+    </div>-->
 </main>
 
 <#include "source/music_box.ftl">

@@ -3,7 +3,7 @@
 
         <div class="flex content-center items-center justify-start m-2">
             <div class="w-12 h-12 bg-gray-700 rounded overflow-hidden">
-                <img src="/uploads/image/2/113eff2e-4e54-4668-ac1c-ad03c0246d29_keystore.png"
+                <img src=""
                      class="w-full h-full object-cover" alt="">
             </div>
             <div class="ml-4">
@@ -16,20 +16,29 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-center">
-            <audio controls>
-                <source src="/uploads/sound/2/787de5f8-a139-49c1-b8cd-895c6148c707_asda.mp3">
-            </audio>
+        <div class="flex items-center justify-center w-full">
+            <div id="music_box" class="w-full" style="border: 1px solid #ddd;"></div>
+            <#--<audio controls id="music_box">
+                <source src="">
+            </audio>-->
         </div>
 
-        <div class="content-center justify-end">
-            <button class="hover:text-pink-400"><i data-lucide="shuffle" class="w-6 h-6"></i></button>
-            <button class="hover:text-pink-400"><i data-lucide="skip-back" class="w-6 h-6"></i></button>
-            <button class="hover:text-pink-400"><i data-lucide="play" class="w-6 h-6"></i></button>
-            <button class="hover:text-pink-400"><i data-lucide="pause" class="w-6 h-6"></i></button>
-            <button class="hover:text-pink-400"><i data-lucide="skip-forward" class="w-6 h-6"></i></button>
-            <button class="hover:text-pink-400"><i data-lucide="repeat" class="w-6 h-6"></i></button>
-            <button class="hover:text-pink-400"><i data-lucide="repeat-1" class="w-6 h-6"></i></button>
+        <div class="content-center items-center justify-end">
+            <#--            <button class="hover:text-pink-400" id="musicBoxShuffle"><i data-lucide="shuffle" class="w-6 h-6"></i></button>-->
+
+            <button class="hover:text-pink-400" id="musicBoxSkipBack"><i data-lucide="skip-back" class="w-6 h-6"></i>
+            </button>
+
+            <button class="hover:text-pink-400" id="musicBoxPlayPause"><i data-lucide="play" class="w-6 h-6"></i>
+            </button>
+
+            <button class="hover:text-pink-400" id="musicBoxSkipForward"><i data-lucide="skip-forward"
+                                                                            class="w-6 h-6"></i></button>
+
+            <button class="hover:text-pink-400" id="musicBoxRepeat"><i data-lucide="repeat" class="w-6 h-6"></i>
+            </button>
+            <#--            <button class="hover:text-pink-400"><i data-lucide="repeat" class="w-6 h-6"></i></button>-->
+            <#--            <button class="hover:text-pink-400"><i data-lucide="repeat-1" class="w-6 h-6"></i></button>-->
         </div>
 
     </div>
