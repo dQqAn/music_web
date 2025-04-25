@@ -1,10 +1,7 @@
 package com.example.database
 
 import com.example.auth.UserSession
-import com.example.model.User
-import com.example.model.UserTable
-import com.example.model.fromUser
-import com.example.model.toUserSession
+import com.example.model.*
 import com.example.util.EncryptionSystem
 import com.example.util.HashingSystem
 import org.jetbrains.exposed.sql.Database
@@ -50,5 +47,11 @@ class UserRepository(
     suspend fun userID(mail: String): Int? = suspendTransaction {
         UserTable.selectAll().where { (UserTable.mail eq mail) }
             .map { it[UserTable.id] }.singleOrNull()
+    }
+
+    suspend fun getUser(userID: Int): User? = suspendTransaction {
+        UserTable.selectAll().where {
+            (UserTable.id eq userID)
+        }.map { it.toUser() }.singleOrNull()
     }
 }

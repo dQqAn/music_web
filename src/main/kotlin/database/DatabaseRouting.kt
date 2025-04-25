@@ -59,7 +59,7 @@ fun Application.databaseRouting() {
         moderatorRoute()
         artistRoute(soundRepository, userRepository)
         userRoute()
-        commonRoute(soundRepository)
+        commonRoute(soundRepository, userRepository)
     }
 }
 
@@ -350,7 +350,7 @@ private fun Routing.userRoute() {
     }
 }
 
-private fun Routing.commonRoute(soundRepository: SoundRepository) {
+private fun Routing.commonRoute(soundRepository: SoundRepository, userRepository: UserRepository) {
     authenticate("auth-session") {
         get("/profile") {
             val lang = call.request.cookies["lang"] ?: "tr"
@@ -376,7 +376,10 @@ private fun Routing.commonRoute(soundRepository: SoundRepository) {
                 }
 
                 Role.USER.toString() -> {
-                    call.respond(FreeMarkerContent("user_profile.ftl", model))
+                    val userID = userSession.id
+                    val user = userRepository.getUser(userID)
+                    val userModel = mapOf("user" to user) + model
+                    call.respond(FreeMarkerContent("user_profile.ftl", userModel))
                 }
             }
         }

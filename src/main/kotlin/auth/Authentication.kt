@@ -1,9 +1,7 @@
 package com.example.auth
 
 import com.example.database.UserRepository
-import com.example.model.User
-import com.example.model.UserBasic
-import com.example.model.UserRegister
+import com.example.model.*
 import com.example.routing.loadWords
 import com.example.util.EncryptionSystem
 import com.example.util.HashingSystem
@@ -109,7 +107,11 @@ fun Application.auth(
                         name = user.name,
                         surname = user.surname,
                         role = Role.USER.toString(),
-                        premium = UserPremium.PASSIVE.toString()
+                        premium = UserPremium.PASSIVE.toString(),
+                        favouriteStatus = FavouriteStatus.PRIVATE.toString(),
+                        privacy = PrivacyStatus.PRIVATE.toString(),
+                        profileImage = "/uploads/source/profile.png",
+                        backgroundImage = "/uploads/source/background.png"
                     )
                 )
                 if (id != -1) {
