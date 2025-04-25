@@ -71,10 +71,14 @@ wavesurfer.once('ready', () => {
     }
 })
 wavesurfer.on('play', () => {
-    musicBoxPlayPause.textContent = "Pause"
+    const icon = document.getElementById('playPauseIcon');
+    icon.setAttribute('data-lucide', 'pause');
+    lucide.createIcons();
 })
 wavesurfer.on('pause', () => {
-    musicBoxPlayPause.textContent = "Play"
+    const icon = document.getElementById('playPauseIcon');
+    icon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
 })
 
 let currentTrack = {
@@ -110,4 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const src = `/stream/sound/${encodeURIComponent(restoredTrack.soundID)}`;
         wavesurfer.load(src)
     }
+
+    lucide.createIcons();
 });

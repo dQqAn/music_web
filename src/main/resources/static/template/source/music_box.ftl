@@ -29,7 +29,7 @@
             <button class="hover:text-pink-400" id="musicBoxSkipBack"><i data-lucide="skip-back" class="w-6 h-6"></i>
             </button>
 
-            <button class="hover:text-pink-400" id="musicBoxPlayPause"><i data-lucide="play" class="w-6 h-6"></i>
+            <button class="hover:text-pink-400" id="musicBoxPlayPause"><i id="playPauseIcon" data-lucide="play" class="w-6 h-6"></i>
             </button>
 
             <button class="hover:text-pink-400" id="musicBoxSkipForward"><i data-lucide="skip-forward"

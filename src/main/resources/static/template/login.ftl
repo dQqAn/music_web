@@ -2,15 +2,15 @@
 <html lang="${lang}">
 <head>
     <title>Login</title>
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
     <meta charset="UTF-8">
     <meta name="description" content="Staff Login">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link href="/js/common.css" rel="stylesheet">
-    <link href="/js/theme/dark.css" rel="stylesheet" id="theme-link">
-    <script src="/js/theme/theme.js" defer></script>
-    <link href="/js/login/login.css" rel="stylesheet">
-    <script src="/js/login/login.js" defer></script>
+    <link href="../js/common.css" rel="stylesheet">
+    <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
+    <script src="../js/theme/theme.js" defer></script>
+    <link href="../js/login/login.css" rel="stylesheet">
+    <script src="../js/login/login.js" defer></script>
 </head>
 <body>
 
