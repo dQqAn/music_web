@@ -49,9 +49,9 @@ class UserRepository(
             .map { it[UserTable.id] }.singleOrNull()
     }
 
-    suspend fun getUser(userID: Int): User? = suspendTransaction {
+    suspend fun getUser(userID: Int): UserPublic? = suspendTransaction {
         UserTable.selectAll().where {
             (UserTable.id eq userID)
-        }.map { it.toUser() }.singleOrNull()
+        }.map { it.toUserPublic() }.singleOrNull()
     }
 }
