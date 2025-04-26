@@ -1,4 +1,4 @@
-import {loadSounds} from '/js/index/index.js';
+import {loadSounds} from '../index/index.js';
 
 function toggleSubmenu(element) {
     const submenu = element.nextElementSibling;
