@@ -10,7 +10,7 @@
     <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
     <link href="../js/moderator_pending_approval/moderator_pending_approval.css" rel="stylesheet">
-    <script src="../js/moderator_pending_approval/moderator_pending_approval.js" defer></script>
+    <script type="module" src="../js/moderator_pending_approval/moderator_pending_approval.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
 
     <style>

@@ -1,9 +1,9 @@
-// import { playSoundToMusicBox } from '/js/audio_player/audio_player.js';
+import {updatePagination} from '../pagination.js';
 
-function changeGrid(columns) {
+/*function changeGrid(columns) {
     const grid = document.getElementById('grid');
     grid.style.gridTemplateColumns = `repeat(${columns}, minmax(200px, 1fr))`;
-}
+}*/
 
 export function loadSounds(page) {
     if (!Number.isInteger(page)) {
@@ -15,45 +15,6 @@ export function loadSounds(page) {
             url: `/database/sounds?page=${page}`,
             page: page, gridId: 'grid', paginationId: 'pagination'
         });
-}
-
-function updatePagination(divID, currentPage, totalPages, onPageClick) {
-    const pagination = document.getElementById(divID);
-    pagination.innerHTML = '';
-
-    if (currentPage > 1) {
-        const firstLink = document.createElement('a');
-        firstLink.textContent = 'First';
-        firstLink.onclick = () => onPageClick(1);
-        pagination.appendChild(firstLink);
-
-        const prevLink = document.createElement('a');
-        prevLink.textContent = 'Before';
-        prevLink.onclick = () => onPageClick(currentPage - 1);
-        pagination.appendChild(prevLink);
-    }
-
-    for (let i = 1; i <= totalPages; i++) {
-        const pageLink = document.createElement('a');
-        pageLink.textContent = i;
-        pageLink.onclick = () => onPageClick(i);
-        if (i === currentPage) {
-            pageLink.classList.add('active');
-        }
-        pagination.appendChild(pageLink);
-    }
-
-    if (currentPage < totalPages) {
-        const nextLink = document.createElement('a');
-        nextLink.textContent = 'Next';
-        nextLink.onclick = () => onPageClick(currentPage + 1);
-        pagination.appendChild(nextLink);
-
-        const lastLink = document.createElement('a');
-        lastLink.textContent = 'Last';
-        lastLink.onclick = () => onPageClick(totalPages);
-        pagination.appendChild(lastLink);
-    }
 }
 
 function toSlug(str) {
@@ -116,11 +77,11 @@ function toSlug(str) {
     }
 }*/
 
-function getPageFromUrl(totalPages) {
+/*function getPageFromUrl(totalPages) {
     const params = new URLSearchParams(window.location.search);
     const page = parseInt(params.get('page')) || 1;
     return Math.max(1, Math.min(page, totalPages)); // 1 ile totalPages arasında sınırla
-}
+}*/
 
 function fetchSoundsWithPagination({url, page, gridId, paginationId}) {
     fetch(`${url}?page=${page}`, {
