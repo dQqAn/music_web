@@ -146,21 +146,18 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderMenu(items, parentName = '') {
         menuContainer.innerHTML = '';
 
-        // Search box
         const searchBox = document.createElement('input');
         searchBox.type = 'text';
         searchBox.placeholder = 'Ara...';
         searchBox.className = 'w-full mb-4 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400';
         menuContainer.appendChild(searchBox);
 
-        // Selected container
         const selectedContainer = document.createElement('div');
         selectedContainer.className = 'selected-container mb-4 flex flex-wrap gap-2';
         menuContainer.appendChild(selectedContainer);
 
-        // Clear all button
         const clearButton = document.createElement('button');
-        clearButton.textContent = 'Hepsini Temizle';
+        clearButton.textContent = 'Clear all';
         clearButton.className = 'clear-all-btn bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition';
         clearButton.style.display = 'none';
         menuContainer.appendChild(clearButton);
@@ -267,11 +264,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // FETCH ile veri çek
     fetch('/menuItems')
         .then(response => {
             if (!response.ok) {
-                throw new Error('Menü yüklenemedi');
+                throw new Error('Menu loading error');
             }
             return response.json();
         })
@@ -279,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renderMenu(data);
         })
         .catch(error => {
-            console.error('Menü yüklenirken hata oluştu:', error);
+            console.error('Menu Json error:', error);
         });
 });
 
