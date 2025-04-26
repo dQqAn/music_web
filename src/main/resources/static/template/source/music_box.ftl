@@ -17,6 +17,13 @@
         </div>
 
         <div class="flex items-center justify-center w-full">
+
+            <#--<div id="timeDisplayMusicBox" style="border: 1px solid #ddd; position: relative; width: 100%; height: 20px; margin-top: 10px; cursor: pointer;">
+                <div id="progressBarMusicBox" style="position: absolute; height: 100%; width: 100%; background-color: #e65e5e;"></div>
+                <div id="sliderMusicBox" style="position: absolute; width: 10px; height: 20px; background-color: #333; left: 0;"></div>
+            </div>
+            <div id="timeTextMusicBox" style="font-family: monospace; margin-top: 5px;">0:00 / 0:00</div>-->
+
             <div id="music_box" class="w-full" style="border: 1px solid #ddd;"></div>
             <#--<audio controls id="music_box">
                 <source src="">

@@ -81,6 +81,76 @@ wavesurfer.on('pause', () => {
     lucide.createIcons();
 })
 
+//----------------------------
+/*const timeDisplay = document.getElementById('timeDisplayMusicBox');
+const progressBar = document.getElementById('progressBarMusicBox');
+const slider = document.getElementById('sliderMusicBox');
+const timeText = document.getElementById('timeTextMusicBox');
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+wavesurfer.on('ready', () => {
+    const duration = wavesurfer.getDuration();
+    timeText.textContent = `0:00 / ${formatTime(duration)}`;
+
+    progressBar.style.width = `0%`;
+    slider.style.left = `0%`;
+});
+
+wavesurfer.on('audioprocess', () => {
+    const currentTime = wavesurfer.getCurrentTime();
+    const duration = wavesurfer.getDuration();
+    const progress = currentTime / duration;
+    progressBar.style.width = `${progress * 100}%`;
+    slider.style.left = `${progress * 100}%`;
+    timeText.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+});
+
+timeDisplay.addEventListener('click', (e) => {
+    const rect = timeDisplay.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const width = rect.width;
+    const progress = clickX / width;
+    wavesurfer.seekTo(progress);
+});
+
+let isDragging = false;
+
+timeDisplay.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    seek(e);
+});
+
+timeDisplay.addEventListener('mouseup', (e) => {
+    isDragging = false;
+});
+
+timeDisplay.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        seek(e);
+    }
+});
+
+function seek(e) {
+    const rect = timeDisplay.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const width = rect.width;
+    const progress = Math.min(Math.max(offsetX / width, 0), 1);
+    wavesurfer.seekTo(progress);
+
+    progressBar.style.width = `${progress * 100}%`;
+    slider.style.left = `${progress * 100}%`;
+
+    const duration = wavesurfer.getDuration();
+    const currentTime = progress * duration;
+    timeText.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+}*/
+//----------------------------
+
 let currentTrack = {
     soundID: "",
     playlistID: "",
