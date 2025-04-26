@@ -88,6 +88,7 @@ let currentTrack = {
     volume: 1.0         // 0.0 - 1.0
 };
 
+//todo loadSounds()
 function playSoundToMusicBox(soundID) {
     currentTrack.soundID = soundID
     localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
@@ -176,6 +177,10 @@ function loadFavourites(userID, containerID, page = 1) {
             listWaveSurfer.once('ready', () => {
                 playButton.onclick = () => {
                     listWaveSurfer.playPause()
+
+                    wavesurfer.load(src)
+                    currentTrack.soundID = item.soundID
+                    localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
                 }
             })
             listWaveSurfer.on('play', () => {
