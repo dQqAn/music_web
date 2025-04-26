@@ -323,6 +323,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 item.style.display = name.includes(query) ? '' : 'none';
             });
         });
+
+        const submitButton = document.createElement('button');
+        submitButton.textContent = 'Show Selected Tags';
+        submitButton.className = 'show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full';
+        menuContainer.appendChild(submitButton);
+        submitButton.addEventListener('click', function () {
+            const selected = Array.from(menuContainer.querySelectorAll('.menu-checkbox:checked'));
+            const selectedTags = selected.map(checkbox => checkbox.dataset.tag);
+            if (selectedTags.length > 0) {
+                console.log(selectedTags);
+            } else {
+                console.log("no selected");
+            }
+        });
     }
 
     fetch('/menuItems')
