@@ -137,6 +137,67 @@ export function getFilteredSounds() {
         });
 }*/
 
+/*function loadSounds(page) {
+    if (!Number.isInteger(page)) {
+        throw new Error('page is not a number');
+    }
+
+    fetchSoundsWithPagination(
+        {
+            url: `/database/sounds?page=${page}`,
+            page: page, gridId: 'grid', paginationId: 'pagination'
+        });
+}
+
+function fetchSoundsWithPagination({url, page, gridId, paginationId}) {
+    fetch(`${url}?page=${page}`, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                console.log(`HTTP error! Status: ${response.status}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const sounds = Array.isArray(data) ? data : (data.sounds || []);
+            sounds.forEach(item => {
+                const soundDiv = document.createElement('div');
+                soundDiv.className = 'sound';
+                soundDiv.innerHTML = `
+                    <a href="/sound/?${toSlug(item.name)}&soundID=${item.soundID}">
+                        <img class="pointer" src="${item.image1Path}" alt=""
+                             style="max-width: 200px; max-height: 300px;">
+                    </a>
+                    <h1>${item.name}</h1>
+                    <button class="pointer" onclick="playSoundToMusicBox('${item.soundID}')">Listen</button>
+                `;
+                grid.appendChild(soundDiv);
+            });
+
+            window.history.pushState({page: page}, `Page ${page}`, `/?page=${page}`);
+
+            const totalPages = Math.floor((sounds.length + 20 - 1) / 20);
+            updatePagination(paginationId, page, totalPages, (p) => {
+                fetchSoundsWithPagination({
+                    url,
+                    page: p,
+                    gridId,
+                    paginationId
+                });
+            });
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+}*/
 
 document.addEventListener('DOMContentLoaded', function () {
     const menuContainer = document.getElementById('menuContainer');
@@ -278,5 +339,3 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Menu Json error:', error);
         });
 });
-
-

@@ -1,16 +1,5 @@
-import {updatePagination} from '../pagination.js';
-
-export function loadSounds(page) {
-    if (!Number.isInteger(page)) {
-        throw new Error('page is not a number');
-    }
-
-    fetchSoundsWithPagination(
-        {
-            url: `/database/sounds?page=${page}`,
-            page: page, gridId: 'grid', paginationId: 'pagination'
-        });
-}
+import {soundList} from "../soundList.js";
+import {updatePagination} from "../pagination.js";
 
 function toSlug(str) {
     const turkishToEnglish = {
@@ -26,57 +15,6 @@ function toSlug(str) {
         .replace(/\s+/g, '-')           // Replace spaces with -
         .replace(/[^a-z0-9-]/g, '')     // Remove all non-alphanumeric chars except -
         .replace(/-+/g, '-');           // Replace multiple - with single -
-}
-
-
-function fetchSoundsWithPagination({url, page, gridId, paginationId}) {
-    fetch(`${url}?page=${page}`, {
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                console.log(`HTTP error! Status: ${response.status}`);
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const grid = document.getElementById(gridId);
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            const sounds = Array.isArray(data) ? data : (data.sounds || []);
-            sounds.forEach(item => {
-                const soundDiv = document.createElement('div');
-                soundDiv.className = 'sound';
-                soundDiv.innerHTML = `
-                    <a href="/sound/?${toSlug(item.name)}&soundID=${item.soundID}">
-                        <img class="pointer" src="${item.image1Path}" alt=""
-                             style="max-width: 200px; max-height: 300px;">
-                    </a>
-                    <h1>${item.name}</h1>
-                    <button class="pointer" onclick="playSoundToMusicBox('${item.soundID}')">Listen</button>
-                `;
-                grid.appendChild(soundDiv);
-            });
-
-            window.history.pushState({page: page}, `Page ${page}`, `/?page=${page}`);
-
-            const totalPages = Math.floor((sounds.length + 20 - 1) / 20);
-            updatePagination(paginationId, page, totalPages, (p) => {
-                fetchSoundsWithPagination({
-                    url,
-                    page: p,
-                    gridId,
-                    paginationId
-                });
-            });
-        })
-        .catch(error => {
-            console.error("Error:", error);
-        });
 }
 
 const resultsDiv = document.getElementById("searchResults");
@@ -129,4 +67,41 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("DOMContentLoaded", () => {
     lucide.createIcons();
+
+    loadSounds(1)
 });
+
+function loadSounds(page) {
+    if (!Number.isInteger(page)) {
+        throw new Error('page is not a number');
+    }
+    const url = `/database/sounds?page=${page}`
+    fetch(`${url}?page=${page}`, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                console.log(`HTTP error! Status: ${response.status}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+
+            const sounds = Array.isArray(data) ? data : (data.sounds || []);
+            soundList('soundList', sounds)
+
+            lucide.createIcons();
+            window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
+
+            const totalPages = Math.floor((sounds.length + 20 - 1) / 20);
+            updatePagination("pagination", page, totalPages, (p) => {
+                loadSounds(p);
+            });
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+}

@@ -62,7 +62,7 @@
         <div id="menuContainer" class="p-4 border rounded-lg bg-white shadow-md max-w-md mx-auto space-y-4"></div>
 
         <div class="main_content">
-            <div class="grid-container" id="grid"></div>
+            <div id="soundList"></div>
 
             <div class="pointer pagination" id="pagination"></div>
         </div>
