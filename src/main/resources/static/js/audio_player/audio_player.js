@@ -147,7 +147,7 @@ function loadFavourites(userID, containerID, page = 1) {
             infos.className = "content-center items-center justify-start m-2"
             infos.innerHTML = `
                 <p>${item.name}</p>
-                <p>${item.artist}</p>
+                <p>${item.artistIDs}</p>
             `;
             listItem.appendChild(infos)
             container.appendChild(listItem)

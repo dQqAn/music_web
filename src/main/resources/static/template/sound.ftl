@@ -108,7 +108,11 @@
         </div>
         <div class="sound-details">
             <h1>Name: ${sound.name}</h1>
-            <p><strong>Artist:</strong> ${sound.artist}</p>
+            <ul>
+                <#list sound.artistIDs as artist>
+                    <li>${artist}</li>
+                </#list>
+            </ul>
             <p><strong>Category1:</strong> ${sound.category1}</p>
             <p><strong>SoundID:</strong> ${sound.soundID}</p>
             <div>
