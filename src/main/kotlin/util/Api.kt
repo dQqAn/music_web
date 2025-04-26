@@ -15,6 +15,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 import java.io.File
 import java.net.URLEncoder
@@ -203,6 +204,12 @@ fun Application.databaseApi() {
             call.respond(categorySize)
         }*/
 
+        get("/menuItems") {
+            val menu = MenuJsonCache.getMenu()
+            val menuJson = Json.encodeToString(menu)
+            call.respondText(menuJson, contentType = ContentType.Application.Json)
+        }
+
         authenticate("auth-session") {
             /*get("/database/moderator_sounds_count") {
                 val userSession = call.sessions.get<UserSession>()
@@ -352,3 +359,26 @@ data class FavouriteStatusResponse(val favouriteStatus: Boolean)
 
 @Serializable
 data class UserPlaylists(val playlist: Playlist, val soundStatus: Boolean)
+
+@Serializable
+data class MenuItem(
+    val name: String,
+    val tag: String,
+    val subcategories: List<MenuItem>? = null
+)
+
+object MenuJsonCache {
+    private var cachedMenu: List<MenuItem>? = null
+    private var lastModified: Long = -1L
+
+    private val file = File("src/main/resources/static/js/menu/menuItems.json")
+
+    fun getMenu(): List<MenuItem> {
+        if (cachedMenu == null || file.lastModified() > lastModified) {
+            val jsonString = file.bufferedReader(Charsets.UTF_8).use { it.readText() }
+            cachedMenu = Json.decodeFromString(jsonString)
+            lastModified = file.lastModified()
+        }
+        return cachedMenu!!
+    }
+}

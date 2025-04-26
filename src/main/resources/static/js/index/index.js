@@ -1,10 +1,5 @@
 import {updatePagination} from '../pagination.js';
 
-/*function changeGrid(columns) {
-    const grid = document.getElementById('grid');
-    grid.style.gridTemplateColumns = `repeat(${columns}, minmax(200px, 1fr))`;
-}*/
-
 export function loadSounds(page) {
     if (!Number.isInteger(page)) {
         throw new Error('page is not a number');
@@ -33,55 +28,6 @@ function toSlug(str) {
         .replace(/-+/g, '-');           // Replace multiple - with single -
 }
 
-/*async function soundCount() {
-    try {
-        const response = await fetch("/database/sound_count");
-        if (!response.ok) {
-            console.error(`HTTP error! Status: ${response.status}`);
-            return null;
-        }
-
-        const data = await response.text();
-        const integerValue = parseInt(data);
-
-        if (isNaN(integerValue)) {
-            console.error(`${integerValue} is not a number`);
-            return null;
-        }
-        return integerValue;
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
-}*/
-
-/*async function categorySize(category, counter) {
-    try {
-        const response = await fetch(`/database/category_size/${category}/${counter}`);
-        if (!response.ok) {
-            console.error(`HTTP error! Status: ${response.status}`);
-            return null;
-        }
-
-        const data = await response.text();
-        const integerValue = parseInt(data);
-
-        if (isNaN(integerValue)) {
-            console.error(`${integerValue} is not a number`);
-            return null;
-        }
-        return integerValue;
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
-}*/
-
-/*function getPageFromUrl(totalPages) {
-    const params = new URLSearchParams(window.location.search);
-    const page = parseInt(params.get('page')) || 1;
-    return Math.max(1, Math.min(page, totalPages)); // 1 ile totalPages arasında sınırla
-}*/
 
 function fetchSoundsWithPagination({url, page, gridId, paginationId}) {
     fetch(`${url}?page=${page}`, {
@@ -179,4 +125,8 @@ document.addEventListener("click", (e) => {
     if (!document.querySelector(".search_box").contains(e.target)) {
         resultsDiv.style.display = "none";
     }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
 });

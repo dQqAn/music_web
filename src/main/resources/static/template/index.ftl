@@ -43,58 +43,23 @@
     </div>
 
     <div class="main_box">
-        <#import "source/menu_data.ftl" as menuData>
-
-        <#macro renderMenu items menuId="menu1">
-            <#list items as item>
-                <li>
-                    <span class="pointer menu-item">
-                        <input type="checkbox" class="menu-checkbox"
-                               name="menu-selection" data-menu="${menuId}" aria-label="${item.name}">
-                        <span class="menu-text">${item.name}</span>
-                    </span>
-                    <#if item.subItems?? && item.subItems?size gt 0>
-                        <ul class="submenu" style="display: none;">
-                            <@renderMenu items=item.subItems menuId=menuId />
-                        </ul>
-                    </#if>
-                </li>
-            </#list>
-        </#macro>
-
-        <div>
+        <#--<div class="menu" data-menu="menu2">
+            <h3>Duration</h3>
             <div>
-                <button class="menuButton" onclick="toggleMenu()">☰ Menu</button>
+                <label for="minDuration">Min:</label>
+                <input id="minDuration" name="minDuration" type="range" min="0" max="600" step="15" value="0">
             </div>
-            <div class="menu_box">
-                <div class="filters" style="display: none;">
-                    <h4>Filters</h4>
-                    <div id="selected-filters"></div>
-                    <button class="pointer" id="clear-all-filters">Clear Filters</button>
-                </div>
-
-                <h3>Tags</h3>
-                <ul class="menu" data-menu="menu1">
-                    <@renderMenu items=menuData.menuItems menuId="menu1" />
-                </ul>
-
-                <div class="menu" data-menu="menu2">
-                    <h3>Duration</h3>
-                    <div>
-                        <label for="minDuration">Min:</label>
-                        <input id="minDuration" name="minDuration" type="range" min="0" max="600" step="15" value="0">
-                    </div>
-                    <div>
-                        <label for="maxDuration">Max:</label>
-                        <input id="maxDuration" name="maxDuration" type="range" min="0" max="600" step="15" value="600">
-                    </div>
-                    <div id="durationOutput">
-                        <div id="durationPlaceHolder" style="display: none"></div>
-                    </div>
-                    <button onclick="getFilteredSounds()">Submit</button>
-                </div>
+            <div>
+                <label for="maxDuration">Max:</label>
+                <input id="maxDuration" name="maxDuration" type="range" min="0" max="600" step="15" value="600">
             </div>
-        </div>
+            <div id="durationOutput">
+                <div id="durationPlaceHolder" style="display: none"></div>
+            </div>
+            <button onclick="getFilteredSounds()">Submit</button>
+        </div>-->
+
+        <div id="menuContainer" class="p-4 border rounded-lg bg-white shadow-md max-w-md mx-auto space-y-4"></div>
 
         <div class="main_content">
             <div class="grid-container" id="grid"></div>
@@ -102,14 +67,6 @@
             <div class="pointer pagination" id="pagination"></div>
         </div>
     </div>
-
-    <#--<div>
-        <button style="min-width: 5em" id="play">Play</button>
-        <button style="margin: 0 1em 2em" id="randomize">Randomize points</button>
-
-        Volume: <label id="tempLabel">0</label>
-        <div id="container" style="border: 1px solid #ddd;"></div>
-    </div>-->
 </main>
 
 <footer>
@@ -117,11 +74,7 @@
 </footer>
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        lucide.createIcons();
-    });
-
-    function formatDuration(seconds) {
+    /*function formatDuration(seconds) {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return minutes + ':' + secs.toString().padStart(2, '0');
@@ -155,7 +108,7 @@
         } else {
             menu.style.display = "none";
         }
-    }
+    }*/
 </script>
 
 </body>

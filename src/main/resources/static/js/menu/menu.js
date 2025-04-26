@@ -1,25 +1,4 @@
-import {loadSounds} from '../index/index.js';
-
-function toggleSubmenu(element) {
-    const submenu = element.nextElementSibling;
-    if (submenu && submenu.classList.contains('submenu')) {
-        const computedStyle = window.getComputedStyle(submenu);
-        const isOpen = computedStyle.display === 'block';
-        if (isOpen) {
-            const nestedSubmenus = submenu.querySelectorAll('.submenu');
-            nestedSubmenus.forEach(nested => {
-                nested.style.display = 'none';
-            });
-        }
-        submenu.style.display = isOpen ? 'none' : 'block';
-    }
-}
-
-function getMenuId(checkbox) {
-    return checkbox.getAttribute('data-menu') || checkbox.closest('.menu')?.getAttribute('data-menu') || 'menu1';
-}
-
-function updateFilters() {
+/*function updateFilters() {
     const selectedFiltersDiv = document.getElementById('selected-filters');
     selectedFiltersDiv.innerHTML = '';
 
@@ -63,46 +42,6 @@ function updateFilters() {
 
     const filtersDiv = document.querySelector('.filters');
     filtersDiv.style.display = checkedCheckbox ? 'block' : 'none';
-}
-
-function clearAllFilters() {
-    const allCheckboxes = document.querySelectorAll('.menu-checkbox');
-    allCheckboxes.forEach(cb => {
-        cb.checked = false;
-    });
-    updateFilters();
-}
-
-function getFullHierarchy(checkbox, maxLevels = Infinity) {
-    const hierarchy = [];
-    let currentElement = checkbox.closest('li');
-    let level = 0;
-
-    while (currentElement && level < maxLevels) {
-        const menuText = currentElement.querySelector('.menu-text');
-        if (menuText) {
-            hierarchy.unshift(menuText.textContent.trim());
-        }
-        currentElement = currentElement.parentElement.closest('li');
-        level++;
-    }
-
-    return hierarchy.join(' > ');
-}
-
-function countGreaterThan(text) {
-    return (text.match(/>/g) || []).length;
-}
-
-function getTextAfterLastGreaterThan(text) {
-    const lastIndex = text.lastIndexOf(">");
-    if (lastIndex === -1) {
-        return text.trim();
-    } else if (lastIndex === text.length - 1) {
-        return "";
-    } else {
-        return text.substring(lastIndex + 1).trim();
-    }
 }
 
 function filteredSounds(page) {
@@ -171,7 +110,7 @@ function parseTimeRange(rangeStr) {
 let selectedCategory = null
 let selectedDuration = null
 
-function getFilteredSounds() {
+export function getFilteredSounds() {
     const output = document.getElementById('durationOutput');
     const category = document.querySelector(".filter_text");
     selectedDuration = output.textContent || null
@@ -196,26 +135,152 @@ function getFilteredSounds() {
             url: `/database/category/${categoryName}/${counter}/${minDuration}/${maxDuration}?page=${1}`,
             page: 1, gridId: 'grid', paginationId: 'pagination'
         });
-}
-
-/*async function filteredSize(category, counter, minDuration, maxDuration) {
-    try {
-        const response = await fetch(`/database/category_size/${category}/${counter}/${minDuration}/${maxDuration}`);
-        if (!response.ok) {
-            console.error(`HTTP error! Status: ${response.status}`);
-            return null;
-        }
-
-        const data = await response.text();
-        const integerValue = parseInt(data);
-
-        if (isNaN(integerValue)) {
-            console.error(`${integerValue} is not a number`);
-            return null;
-        }
-        return integerValue;
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
 }*/
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const menuContainer = document.getElementById('menuContainer');
+
+    let parentStack = [];
+
+    function renderMenu(items, parentName = '') {
+        menuContainer.innerHTML = '';
+
+        // Search box
+        const searchBox = document.createElement('input');
+        searchBox.type = 'text';
+        searchBox.placeholder = 'Ara...';
+        searchBox.className = 'w-full mb-4 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400';
+        menuContainer.appendChild(searchBox);
+
+        // Selected container
+        const selectedContainer = document.createElement('div');
+        selectedContainer.className = 'selected-container mb-4 flex flex-wrap gap-2';
+        menuContainer.appendChild(selectedContainer);
+
+        // Clear all button
+        const clearButton = document.createElement('button');
+        clearButton.textContent = 'Hepsini Temizle';
+        clearButton.className = 'clear-all-btn bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition';
+        clearButton.style.display = 'none';
+        menuContainer.appendChild(clearButton);
+
+        if (parentName) {
+            const backButton = document.createElement('div');
+            backButton.textContent = '← ' + parentName;
+            backButton.className = 'back-button flex items-center text-blue-500 hover:text-blue-700 font-semibold mb-4 cursor-pointer';
+            menuContainer.appendChild(backButton);
+
+            backButton.addEventListener('click', function () {
+                const prev = parentStack.pop();
+                renderMenu(prev.items, prev.parentName);
+            });
+        }
+
+        const listContainer = document.createElement('div');
+        listContainer.className = 'space-y-2';
+        menuContainer.appendChild(listContainer);
+
+        items.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'menu-item group flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100 transition';
+
+            const left = document.createElement('div');
+            left.className = 'flex items-center space-x-2';
+            itemDiv.appendChild(left);
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'menu-checkbox accent-blue-500';
+            checkbox.dataset.name = item.name;
+            checkbox.dataset.tag = item.tag;
+            left.appendChild(checkbox);
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = item.name;
+            nameSpan.className = 'category-name font-medium text-gray-700 group-hover:text-gray-900';
+            left.appendChild(nameSpan);
+
+            if (item.subcategories && item.subcategories.length > 0) {
+                const arrow = document.createElement('span');
+                arrow.className = 'text-gray-400 group-hover:text-gray-600';
+                arrow.innerHTML = '&rsaquo;';
+                itemDiv.appendChild(arrow);
+
+                itemDiv.addEventListener('click', function (e) {
+                    if (e.target !== checkbox) {
+                        parentStack.push({items, parentName});
+                        renderMenu(item.subcategories, item.name);
+                    }
+                });
+            }
+
+            listContainer.appendChild(itemDiv);
+        });
+
+        function updateSelected() {
+            selectedContainer.innerHTML = '';
+            const selected = Array.from(menuContainer.querySelectorAll('.menu-checkbox:checked'));
+
+            selected.forEach(checkbox => {
+                const tag = checkbox.dataset.tag;
+                const name = checkbox.dataset.name;
+                const badge = document.createElement('div');
+                badge.className = 'flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm';
+                badge.innerHTML = `${name} <span data-tag="${tag}" class="remove-item ml-2 cursor-pointer text-red-500 hover:text-red-700">&times;</span>`;
+                selectedContainer.appendChild(badge);
+            });
+
+            clearButton.style.display = selected.length > 0 ? 'inline-block' : 'none';
+        }
+
+        menuContainer.addEventListener('change', function (e) {
+            if (e.target.classList.contains('menu-checkbox')) {
+                updateSelected();
+            }
+        });
+
+        selectedContainer.addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-item')) {
+                const tag = e.target.dataset.tag;
+                const checkbox = menuContainer.querySelector(`.menu-checkbox[data-tag="${tag}"]`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                    updateSelected();
+                }
+            }
+        });
+
+        clearButton.addEventListener('click', function () {
+            const selected = menuContainer.querySelectorAll('.menu-checkbox:checked');
+            selected.forEach(checkbox => checkbox.checked = false);
+            updateSelected();
+        });
+
+        searchBox.addEventListener('input', function () {
+            const query = searchBox.value.toLowerCase();
+            const categories = listContainer.querySelectorAll('.menu-item');
+            categories.forEach(item => {
+                const name = item.querySelector('.category-name').textContent.toLowerCase();
+                item.style.display = name.includes(query) ? '' : 'none';
+            });
+        });
+    }
+
+    // FETCH ile veri çek
+    fetch('/menuItems')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Menü yüklenemedi');
+            }
+            return response.json();
+        })
+        .then(data => {
+            renderMenu(data);
+        })
+        .catch(error => {
+            console.error('Menü yüklenirken hata oluştu:', error);
+        });
+});
+
+
