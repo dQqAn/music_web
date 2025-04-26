@@ -15,6 +15,8 @@
     <script src="https://unpkg.com/lucide@latest" defer></script>
 
     <script type="module" src="../js/audio_player/audio_player.js" defer></script>
+    <script type="module" src="../js/profile/profile.js" defer></script>
+
     <style>
     </style>
 </head>
@@ -49,7 +51,7 @@
         </div>
     </div>
     <div class="flex justify-evenly">
-        <button class="pointer" onclick="loadFavourites('${user.id}', 'soundList', 1)">Favourites</button>
+        <button class="pointer" id="favouritesBtn" data-user-id="${user.id}">Favourites</button>
         <button class="pointer" onclick="loadPlaylists('${user.id}')">Playlists</button>
     </div>
 

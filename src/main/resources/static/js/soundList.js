@@ -40,6 +40,7 @@ export function soundList(containerID, sounds) {
             progressColor: 'rgb(100, 0, 100)',
             url: '',
         })
+
         const src = `/stream/sound/${encodeURIComponent(item.soundID)}`;
         listWaveSurfer.load(src)
 
@@ -50,17 +51,19 @@ export function soundList(containerID, sounds) {
         listWaveSurfer.once('ready', () => {
             playButton.onclick = () => {
                 listWaveSurfer.playPause()
-
-                wavesurfer.load(src)
-                currentTrack.soundID = item.soundID
-                localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
             }
         })
+
         listWaveSurfer.on('play', () => {
             const icon = document.querySelector('.icon_' + item.soundID);
             icon.setAttribute('data-lucide', 'pause');
             lucide.createIcons();
+
+            wavesurfer.load(src)
+            currentTrack.soundID = item.soundID
+            localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
         })
+
         listWaveSurfer.on('pause', () => {
             const icon = document.querySelector('.icon_' + item.soundID);
             icon.setAttribute('data-lucide', 'play');

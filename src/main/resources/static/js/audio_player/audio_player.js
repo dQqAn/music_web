@@ -1,8 +1,6 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 // import Region from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
 // import EnvelopePlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/envelope.esm.js'
-import {updatePagination} from '../pagination.js';
-import {soundList} from '../soundList.js'
 
 // Create an instance of WaveSurfer
 export const wavesurfer = WaveSurfer.create({
@@ -182,37 +180,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
     lucide.createIcons();
 });
-
-function loadFavourites(userID, containerID, page = 1) {
-    if (isNaN(page)) {
-        console.error(`${page} is not a number`);
-        return null;
-    }
-    fetch(`/loadFavourites/${userID}?page=${page}`, {
-        headers: {
-            'Accept': 'application/json'
-        }
-    }).then(response => {
-        if (!response.ok) {
-            console.log(`HTTP error! Status: ${response.status}`);
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    }).then(data => {
-
-        const sounds = Array.isArray(data) ? data : (data.sounds || []);
-        soundList(containerID, sounds)
-
-        lucide.createIcons();
-        window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
-
-        const totalPages = Math.floor((sounds.length + 20 - 1) / 20);
-        updatePagination("pagination", page, totalPages, (p) => {
-            loadFavourites(userID, containerID, p);
-        });
-    }).catch(error => {
-        console.error("Error:", error);
-    });
-}
-
-window.loadFavourites = loadFavourites;
