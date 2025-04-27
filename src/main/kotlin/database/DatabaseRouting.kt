@@ -305,7 +305,7 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                                     name = normalizeSpaces(soundName),
                                     artistIDs = listOf(userID),
                                     status = SoundStatus.UNDER_CONTROL.toString(),
-                                    category1 = normalizeSpaces(category1),
+                                    categories = listOf(normalizeSpaces(category1)),
                                     soundPath = soundFile.path,
                                     image1Path = imageFile.path,
                                     duration = duration,

@@ -57,7 +57,7 @@ fun Application.basicRouting() {
 
             val name = sound.name
             val artistIDs = sound.artistIDs
-            val category1 = sound.category1
+            val category1 = sound.categories[0]
             val image1Path = sound.image1Path
 
             val userSession = call.sessions.get<UserSession>()

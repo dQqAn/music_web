@@ -329,6 +329,21 @@ fun Application.databaseApi() {
                 call.respond(HttpStatusCode.OK)
             }
 
+            post("/database/filterSounds") {
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val selectedFilters = call.receive<SelectedFilters>()
+                println(selectedFilters)
+                call.respond(HttpStatusCode.OK)
+                /*val sounds = soundRepository.filteredSounds(
+                    pageSize = 20,
+                    page = page,
+                    selectedFilters.selectedTags,
+                    selectedFilters.minDuration,
+                    selectedFilters.maxDuration
+                )
+                call.respond(HttpStatusCode.OK, mapOf("sounds" to sounds))*/
+            }
+
             post("/database/createPlaylist") {
                 val userSession = call.sessions.get<UserSession>() ?: return@post call.respond(HttpStatusCode.NotFound)
                 val userID = userSession.id
@@ -355,6 +370,13 @@ private data class SelectedSoundIdsToPlaylists(
 )
 
 @Serializable
+data class SelectedFilters(
+    val selectedTags: List<String>,
+    val minDuration: Int? = null,
+    val maxDuration: Int? = null
+)
+
+@Serializable
 data class FavouriteStatusResponse(val favouriteStatus: Boolean)
 
 @Serializable
@@ -371,7 +393,7 @@ object MenuJsonCache {
     private var cachedMenu: List<MenuItem>? = null
     private var lastModified: Long = -1L
 
-    private val file = File("src/main/resources/static/js/menu/menuItems.json")
+    private val file = File("src/main/resources/static/js/menu/menuItems_EN.json")
 
     fun getMenu(): List<MenuItem> {
         if (cachedMenu == null || file.lastModified() > lastModified) {

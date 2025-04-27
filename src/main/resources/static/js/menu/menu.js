@@ -1,4 +1,5 @@
-/*function parseTimeRange(rangeStr) {
+//region Duration
+function parseTimeRange(rangeStr) {
     const [minStr, maxStr] = rangeStr.split("-");
 
     function toSeconds(timeStr) {
@@ -12,29 +13,20 @@
     return {minSeconds, maxSeconds};
 }
 
-let selectedDuration = null
-
-export function getFilteredSounds() {
-    const output = document.getElementById('durationOutput');
-    selectedDuration = output.textContent || null
-
-    const result = parseTimeRange(output.textContent)
-    const minDuration = result.minSeconds
-    const maxDuration = result.maxSeconds
-}*/
-
-//region Duration
 function formatDuration(seconds) {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return minutes + ':' + secs.toString().padStart(2, '0');
 }
 
+let isDurationChanged = false;
 const minSlider = document.getElementById('minDuration');
 const maxSlider = document.getElementById('maxDuration');
 const output = document.getElementById('durationOutput');
+const minSliderValue = 0
+const maxSliderValue = 600
 
-function updateDisplay() {
+function updateDisplay(durationChanges) {
     let min = parseInt(minSlider.value);
     let max = parseInt(maxSlider.value);
 
@@ -44,6 +36,18 @@ function updateDisplay() {
     }
 
     output.textContent = formatDuration(min) + '-' + formatDuration(max);
+
+    isDurationChanged = durationChanges === true
+
+    if (isDurationChanged) {
+        updateSelected()
+    }
+}
+
+function resetDuration() {
+    minSlider.value = minSliderValue
+    maxSlider.value = maxSliderValue
+    updateDisplay(false)
 }
 
 //endregion
@@ -56,9 +60,11 @@ const menuContainer = document.getElementById('menuContainer');
 
 document.addEventListener('DOMContentLoaded', function () {
     //region Duration
-    minSlider.addEventListener('input', updateDisplay);
-    maxSlider.addEventListener('input', updateDisplay);
-    updateDisplay();
+    minSlider.value = minSliderValue
+    maxSlider.value = maxSliderValue
+    minSlider.addEventListener('input', () => updateDisplay(true));
+    maxSlider.addEventListener('input', () => updateDisplay(true));
+    updateDisplay(false);
     //endregion
 
     //region Tag Menu
@@ -104,7 +110,15 @@ function updateSelected() {
         }
     });
 
-    clearButton.style.display = selectedTags.size > 0 ? 'inline-block' : 'none';
+    if (isDurationChanged) {
+        const badge = document.createElement('div');
+        badge.className = 'flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm';
+        badge.innerHTML = `${output.textContent} <span data-tag="duration" class="remove-item ml-2 cursor-pointer text-red-500 hover:text-red-700">&times;</span>`;
+        selectedContainer.appendChild(badge);
+
+    }
+
+    clearButton.style.display = (selectedTags.size > 0 || isDurationChanged === true) ? 'inline-block' : 'none';
 }
 
 function findNameByTag(items, tag) {
@@ -225,6 +239,10 @@ menuContainer.addEventListener('click', function (e) {
         if (checkbox) {
             checkbox.checked = false;
         }
+
+        if (tag === 'duration') {
+            resetDuration()
+        }
         updateSelected();
     }
 
@@ -232,6 +250,7 @@ menuContainer.addEventListener('click', function (e) {
         selectedTags.clear();
         const selected = menuContainer.querySelectorAll('.menu-checkbox:checked');
         selected.forEach(checkbox => checkbox.checked = false);
+        resetDuration()
         updateSelected();
     }
 });
@@ -295,11 +314,33 @@ function menuSubmit() {
     submitButton.className = 'show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4';
     menuSubmitDiv.appendChild(submitButton);
 
-    submitButton.addEventListener('click', function () {
-        if (selectedTags.size > 0) {
-            console.log(Array.from(selectedTags).join(', '));
-        } else {
-            console.log("no selected");
+    submitButton.addEventListener('click', async function () {
+        let minDuration = null
+        let maxDuration = null
+        if (isDurationChanged) {
+            const output = document.getElementById('durationOutput');
+            const outputResult = parseTimeRange(output.textContent)
+            minDuration = outputResult.minSeconds
+            maxDuration = outputResult.maxSeconds
         }
+
+        const response = await fetch('/database/filterSounds', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                selectedTags: Array.from(selectedTags),
+                minDuration: minDuration,
+                maxDuration: maxDuration
+            })
+        });
+        if (!response.ok) {
+            return;
+        }
+
+        // const result = await response.json();
+        // const sounds = Array.isArray(result) ? result : (result.sounds || []);
+
     });
 }

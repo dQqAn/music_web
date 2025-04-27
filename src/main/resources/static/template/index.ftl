@@ -50,11 +50,11 @@
                 <h3>Duration</h3>
                 <div>
                     <label for="minDuration">Min:</label>
-                    <input id="minDuration" name="minDuration" type="range" min="0" max="600" step="15" value="0">
+                    <input id="minDuration" name="minDuration" type="range" min="0" max="600" step="15">
                 </div>
                 <div>
                     <label for="maxDuration">Max:</label>
-                    <input id="maxDuration" name="maxDuration" type="range" min="0" max="600" step="15" value="600">
+                    <input id="maxDuration" name="maxDuration" type="range" min="0" max="600" step="15">
                 </div>
                 <div id="durationOutput"></div>
             </div>

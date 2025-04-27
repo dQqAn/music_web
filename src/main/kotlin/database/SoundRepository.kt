@@ -4,6 +4,7 @@ import com.example.model.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.SQLException
@@ -87,7 +88,7 @@ class SoundRepository(database: Database) {
             val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
 
             if (category != null) {
-                conditions += SoundTable.category1 eq category
+                conditions += SoundTable.categories eq category
             }
 
             if (minDuration != null && maxDuration != null) {
@@ -103,6 +104,32 @@ class SoundRepository(database: Database) {
                 .map { row -> row.toSound() }
         }
 
+    suspend fun filteredSounds(
+        pageSize: Int = 20,
+        page: Int,
+        selectedTags: List<String>,
+        minDuration: Int?,
+        maxDuration: Int?
+    ): Int = suspendTransaction {
+        val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
+
+        if (selectedTags.isNotEmpty()) {
+            conditions += SoundTable.categories inList selectedTags
+        }
+
+        if (minDuration != null && maxDuration != null) {
+            conditions += SoundTable.duration greaterEq minDuration
+            conditions += SoundTable.duration lessEq maxDuration
+        }
+
+        SoundTable.selectAll()
+            .where {
+                conditions.reduce { acc, op -> acc and op }
+            }
+            .limit(n = pageSize, offset = ((page - 1) * pageSize).toLong())
+            .map { row -> row.toSound() }.count()
+    }
+
     suspend fun getFilteredSize(
         pageSize: Int = 20,
         page: Int,
@@ -113,7 +140,7 @@ class SoundRepository(database: Database) {
         val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
 
         if (category != null) {
-            conditions += SoundTable.category1 eq category
+            conditions += SoundTable.categories eq category
         }
 
         if (minDuration != null && maxDuration != null) {
@@ -133,7 +160,7 @@ class SoundRepository(database: Database) {
         SoundTable.selectAll()
             .where {
                 (SoundTable.status eq SoundStatus.ACTIVE.toString()) and
-                        ((SoundTable.category1 eq category))
+                        ((SoundTable.categories eq category))
             }.count().toInt()
     }
 
