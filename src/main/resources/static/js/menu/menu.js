@@ -206,6 +206,27 @@ document.addEventListener('DOMContentLoaded', function () {
     let fullMenuData = [];
     const selectedTags = new Set();
 
+    function updateSelected() {
+        const selectedContainer = document.querySelector('.selected-container');
+        const clearButton = document.querySelector('.clear-all-btn');
+
+        if (!selectedContainer || !clearButton) return;
+
+        selectedContainer.innerHTML = '';
+
+        selectedTags.forEach(tag => {
+            const name = findNameByTag(fullMenuData, tag);
+            if (name) {
+                const badge = document.createElement('div');
+                badge.className = 'flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm';
+                badge.innerHTML = `${name} <span data-tag="${tag}" class="remove-item ml-2 cursor-pointer text-red-500 hover:text-red-700">&times;</span>`;
+                selectedContainer.appendChild(badge);
+            }
+        });
+
+        clearButton.style.display = selectedTags.size > 0 ? 'inline-block' : 'none';
+    }
+
     function renderMenu(items, parentName = '') {
         menuContainer.innerHTML = '';
 
@@ -279,52 +300,20 @@ document.addEventListener('DOMContentLoaded', function () {
             listContainer.appendChild(itemDiv);
         });
 
-        function updateSelected() {
-            selectedContainer.innerHTML = '';
+        const submitButton = document.createElement('button');
+        submitButton.textContent = 'Show Selected Tags';
+        submitButton.className = 'show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4';
+        menuContainer.appendChild(submitButton);
 
-            selectedTags.forEach(tag => {
-                const name = findNameByTag(fullMenuData, tag);
-                if (name) {
-                    const badge = document.createElement('div');
-                    badge.className = 'flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm';
-                    badge.innerHTML = `${name} <span data-tag="${tag}" class="remove-item ml-2 cursor-pointer text-red-500 hover:text-red-700">&times;</span>`;
-                    selectedContainer.appendChild(badge);
-                }
-            });
-
-            clearButton.style.display = selectedTags.size > 0 ? 'inline-block' : 'none';
-        }
-
-        menuContainer.addEventListener('change', function (e) {
-            if (e.target.classList.contains('menu-checkbox')) {
-                const tag = e.target.dataset.tag;
-                if (e.target.checked) {
-                    selectedTags.add(tag);
-                } else {
-                    selectedTags.delete(tag);
-                }
-                updateSelected();
+        submitButton.addEventListener('click', function () {
+            if (selectedTags.size > 0) {
+                console.log(Array.from(selectedTags).join(', '));
+            } else {
+                console.log("no selected");
             }
         });
 
-        selectedContainer.addEventListener('click', function (e) {
-            if (e.target.classList.contains('remove-item')) {
-                const tag = e.target.dataset.tag;
-                selectedTags.delete(tag);
-                const checkbox = menuContainer.querySelector(`.menu-checkbox[data-tag="${tag}"]`);
-                if (checkbox) {
-                    checkbox.checked = false;
-                }
-                updateSelected();
-            }
-        });
-
-        clearButton.addEventListener('click', function () {
-            selectedTags.clear();
-            const selected = menuContainer.querySelectorAll('.menu-checkbox:checked');
-            selected.forEach(checkbox => checkbox.checked = false);
-            updateSelected();
-        });
+        updateSelected();
 
         searchBox.addEventListener('input', function () {
             const query = searchBox.value.toLowerCase();
@@ -334,19 +323,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 item.style.display = name.includes(query) ? '' : 'none';
             });
         });
-
-        const submitButton = document.createElement('button');
-        submitButton.textContent = 'Show Selected Tags';
-        submitButton.className = 'show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4';
-        menuContainer.appendChild(submitButton);
-        submitButton.addEventListener('click', function () {
-            if (selectedTags.size > 0) {
-                console.log(selectedTags);
-            } else {
-                console.log("no selected");
-            }
-        });
-        updateSelected();
     }
 
     function findNameByTag(items, tag) {
@@ -359,6 +335,37 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return null;
     }
+
+    menuContainer.addEventListener('change', function (e) {
+        if (e.target.classList.contains('menu-checkbox')) {
+            const tag = e.target.dataset.tag;
+            if (e.target.checked) {
+                selectedTags.add(tag);
+            } else {
+                selectedTags.delete(tag);
+            }
+            updateSelected();
+        }
+    });
+
+    menuContainer.addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-item')) {
+            const tag = e.target.dataset.tag;
+            selectedTags.delete(tag);
+            const checkbox = menuContainer.querySelector(`.menu-checkbox[data-tag="${tag}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+            updateSelected();
+        }
+
+        if (e.target.classList.contains('clear-all-btn')) {
+            selectedTags.clear();
+            const selected = menuContainer.querySelectorAll('.menu-checkbox:checked');
+            selected.forEach(checkbox => checkbox.checked = false);
+            updateSelected();
+        }
+    });
 
     fetch('/menuItems')
         .then(response => {
