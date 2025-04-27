@@ -206,6 +206,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let fullMenuData = [];
     const selectedTags = new Set();
 
+    const searchBox = document.createElement('input');
+    searchBox.type = 'text';
+    searchBox.placeholder = 'Ara...';
+    searchBox.className = 'mb-4 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400';
+    menuContainer.parentNode.insertBefore(searchBox, menuContainer);
+
     function updateSelected() {
         const selectedContainer = document.querySelector('.selected-container');
         const clearButton = document.querySelector('.clear-all-btn');
@@ -229,12 +235,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderMenu(items, parentName = '') {
         menuContainer.innerHTML = '';
-
-        const searchBox = document.createElement('input');
-        searchBox.type = 'text';
-        searchBox.placeholder = 'Ara...';
-        searchBox.className = 'w-full mb-4 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400';
-        menuContainer.appendChild(searchBox);
 
         const selectedContainer = document.createElement('div');
         selectedContainer.className = 'selected-container mb-4 flex flex-wrap gap-2';
@@ -314,15 +314,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         updateSelected();
-
-        searchBox.addEventListener('input', function () {
-            const query = searchBox.value.toLowerCase();
-            const categories = listContainer.querySelectorAll('.menu-item');
-            categories.forEach(item => {
-                const name = item.querySelector('.category-name').textContent.toLowerCase();
-                item.style.display = name.includes(query) ? '' : 'none';
-            });
-        });
     }
 
     function findNameByTag(items, tag) {
@@ -334,6 +325,22 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         return null;
+    }
+
+    function filterMenu(items, query) {
+        let results = [];
+
+        items.forEach(item => {
+            if (item.name.toLowerCase().includes(query)) {
+                results.push(item);
+            }
+
+            if (item.subcategories) {
+                results = results.concat(filterMenu(item.subcategories, query));
+            }
+        });
+
+        return results;
     }
 
     menuContainer.addEventListener('change', function (e) {
@@ -364,6 +371,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const selected = menuContainer.querySelectorAll('.menu-checkbox:checked');
             selected.forEach(checkbox => checkbox.checked = false);
             updateSelected();
+        }
+    });
+
+    searchBox.addEventListener('input', function () {
+        const query = searchBox.value.toLowerCase();
+        if (query === '') {
+            renderMenu(fullMenuData);
+        } else {
+            const filtered = filterMenu(fullMenuData, query);
+            renderMenu(filtered);
         }
     });
 
