@@ -332,7 +332,7 @@ function filterSounds(page) {
         maxDuration = outputResult.maxSeconds
     }
 
-    fetch('/database/filterSounds', {
+    fetch(`/database/filterSounds?page=${page}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -76,7 +76,7 @@ function loadSounds(page) {
         throw new Error('page is not a number');
     }
     const url = `/database/sounds?page=${page}`
-    fetch(`${url}?page=${page}`, {
+    fetch(`${url}`, {
         headers: {
             'Accept': 'application/json'
         }
