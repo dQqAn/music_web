@@ -203,6 +203,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const menuContainer = document.getElementById('menuContainer');
 
     let parentStack = [];
+    let fullMenuData = [];
+    const selectedTags = new Set();
 
     function renderMenu(items, parentName = '') {
         menuContainer.innerHTML = '';
@@ -252,6 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
             checkbox.className = 'menu-checkbox accent-blue-500';
             checkbox.dataset.name = item.name;
             checkbox.dataset.tag = item.tag;
+            checkbox.checked = selectedTags.has(item.tag);
             left.appendChild(checkbox);
 
             const nameSpan = document.createElement('span');
@@ -278,22 +281,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updateSelected() {
             selectedContainer.innerHTML = '';
-            const selected = Array.from(menuContainer.querySelectorAll('.menu-checkbox:checked'));
 
-            selected.forEach(checkbox => {
-                const tag = checkbox.dataset.tag;
-                const name = checkbox.dataset.name;
-                const badge = document.createElement('div');
-                badge.className = 'flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm';
-                badge.innerHTML = `${name} <span data-tag="${tag}" class="remove-item ml-2 cursor-pointer text-red-500 hover:text-red-700">&times;</span>`;
-                selectedContainer.appendChild(badge);
+            selectedTags.forEach(tag => {
+                const name = findNameByTag(fullMenuData, tag);
+                if (name) {
+                    const badge = document.createElement('div');
+                    badge.className = 'flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm';
+                    badge.innerHTML = `${name} <span data-tag="${tag}" class="remove-item ml-2 cursor-pointer text-red-500 hover:text-red-700">&times;</span>`;
+                    selectedContainer.appendChild(badge);
+                }
             });
 
-            clearButton.style.display = selected.length > 0 ? 'inline-block' : 'none';
+            clearButton.style.display = selectedTags.size > 0 ? 'inline-block' : 'none';
         }
 
         menuContainer.addEventListener('change', function (e) {
             if (e.target.classList.contains('menu-checkbox')) {
+                const tag = e.target.dataset.tag;
+                if (e.target.checked) {
+                    selectedTags.add(tag);
+                } else {
+                    selectedTags.delete(tag);
+                }
                 updateSelected();
             }
         });
@@ -301,15 +310,17 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedContainer.addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-item')) {
                 const tag = e.target.dataset.tag;
+                selectedTags.delete(tag);
                 const checkbox = menuContainer.querySelector(`.menu-checkbox[data-tag="${tag}"]`);
                 if (checkbox) {
                     checkbox.checked = false;
-                    updateSelected();
                 }
+                updateSelected();
             }
         });
 
         clearButton.addEventListener('click', function () {
+            selectedTags.clear();
             const selected = menuContainer.querySelectorAll('.menu-checkbox:checked');
             selected.forEach(checkbox => checkbox.checked = false);
             updateSelected();
@@ -326,17 +337,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const submitButton = document.createElement('button');
         submitButton.textContent = 'Show Selected Tags';
-        submitButton.className = 'show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full';
+        submitButton.className = 'show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4';
         menuContainer.appendChild(submitButton);
         submitButton.addEventListener('click', function () {
-            const selected = Array.from(menuContainer.querySelectorAll('.menu-checkbox:checked'));
-            const selectedTags = selected.map(checkbox => checkbox.dataset.tag);
-            if (selectedTags.length > 0) {
+            if (selectedTags.size > 0) {
                 console.log(selectedTags);
             } else {
                 console.log("no selected");
             }
         });
+        updateSelected();
+    }
+
+    function findNameByTag(items, tag) {
+        for (const item of items) {
+            if (item.tag === tag) return item.name;
+            if (item.subcategories) {
+                const subName = findNameByTag(item.subcategories, tag);
+                if (subName) return subName;
+            }
+        }
+        return null;
     }
 
     fetch('/menuItems')
@@ -347,6 +368,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return response.json();
         })
         .then(data => {
+            fullMenuData = data;
             renderMenu(data);
         })
         .catch(error => {
