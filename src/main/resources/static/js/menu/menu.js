@@ -200,6 +200,7 @@ function fetchSoundsWithPagination({url, page, gridId, paginationId}) {
 }*/
 
 document.addEventListener('DOMContentLoaded', function () {
+    const menuWrapper = document.getElementById('menuWrapper');
     const menuContainer = document.getElementById('menuContainer');
 
     let parentStack = [];
@@ -210,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
     searchBox.type = 'text';
     searchBox.placeholder = 'Ara...';
     searchBox.className = 'mb-4 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400';
-    menuContainer.parentNode.insertBefore(searchBox, menuContainer);
+    menuWrapper.insertBefore(searchBox, menuContainer);
 
     function updateSelected() {
         const selectedContainer = document.querySelector('.selected-container');

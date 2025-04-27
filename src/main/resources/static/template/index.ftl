@@ -59,7 +59,9 @@
             <button onclick="getFilteredSounds()">Submit</button>
         </div>-->
 
-        <div id="menuContainer" class="p-4 border rounded-lg bg-white shadow-md max-w-md mx-auto space-y-4"></div>
+        <div id="menuWrapper" class="flex flex-col border rounded-lg bg-white">
+            <div id="menuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
+        </div>
 
         <div class="main_content">
             <div id="soundList"></div>
