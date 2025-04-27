@@ -1,7 +1,7 @@
 import {soundList} from "../soundList.js";
 import {updatePagination} from "../pagination.js";
 
-function toSlug(str) {
+export function toSlug(str) {
     const turkishToEnglish = {
         'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u',
         'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U'

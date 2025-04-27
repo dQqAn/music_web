@@ -1,5 +1,6 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import {wavesurfer} from '../js/audio_player/audio_player.js';
+import {toSlug} from '../js/index/index.js'
 
 let currentTrack = {
     soundID: "",
@@ -20,7 +21,9 @@ export function soundList(containerID, sounds) {
         const infos = document.createElement('div')
         infos.className = "content-center items-center justify-start m-2"
         infos.innerHTML = `
-                <p>${item.name}</p>
+                <a href="/sound/?${toSlug(item.name)}&soundID=${item.soundID}">
+                    <p>${item.name}</p>      
+                </a>
                 <p>${item.artistIDs}</p>
             `;
         listItem.appendChild(infos)
