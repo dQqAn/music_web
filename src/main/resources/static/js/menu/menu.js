@@ -203,6 +203,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const menuWrapper = document.getElementById('menuWrapper');
     const menuContainer = document.getElementById('menuContainer');
 
+    const openMenuButton = document.createElement('button');
+    openMenuButton.textContent = 'Menüyü Aç';
+    openMenuButton.className = 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded my-4 mx-auto md:hidden';
+    menuWrapper.parentNode.insertBefore(openMenuButton, menuWrapper);
+    const closeMenuButton = document.createElement('button');
+    closeMenuButton.textContent = 'Menüyü Kapat';
+    closeMenuButton.className = 'bg-red-500 hover:bg-red-600 text-white p-2 rounded mb-4 w-full';
+    menuWrapper.insertBefore(closeMenuButton, menuWrapper.firstChild);
+    closeMenuButton.classList.add('hidden');
+    openMenuButton.addEventListener('click', function () {
+        menuWrapper.classList.remove('hidden');
+        openMenuButton.classList.add('hidden');
+        closeMenuButton.classList.remove('hidden');
+    });
+    closeMenuButton.addEventListener('click', function () {
+        menuWrapper.classList.add('hidden');
+        openMenuButton.classList.remove('hidden');
+        closeMenuButton.classList.add('hidden');
+    });
+
     let parentStack = [];
     let fullMenuData = [];
     const selectedTags = new Set();
