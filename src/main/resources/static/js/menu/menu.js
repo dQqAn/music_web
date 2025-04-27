@@ -207,11 +207,22 @@ document.addEventListener('DOMContentLoaded', function () {
     let fullMenuData = [];
     const selectedTags = new Set();
 
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'flex items-center mb-4 w-full';
+    const clearButton = document.createElement('button');
+    clearButton.innerHTML = '&times;';
+    clearButton.className = 'p-2 bg-gray-200 hover:bg-gray-300 border border-l-0 border-gray-300 rounded-r';
     const searchBox = document.createElement('input');
     searchBox.type = 'text';
-    searchBox.placeholder = 'Ara...';
-    searchBox.className = 'mb-4 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400';
-    menuWrapper.insertBefore(searchBox, menuContainer);
+    searchBox.placeholder = 'Search...';
+    searchBox.className = 'flex-1 p-2 border border-gray-300 rounded-l focus:outline-none focus:border-blue-400';
+    searchContainer.appendChild(searchBox);
+    searchContainer.appendChild(clearButton);
+    menuWrapper.insertBefore(searchContainer, menuContainer);
+    clearButton.addEventListener('click', function () {
+        searchBox.value = '';
+        searchBox.dispatchEvent(new Event('input'));
+    });
 
     function updateSelected() {
         const selectedContainer = document.querySelector('.selected-container');
