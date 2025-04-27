@@ -14,6 +14,8 @@
     <script src="../js/artist_single_sound/artist_single_sound.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
 
+    <link href="../tailwind/output.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
 <body>
 
@@ -43,6 +45,18 @@
         <div id="errorInfo" style="display: none; color: red;">
             <p id="errorMessage"></p>
         </div>
+    </div>
+
+    <div id="categoryMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
+        <div id="categoryMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
+    </div>
+
+    <div id="moodsMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
+        <div id="moodsMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
+    </div>
+
+    <div id="instrumentsMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
+        <div id="instrumentsMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
     </div>
 </main>
 
