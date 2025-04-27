@@ -381,22 +381,41 @@ data class FavouriteStatusResponse(val favouriteStatus: Boolean)
 data class UserPlaylists(val playlist: Playlist, val soundStatus: Boolean)
 
 @Serializable
+data class FullMenu(
+    val categories: List<MenuItem>,
+    val moods: List<MoodItem>,
+    val instruments: List<InstrumentItem>
+)
+
+@Serializable
 data class MenuItem(
     val name: String,
     val tag: String,
     val subcategories: List<MenuItem>? = null
 )
 
+@Serializable
+data class MoodItem(
+    val name: String,
+    val tag: String
+)
+
+@Serializable
+data class InstrumentItem(
+    val name: String,
+    val tag: String
+)
+
 object MenuJsonCache {
-    private var cachedMenu: List<MenuItem>? = null
+    private var cachedMenu: FullMenu? = null
     private var lastModified: Long = -1L
 
     private val file = File("src/main/resources/static/js/menu/menuItems_EN.json")
 
-    fun getMenu(): List<MenuItem> {
+    fun getMenu(): FullMenu {
         if (cachedMenu == null || file.lastModified() > lastModified) {
             val jsonString = file.bufferedReader(Charsets.UTF_8).use { it.readText() }
-            cachedMenu = Json.decodeFromString(jsonString)
+            cachedMenu = Json.decodeFromString<FullMenu>(jsonString)
             lastModified = file.lastModified()
         }
         return cachedMenu!!

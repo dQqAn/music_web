@@ -83,8 +83,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return response.json();
         })
         .then(data => {
-            fullMenuData = data;
-            renderMenu(data);
+            fullMenuData = data.categories;
+            renderMenu(data.categories);
         })
         .catch(error => {
             console.error('Menu Json error:', error);
