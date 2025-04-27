@@ -1,4 +1,7 @@
 //region Duration
+import {soundList} from "../soundList.js";
+import {updatePagination} from "../pagination.js";
+
 function parseTimeRange(rangeStr) {
     const [minStr, maxStr] = rangeStr.split("-");
 
@@ -315,32 +318,48 @@ function menuSubmit() {
     menuSubmitDiv.appendChild(submitButton);
 
     submitButton.addEventListener('click', async function () {
-        let minDuration = null
-        let maxDuration = null
-        if (isDurationChanged) {
-            const output = document.getElementById('durationOutput');
-            const outputResult = parseTimeRange(output.textContent)
-            minDuration = outputResult.minSeconds
-            maxDuration = outputResult.maxSeconds
-        }
+        filterSounds(1)
+    });
+}
 
-        const response = await fetch('/database/filterSounds', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                selectedTags: Array.from(selectedTags),
-                minDuration: minDuration,
-                maxDuration: maxDuration
-            })
-        });
+function filterSounds(page) {
+    let minDuration = null
+    let maxDuration = null
+    if (isDurationChanged) {
+        const output = document.getElementById('durationOutput');
+        const outputResult = parseTimeRange(output.textContent)
+        minDuration = outputResult.minSeconds
+        maxDuration = outputResult.maxSeconds
+    }
+
+    fetch('/database/filterSounds', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            selectedTags: Array.from(selectedTags),
+            minDuration: minDuration,
+            maxDuration: maxDuration
+        })
+    }).then(response => {
         if (!response.ok) {
-            return;
+            console.log(`HTTP error! Status: ${response.status}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        return response.json();
+    }).then(data => {
+        const sounds = Array.isArray(data) ? data : (data.sounds || []);
+        soundList('soundList', sounds)
 
-        // const result = await response.json();
-        // const sounds = Array.isArray(result) ? result : (result.sounds || []);
+        lucide.createIcons();
+        window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
 
+        const totalPages = Math.floor((sounds.length + 20 - 1) / 20);
+        updatePagination("pagination", page, totalPages, (p) => {
+            filterSounds(p);
+        });
+    }).catch(error => {
+        console.error("Error:", error);
     });
 }

@@ -332,16 +332,14 @@ fun Application.databaseApi() {
             post("/database/filterSounds") {
                 val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
                 val selectedFilters = call.receive<SelectedFilters>()
-                println(selectedFilters)
-                call.respond(HttpStatusCode.OK)
-                /*val sounds = soundRepository.filteredSounds(
+                val sounds = soundRepository.filteredSounds(
                     pageSize = 20,
                     page = page,
                     selectedFilters.selectedTags,
                     selectedFilters.minDuration,
                     selectedFilters.maxDuration
                 )
-                call.respond(HttpStatusCode.OK, mapOf("sounds" to sounds))*/
+                call.respond(HttpStatusCode.OK, mapOf("sounds" to sounds))
             }
 
             post("/database/createPlaylist") {

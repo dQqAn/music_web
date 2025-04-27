@@ -4,8 +4,8 @@ import com.example.model.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.SQLException
 
@@ -110,11 +110,14 @@ class SoundRepository(database: Database) {
         selectedTags: List<String>,
         minDuration: Int?,
         maxDuration: Int?
-    ): Int = suspendTransaction {
+    ): List<Sound> = suspendTransaction {
         val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
 
         if (selectedTags.isNotEmpty()) {
-            conditions += SoundTable.categories inList selectedTags
+            val categoryConditions = selectedTags.map { tag ->
+                SoundTable.categories.like("%$tag%")
+            }.compoundOr()
+            conditions += categoryConditions
         }
 
         if (minDuration != null && maxDuration != null) {
@@ -127,7 +130,7 @@ class SoundRepository(database: Database) {
                 conditions.reduce { acc, op -> acc and op }
             }
             .limit(n = pageSize, offset = ((page - 1) * pageSize).toLong())
-            .map { row -> row.toSound() }.count()
+            .map { row -> row.toSound() }
     }
 
     suspend fun getFilteredSize(
