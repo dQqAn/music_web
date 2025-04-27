@@ -341,6 +341,18 @@
         height: 100%;
     }
 
+    .max-h-12 {
+        max-height: calc(var(--spacing) * 12);
+    }
+
+    .max-h-18 {
+        max-height: calc(var(--spacing) * 18);
+    }
+
+    .max-h-24 {
+        max-height: calc(var(--spacing) * 24);
+    }
+
     .w-6 {
         width: calc(var(--spacing) * 6);
     }
@@ -349,12 +361,20 @@
         width: calc(var(--spacing) * 12);
     }
 
+    .w-24 {
+        width: calc(var(--spacing) * 24);
+    }
+
     .w-32 {
         width: calc(var(--spacing) * 32);
     }
 
     .w-full {
         width: 100%;
+    }
+
+    .max-w-24 {
+        max-width: calc(var(--spacing) * 24);
     }
 
     .max-w-md {

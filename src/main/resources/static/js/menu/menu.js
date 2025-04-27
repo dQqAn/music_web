@@ -204,11 +204,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const menuContainer = document.getElementById('menuContainer');
 
     const openMenuButton = document.createElement('button');
-    openMenuButton.textContent = 'Menüyü Aç';
-    openMenuButton.className = 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded my-4 mx-auto md:hidden';
+    openMenuButton.textContent = 'Menu';
+    openMenuButton.className = 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded my-4 mx-auto md:hidden max-w-24 max-h-18';
     menuWrapper.parentNode.insertBefore(openMenuButton, menuWrapper);
     const closeMenuButton = document.createElement('button');
-    closeMenuButton.textContent = 'Menüyü Kapat';
+    closeMenuButton.textContent = 'Menu';
     closeMenuButton.className = 'bg-red-500 hover:bg-red-600 text-white p-2 rounded mb-4 w-full';
     menuWrapper.insertBefore(closeMenuButton, menuWrapper.firstChild);
     closeMenuButton.classList.add('hidden');
