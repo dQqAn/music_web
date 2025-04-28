@@ -21,6 +21,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.koin.ktor.ext.inject
 import java.io.BufferedInputStream
@@ -204,7 +205,9 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                     var soundFile: File? = null
 
                     var soundName: String? = null
-                    var category1: String? = null
+                    var categoryList = listOf<String>()
+                    var moodList = listOf<String>()
+                    var instrumentList = listOf<String>()
                     val artistName = userRepository.userName(userID)
 
                     multipart.forEachPart { part ->
@@ -215,8 +218,16 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                                         soundName = part.value
                                     }
 
-                                    "category1" -> {
-                                        category1 = part.value
+                                    "category" -> {
+                                        categoryList = Json.decodeFromString<List<String>>(part.value)
+                                    }
+
+                                    "mood" -> {
+                                        moodList = Json.decodeFromString<List<String>>(part.value)
+                                    }
+
+                                    "instrument" -> {
+                                        instrumentList = Json.decodeFromString<List<String>>(part.value)
                                     }
                                 }
                             }
@@ -292,7 +303,7 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                     }
 
                     if (soundFile != null && imageFile != null && soundName != null
-                        && category1 != null && artistName != null
+                        && artistName != null
                     ) {
                         val duration = if (soundFile.extension == "mp3") {
                             getMp3DurationInSeconds(soundFile)
@@ -305,7 +316,9 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                                     name = normalizeSpaces(soundName),
                                     artistIDs = listOf(userID),
                                     status = SoundStatus.UNDER_CONTROL.toString(),
-                                    categories = listOf(normalizeSpaces(category1)),
+                                    categories = categoryList,
+                                    moods = moodList,
+                                    instruments = instrumentList,
                                     soundPath = soundFile.path,
                                     image1Path = imageFile.path,
                                     duration = duration,

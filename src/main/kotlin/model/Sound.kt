@@ -12,6 +12,8 @@ data class Sound(
     val artistIDs: List<Int>,
     var status: String,
     var categories: List<String>,
+    var moods: List<String>,
+    var instruments: List<String>,
     val soundPath: String,
     var image1Path: String,
     var duration: Int,
@@ -38,6 +40,8 @@ object SoundTable : Table("sound") {
     val artistIDs = largeText("artistIDs")
     var status = varchar("status", 50)
     var categories = largeText("categories")
+    var moods = largeText("moods")
+    var instruments = largeText("instruments")
     val soundPath = varchar("soundPath", 512)
     var image1Path = varchar("image1Path", 512)
     var duration = integer("duration")
@@ -51,6 +55,8 @@ fun ResultRow.toSound(): Sound = Sound(
     artistIDs = Json.decodeFromString(this[SoundTable.artistIDs]),
     status = this[SoundTable.status],
     categories = Json.decodeFromString(this[SoundTable.categories]),
+    moods = Json.decodeFromString(this[SoundTable.moods]),
+    instruments = Json.decodeFromString(this[SoundTable.instruments]),
     soundPath = this[SoundTable.soundPath],
     image1Path = this[SoundTable.image1Path],
     duration = this[SoundTable.duration],
@@ -63,6 +69,8 @@ fun InsertStatement<Number>.fromSound(sound: Sound) {
     this[SoundTable.artistIDs] = Json.encodeToString(sound.artistIDs)
     this[SoundTable.status] = sound.status
     this[SoundTable.categories] = Json.encodeToString(sound.categories)
+    this[SoundTable.moods] = Json.encodeToString(sound.moods)
+    this[SoundTable.instruments] = Json.encodeToString(sound.instruments)
     this[SoundTable.soundPath] = sound.soundPath
     this[SoundTable.image1Path] = sound.image1Path
     this[SoundTable.duration] = sound.duration

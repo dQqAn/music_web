@@ -4,7 +4,6 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
     const imageInput = document.getElementById("imageInput");
     const soundInput = document.getElementById("soundInput");
     const soundName = document.getElementById("soundName");
-    const category1 = document.getElementById("category1");
 
     const fileInfo = document.getElementById("fileInfo")
     const errorMessage = document.getElementById("errorMessage")
@@ -20,7 +19,9 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
     formData.append("image", imageInput.files[0]);
     formData.append("sound", soundInput.files[0]);
     formData.append("name", soundName.value);
-    formData.append("category1", category1.value);
+    formData.append("category", JSON.stringify([...categorySelectedTags]));
+    formData.append("mood", JSON.stringify([...moodsSelectedTags]));
+    formData.append("instrument", JSON.stringify([...instrumentsSelectedTags]));
 
     fileInfo.style.display = "none";
     errorInfo.style.display = "none";

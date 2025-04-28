@@ -32,9 +32,6 @@
             <label for="soundName">Sound Name:</label>
             <input id="soundName" name="soundName" required type="text">
 
-            <label for="category1">Category 1:</label>
-            <input id="category1" name="category1" required type="text">
-
             <button type="submit">Upload Sound</button>
         </form>
 
