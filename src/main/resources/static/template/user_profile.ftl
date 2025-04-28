@@ -55,7 +55,7 @@
         <button class="pointer" onclick="loadPlaylists('${user.id}')">Playlists</button>
     </div>
 
-    <div id="soundList"></div>
+    <div id="favSoundList"></div>
 
 </main>
 
