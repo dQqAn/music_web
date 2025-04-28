@@ -73,7 +73,7 @@ const instrumentsClearButton = 'instrumentsClearButton'
 const instrumentsSelectedContainerDiv = 'instrumentsSelectedContainerDiv'
 
 document.addEventListener('DOMContentLoaded', function () {
-    fetch('/menuItems')
+    fetch('/allMetaData')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Menu loading error');
@@ -126,7 +126,7 @@ function searchBoxDiv(menuWrapper, menuContainer, menuData, fullMenuData, select
     });
 }
 
-function renderMenu(menuContainer, menuData, fullMenuData, parentName = '', selectedTags, parentStack, clearButtonID, selectedContainerDiv) {
+async function renderMenu(menuContainer, menuData, fullMenuData, parentName = '', selectedTags, parentStack, clearButtonID, selectedContainerDiv) {
     menuContainer.innerHTML = '';
 
     const selectedContainer = document.createElement('div');
@@ -157,46 +157,59 @@ function renderMenu(menuContainer, menuData, fullMenuData, parentName = '', sele
     listContainer.className = 'space-y-2';
     menuContainer.appendChild(listContainer);
 
-    menuData.forEach(item => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'menu-item group flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100 transition';
+    if (menuData && menuData.length > 0) {
+        for (const item of menuData) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'menu-item group flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100 transition';
 
-        const menuItem = document.createElement('div');
-        menuItem.className = 'flex items-center space-x-2';
+            const menuItem = document.createElement('div');
+            menuItem.className = 'flex items-center space-x-2';
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'menu-checkbox accent-blue-500';
-        checkbox.dataset.name = item.name;
-        checkbox.dataset.tag = item.tag;
-        checkbox.checked = selectedTags.has(item.tag);
-        menuItem.appendChild(checkbox);
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'menu-checkbox accent-blue-500';
+            checkbox.dataset.name = item.name;
+            checkbox.dataset.tag = item.tag;
+            checkbox.checked = selectedTags.has(item.tag);
+            menuItem.appendChild(checkbox);
 
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = item.name;
-        nameSpan.className = 'category-name font-medium text-gray-700 group-hover:text-gray-900';
-        menuItem.appendChild(nameSpan);
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = item.name;
+            nameSpan.className = 'category-name font-medium text-gray-700 group-hover:text-gray-900';
+            menuItem.appendChild(nameSpan);
 
-        itemDiv.appendChild(menuItem);
+            itemDiv.appendChild(menuItem);
 
-        if (item.subcategories && item.subcategories.length > 0) {
-            const arrow = document.createElement('span');
-            arrow.className = 'text-gray-400 group-hover:text-gray-600';
-            arrow.innerHTML = '&rsaquo;';
-            itemDiv.appendChild(arrow);
+            const checkSubCategory = await fetch('/database/checkMetaDataSubCategory', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `tag=${encodeURIComponent(item.tag)}`
+            })
+            const statusCode = checkSubCategory.status;
+            if (statusCode === 200) {
+                console.log("skfnglk")
+            }
 
-            itemDiv.addEventListener('click', function (e) {
-                if (e.target !== checkbox) {
-                    parentStack.push({items: menuData, parentName});
-                    renderMenu(menuContainer, item.subcategories, fullMenuData, item.name, selectedTags, parentStack, clearButtonID, selectedContainerDiv);
-                }
-            });
+            if (item.subcategories && item.subcategories.length > 0) {
+                const arrow = document.createElement('span');
+                arrow.className = 'text-gray-400 group-hover:text-gray-600';
+                arrow.innerHTML = '&rsaquo;';
+                itemDiv.appendChild(arrow);
+
+                itemDiv.addEventListener('click', function (e) {
+                    if (e.target !== checkbox) {
+                        parentStack.push({items: menuData, parentName});
+                        renderMenu(menuContainer, item.subcategories, fullMenuData, item.name, selectedTags, parentStack, clearButtonID, selectedContainerDiv);
+                    }
+                });
+            }
+
+            listContainer.appendChild(itemDiv);
         }
-
-        listContainer.appendChild(itemDiv);
-    });
-
-    updateSelected(selectedContainer, clearButton, selectedTags, fullMenuData);
+        updateSelected(selectedContainer, clearButton, selectedTags, fullMenuData);
+    }
 }
 
 function updateSelected(selectedContainer, clearButton, selectedTags, fullMenuData) {
@@ -358,6 +371,10 @@ function findNameByTag(items, tag) {
 
 function filterMenu(items, query) {
     let results = [];
+
+    if (!Array.isArray(items) || items.length === 0) {
+        return results;
+    }
 
     items.forEach(item => {
         if (item.name.toLowerCase().includes(query)) {

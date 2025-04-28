@@ -3,8 +3,10 @@ package com.example.util
 import com.example.auth.Role
 import com.example.auth.UserSession
 import com.example.database.FavouriteRepository
+import com.example.database.MetaDataRepository
 import com.example.database.PlaylistRepository
 import com.example.database.SoundRepository
+import com.example.model.MetaDataMenuResponse
 import com.example.model.Playlist
 import com.example.model.SoundStatus
 import io.ktor.http.*
@@ -24,6 +26,7 @@ fun Application.databaseApi() {
     val soundRepository by inject<SoundRepository>()
     val favouriteRepository by inject<FavouriteRepository>()
     val playlistRepository by inject<PlaylistRepository>()
+    val metaDataRepository by inject<MetaDataRepository>()
 
     routing {
         get("/check_auth") {
@@ -210,6 +213,13 @@ fun Application.databaseApi() {
             call.respondText(menuJson, contentType = ContentType.Application.Json)
         }
 
+        get("/allMetaData") {
+            val menuList = metaDataRepository.metaDataToMenu(10, 1, null, null)
+            val response = MetaDataMenuResponse(menuList, emptyList(), emptyList())
+            val responseJson = Json.encodeToString(response)
+            call.respondText(responseJson, contentType = ContentType.Application.Json)
+        }
+
         authenticate("auth-session") {
             /*get("/database/moderator_sounds_count") {
                 val userSession = call.sessions.get<UserSession>()
@@ -352,6 +362,12 @@ fun Application.databaseApi() {
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Error")
                 }
+            }
+
+            post("/database/checkMetaDataSubCategory") {
+                val tag = call.receiveParameters()["tag"]?.trim()
+
+                call.respond(HttpStatusCode.OK, true)
             }
         }
     }

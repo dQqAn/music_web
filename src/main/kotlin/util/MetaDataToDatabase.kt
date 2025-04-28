@@ -19,4 +19,8 @@ fun loadMetaItems(jsonFilePath: String): List<MetaItem> {
     }
 }
 
-//genre, subgenre and instruments
+//genre, subgenre, language and instruments
+
+//menu system-> (type)genre olanları topla. alt menü genre  anahtarındaki değere sahip olan tags sütunu göster yani subgenre ye geçiş yap.
+
+//common parsing-> (type)subgenre den değer gelecek. level olanların arasında ve tags kısmının ilk *_* ifadesinden önce olanlarla query yap.
