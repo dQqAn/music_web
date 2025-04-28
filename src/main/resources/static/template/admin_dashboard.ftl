@@ -24,6 +24,7 @@
     <button class="pointer" onclick="window.location.href='/profile'">Profile</button>
     <button class="pointer" onclick="window.location.href='/admin/register'">Register</button>
     <button class="pointer" onclick="window.location.href='/logout'">Logout</button>
+    <button class="pointer" onclick="window.location.href='/admin/metaDataSave'">MetaDataSave</button>
 </main>
 
 <script>

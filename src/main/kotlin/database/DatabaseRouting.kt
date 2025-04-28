@@ -9,6 +9,7 @@ import com.example.routing.loadWords
 import com.example.util.DotEnvironment
 import com.example.util.EncryptionSystem
 import com.example.util.HashingSystem
+import com.example.util.loadMetaItems
 import com.mpatric.mp3agic.Mp3File
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -50,13 +51,21 @@ fun Application.databaseRouting() {
     val dotEnv by inject<DotEnvironment>()
     val encryptionSystem by inject<EncryptionSystem>()
     val hashingSystem by inject<HashingSystem>()
+    val metaDataRepository by inject<MetaDataRepository>()
 
     auth(userRepository, encryptionSystem, hashingSystem)
 
     routing {
         staticFiles("/uploads", File("uploads"))
 
-        adminRoute(adminRepository, moderatorRepository, artistRepository, userRepository, encryptionSystem)
+        adminRoute(
+            adminRepository,
+            moderatorRepository,
+            artistRepository,
+            userRepository,
+            encryptionSystem,
+            metaDataRepository
+        )
         moderatorRoute()
         artistRoute(soundRepository, userRepository)
         userRoute()
@@ -69,7 +78,8 @@ private fun Routing.adminRoute(
     moderatorRepository: ModeratorRepository,
     artistRepository: ArtistRepository,
     userRepository: UserRepository,
-    encryptionSystem: EncryptionSystem
+    encryptionSystem: EncryptionSystem,
+    metaDataRepository: MetaDataRepository
 ) {
     route("/admin") {
         authenticate("auth-session") {
@@ -148,6 +158,20 @@ private fun Routing.adminRoute(
                         call.respond(HttpStatusCode.BadRequest)
                     }
                 }
+            }
+
+            get("/metaDataSave") {
+                val lang = call.request.cookies["lang"] ?: "tr"
+                val supportedLang = if (lang in listOf("en", "tr")) lang else "tr"
+                val words = loadWords(supportedLang)
+                val model = mapOf(
+                    "words" to words,
+                    "lang" to supportedLang
+                )
+                val items = loadMetaItems("src/main/resources/static/js/menu/metaData/AIRadioMetas.json")
+                val size = metaDataRepository.addAllMetaData(items)
+//                println(size)
+                call.respond(FreeMarkerContent("admin_dashboard.ftl", model))
             }
         }
     }
@@ -437,10 +461,10 @@ private fun saveFile(file: File?, bufferedStream: BufferedInputStream) {
     }
 }
 
-private fun generateUniqueId(): String {
+fun generateUniqueId(): String {
     val characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     val timestamp = System.currentTimeMillis().toString().takeLast(4)
-    val randomPart = (1..6).map { characters.random() }.joinToString("")
+    val randomPart = (1..10).map { characters.random() }.joinToString("")
     return timestamp + randomPart
 }
 
