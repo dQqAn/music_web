@@ -7,6 +7,7 @@ import com.example.database.MetaDataRepository
 import com.example.database.PlaylistRepository
 import com.example.database.SoundRepository
 import com.example.model.MetaDataMenuResponse
+import com.example.model.MetaDataToMenu
 import com.example.model.Playlist
 import com.example.model.SoundStatus
 import io.ktor.http.*
@@ -214,8 +215,48 @@ fun Application.databaseApi() {
         }
 
         get("/allMetaData") {
-            val menuList = metaDataRepository.metaDataToMenu(10, 1, null, null)
-            val response = MetaDataMenuResponse(menuList, emptyList(), emptyList())
+            val categoryList = metaDataRepository.metaDataToMenu(10, 1, null, null)
+//            val moodsList = metaDataRepository.metaDataToMenu(10, 1, "null", null)
+            val instrumentsList = metaDataRepository.metaDataToMenu(10, 1, "INSTRUMENT", null)
+            val response = MetaDataMenuResponse(categoryList, emptyList(), instrumentsList)
+            val responseJson = Json.encodeToString(response)
+            call.respondText(responseJson, contentType = ContentType.Application.Json)
+        }
+
+        post("/database/checkMetaDataSubCategory") {
+            val key = call.receiveParameters()["key"]?.trim() ?: return@post call.respond(
+                HttpStatusCode.BadRequest,
+                "BadRequest"
+            )
+            val control = metaDataRepository.checkMetaDataSubCategory(key)
+            call.respond(HttpStatusCode.OK, control.toString())
+        }
+
+        get("/database/getMetaDataSubCategory/{key}/{metaDataName}") {
+            val key = call.parameters["key"] ?: return@get call.respond(HttpStatusCode.BadRequest, "BadRequest")
+            val menuList = metaDataRepository.metaDataToMenu(10, 1, "SUBGENRE", key)
+            val metaDataName =
+                call.parameters["metaDataName"] ?: return@get call.respond(HttpStatusCode.BadRequest, "BadRequest")
+
+            var categoryList: List<MetaDataToMenu> = emptyList()
+            var moodsList: List<MetaDataToMenu> = emptyList()
+            var instrumentsList: List<MetaDataToMenu> = emptyList()
+
+            when (metaDataName) {
+                "category" -> {
+                    categoryList = menuList
+                }
+
+                "moods" -> {
+                    moodsList = menuList
+                }
+
+                "instruments" -> {
+                    instrumentsList = menuList
+                }
+            }
+
+            val response = MetaDataMenuResponse(categoryList, moodsList, instrumentsList)
             val responseJson = Json.encodeToString(response)
             call.respondText(responseJson, contentType = ContentType.Application.Json)
         }
@@ -362,12 +403,6 @@ fun Application.databaseApi() {
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Error")
                 }
-            }
-
-            post("/database/checkMetaDataSubCategory") {
-                val tag = call.receiveParameters()["tag"]?.trim()
-
-                call.respond(HttpStatusCode.OK, true)
             }
         }
     }

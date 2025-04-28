@@ -6,6 +6,7 @@ import com.example.model.MetaItem
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.SQLException
 import java.time.LocalDateTime
@@ -49,7 +50,7 @@ class MetaDataRepository(database: Database) {
         conditions += MetaDataTable.type eq tempContentType
 
         if (key != null) {
-            conditions += MetaDataTable.key eq key
+            conditions += MetaDataTable.tags like "%\"$key\"%"
         }
 
         MetaDataTable.selectAll().where {
@@ -65,10 +66,15 @@ class MetaDataRepository(database: Database) {
     }
 
     suspend fun checkMetaDataSubCategory(key: String): Boolean = suspendTransaction {
-        MetaDataTable.selectAll().where { //search in tag
-            (MetaDataTable.type eq "SUBGENRE") and
-                    (MetaDataTable.tags eq key)
-        }.count() > 0
+        try {
+            MetaDataTable.selectAll().where { //search in tag
+                (MetaDataTable.type eq "SUBGENRE") and
+                        (MetaDataTable.tags like "%\"$key\"%")
+            }.count() > 0
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            false
+        }
     }
 
     private fun keyToName(input: String): String {

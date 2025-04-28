@@ -82,23 +82,23 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             categoryMenuData = data.categories;
-            renderMenu(categoryMenuContainer, categoryMenuData, categoryMenuData, '', categorySelectedTags, categoryParentStack, categoryClearButton, categorySelectedContainerDiv);
-            searchBoxDiv(categoryMenuWrapper, categoryMenuContainer, categoryMenuData, categoryMenuData, categorySelectedTags, categoryParentStack, categoryClearButton, categorySelectedContainerDiv)
+            renderMenu(categoryMenuContainer, categoryMenuData, categoryMenuData, '', categorySelectedTags, categoryParentStack, categoryClearButton, categorySelectedContainerDiv, "category");
+            searchBoxDiv(categoryMenuWrapper, categoryMenuContainer, categoryMenuData, categoryMenuData, categorySelectedTags, categoryParentStack, categoryClearButton, categorySelectedContainerDiv, "category")
 
             moodsMenuData = data.moods;
-            renderMenu(moodsMenuContainer, moodsMenuData, moodsMenuData, '', moodsSelectedTags, moodsParentStack, moodsClearButton, moodsSelectedContainerDiv);
-            searchBoxDiv(moodsMenuWrapper, moodsMenuContainer, moodsMenuData, moodsMenuData, moodsSelectedTags, moodsParentStack, moodsClearButton, moodsSelectedContainerDiv)
+            renderMenu(moodsMenuContainer, moodsMenuData, moodsMenuData, '', moodsSelectedTags, moodsParentStack, moodsClearButton, moodsSelectedContainerDiv, "moods");
+            searchBoxDiv(moodsMenuWrapper, moodsMenuContainer, moodsMenuData, moodsMenuData, moodsSelectedTags, moodsParentStack, moodsClearButton, moodsSelectedContainerDiv, "moods")
 
             instrumentsMenuData = data.instruments;
-            renderMenu(instrumentsMenuContainer, instrumentsMenuData, instrumentsMenuData, '', instrumentsSelectedTags, instrumentsParentStack, instrumentsClearButton, instrumentsSelectedContainerDiv);
-            searchBoxDiv(instrumentsMenuWrapper, instrumentsMenuContainer, instrumentsMenuData, instrumentsMenuData, instrumentsSelectedTags, instrumentsParentStack, instrumentsClearButton, instrumentsSelectedContainerDiv)
+            renderMenu(instrumentsMenuContainer, instrumentsMenuData, instrumentsMenuData, '', instrumentsSelectedTags, instrumentsParentStack, instrumentsClearButton, instrumentsSelectedContainerDiv, "instruments");
+            searchBoxDiv(instrumentsMenuWrapper, instrumentsMenuContainer, instrumentsMenuData, instrumentsMenuData, instrumentsSelectedTags, instrumentsParentStack, instrumentsClearButton, instrumentsSelectedContainerDiv, "instruments")
         })
         .catch(error => {
             console.error('Menu Json error:', error);
         });
 });
 
-function searchBoxDiv(menuWrapper, menuContainer, menuData, fullMenuData, selectedTags, parentStack, clearButtonID, selectedContainerDiv) {
+function searchBoxDiv(menuWrapper, menuContainer, menuData, fullMenuData, selectedTags, parentStack, clearButtonID, selectedContainerDiv, metaDataName) {
     const searchContainer = document.createElement('div');
     searchContainer.className = 'flex items-center mb-4 w-full';
     const clearButton = document.createElement('button');
@@ -118,15 +118,15 @@ function searchBoxDiv(menuWrapper, menuContainer, menuData, fullMenuData, select
     searchBox.addEventListener('input', function () {
         const query = searchBox.value.toLowerCase();
         if (query === '') {
-            renderMenu(menuContainer, menuData, fullMenuData, '', selectedTags, parentStack, clearButtonID, selectedContainerDiv);
+            renderMenu(menuContainer, menuData, fullMenuData, '', selectedTags, parentStack, clearButtonID, selectedContainerDiv, metaDataName);
         } else {
             const filtered = filterMenu(menuData, query);
-            renderMenu(menuContainer, filtered, fullMenuData, '', selectedTags, parentStack, clearButtonID, selectedContainerDiv);
+            renderMenu(menuContainer, filtered, fullMenuData, '', selectedTags, parentStack, clearButtonID, selectedContainerDiv, metaDataName);
         }
     });
 }
 
-async function renderMenu(menuContainer, menuData, fullMenuData, parentName = '', selectedTags, parentStack, clearButtonID, selectedContainerDiv) {
+async function renderMenu(menuContainer, menuData, fullMenuData, parentName = '', selectedTags, parentStack, clearButtonID, selectedContainerDiv, metaDataName) {
     menuContainer.innerHTML = '';
 
     const selectedContainer = document.createElement('div');
@@ -149,7 +149,7 @@ async function renderMenu(menuContainer, menuData, fullMenuData, parentName = ''
 
         backButton.addEventListener('click', function () {
             const prev = parentStack.pop();
-            renderMenu(menuContainer, prev.items, fullMenuData, prev.parentName, selectedTags, parentStack, clearButtonID, selectedContainerDiv);
+            renderMenu(menuContainer, prev.items, fullMenuData, prev.parentName, selectedTags, parentStack, clearButtonID, selectedContainerDiv, metaDataName);
         });
     }
 
@@ -185,23 +185,34 @@ async function renderMenu(menuContainer, menuData, fullMenuData, parentName = ''
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"
                 },
-                body: `tag=${encodeURIComponent(item.tag)}`
+                body: `key=${encodeURIComponent(item.tag)}`
             })
             const statusCode = checkSubCategory.status;
             if (statusCode === 200) {
-                console.log("skfnglk")
-            }
+                // const result = await checkSubCategory.text();
+                // console.log(result);
 
-            if (item.subcategories && item.subcategories.length > 0) {
                 const arrow = document.createElement('span');
                 arrow.className = 'text-gray-400 group-hover:text-gray-600';
                 arrow.innerHTML = '&rsaquo;';
                 itemDiv.appendChild(arrow);
 
-                itemDiv.addEventListener('click', function (e) {
+                itemDiv.addEventListener('click', async function (e) {
                     if (e.target !== checkbox) {
-                        parentStack.push({items: menuData, parentName});
-                        renderMenu(menuContainer, item.subcategories, fullMenuData, item.name, selectedTags, parentStack, clearButtonID, selectedContainerDiv);
+                        fetch(`/database/getMetaDataSubCategory/${item.tag}/${metaDataName}`, {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        }).then(res => {
+                            if (!res.ok) {
+                                console.log("Error")
+                            }
+                            return res.json()
+                        }).then(async data => {
+                            parentStack.push({items: menuData, parentName});
+                            fullMenuData = data.categories
+                            await renderMenu(menuContainer, data.categories, fullMenuData, item.name, selectedTags, parentStack, clearButtonID, selectedContainerDiv, metaDataName);
+                        })
                     }
                 });
             }
