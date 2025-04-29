@@ -2,43 +2,45 @@ import {soundList} from "../soundList.js";
 import {updatePagination} from "../pagination.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
-    //region Duration
-    minSlider.value = minSliderValue
-    maxSlider.value = maxSliderValue
-    minSlider.addEventListener('input', () => updateDisplay(true));
-    maxSlider.addEventListener('input', () => updateDisplay(true));
-    updateDisplay(false);
-    //endregion
+    if (minSlider && maxSlider) {
+        //region Duration
+        minSlider.value = minSliderValue
+        maxSlider.value = maxSliderValue
+        minSlider.addEventListener('input', () => updateDisplay(true));
+        maxSlider.addEventListener('input', () => updateDisplay(true));
+        updateDisplay(false);
+        //endregion
 
-    //region Tag Menu
-    openCloseButtons('menuWrapper')
+        //region Tag Menu
+        openCloseButtons('menuWrapper')
 
-    fetch('/allMetaData')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Menu loading error');
-            }
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('categorySearchInput').addEventListener('input', (event) => {
-                filterMenu('categorySearchInput', 'categoryMenuContainer')
-            });
-            document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
-                clearAllSelections('selectedItemsContainer', categorySelectedItems, true)
-            });
-            const categoryDataName = 'categories'
-            categoryMenuData = data[categoryDataName];
-            categoryRootItems = data[categoryDataName];
-            renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
-                categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
+        fetch('/allMetaData')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Menu loading error');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('categorySearchInput').addEventListener('input', (event) => {
+                    filterMenu('categorySearchInput', 'categoryMenuContainer')
+                });
+                document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
+                    clearAllSelections('selectedItemsContainer', categorySelectedItems, true)
+                });
+                const categoryDataName = 'categories'
+                categoryMenuData = data[categoryDataName];
+                categoryRootItems = data[categoryDataName];
+                renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
+                    categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
 
-            // instrumentsMenuData = data.instruments;
-            // instrumentsRootItems = data.instruments;
-        })
-    //endregion
+                // instrumentsMenuData = data.instruments;
+                // instrumentsRootItems = data.instruments;
+            })
+        //endregion
 
-    menuSubmit('menuSubmitDiv')
+        menuSubmit('menuSubmitDiv')
+    }
 });
 
 //region Duration
@@ -71,27 +73,31 @@ const minSliderValue = 0
 const maxSliderValue = 600
 
 function updateDisplay(durationChanges) {
-    let min = parseInt(minSlider.value);
-    let max = parseInt(maxSlider.value);
+    if (minSlider && maxSlider) {
+        let min = parseInt(minSlider.value);
+        let max = parseInt(maxSlider.value);
 
-    if (min > max) {
-        [minSlider.value, maxSlider.value] = [max, min];
-        [min, max] = [max, min];
-    }
+        if (min > max) {
+            [minSlider.value, maxSlider.value] = [max, min];
+            [min, max] = [max, min];
+        }
 
-    output.textContent = formatDuration(min) + '-' + formatDuration(max);
+        output.textContent = formatDuration(min) + '-' + formatDuration(max);
 
-    isDurationChanged = durationChanges === true
+        isDurationChanged = durationChanges === true
 
-    if (isDurationChanged) {
-        updateSelected()
+        if (isDurationChanged) {
+            updateSelected()
+        }
     }
 }
 
 function resetDuration() {
-    minSlider.value = minSliderValue
-    maxSlider.value = maxSliderValue
-    updateDisplay(false)
+    if (minSlider && maxSlider) {
+        minSlider.value = minSliderValue
+        maxSlider.value = maxSliderValue
+        updateDisplay(false)
+    }
 }
 
 function updateSelected() {
