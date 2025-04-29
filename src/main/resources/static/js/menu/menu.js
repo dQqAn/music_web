@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 filterMenu('categorySearchInput', 'categoryMenuContainer')
             });
             document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
-                clearAllSelections('selectedItemsContainer', categorySelectedItems)
+                clearAllSelections('selectedItemsContainer', categorySelectedItems, true)
             });
             const categoryDataName = 'categories'
             categoryMenuData = data[categoryDataName];
@@ -146,7 +146,7 @@ async function setupClearButton(clearButtonName, event, navigationStack, metaDat
     }
 }
 
-function renderMenu(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID) {
+export function renderMenu(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID) {
     const menuContainer = document.getElementById(menuContainerID);
     menuContainer.innerHTML = '';
 
@@ -267,14 +267,16 @@ async function fetchSubCategories(tag, metaDataName) {
     return await response.json();
 }
 
-function clearAllSelections(selectedItemsContainer, selectedItems) {
+export function clearAllSelections(selectedItemsContainer, selectedItems, hasDurationProgressiveBar) {
     selectedItems.clear();
-    resetDuration()
+    if (hasDurationProgressiveBar) {
+        resetDuration()
+    }
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
     updateSelectedItems(selectedItemsContainer, selectedItems);
 }
 
-function filterMenu(searchInput, menuContainerID) {
+export function filterMenu(searchInput, menuContainerID) {
     const searchTerm = document.getElementById(searchInput).value.toLowerCase();
     const menuContainer = document.getElementById(menuContainerID);
     const items = menuContainer.querySelectorAll('div > span');
