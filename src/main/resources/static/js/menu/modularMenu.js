@@ -90,6 +90,10 @@ function createMenuItem(clearButtonName, rootItems, item, selectedItems, navigat
     checkbox.className = 'form-checkbox';
     checkbox.dataset.tag = item.tag;
 
+    if (selectedItems.has(item.tag)) {
+        checkbox.checked = true
+    }
+
     checkbox.addEventListener('change', () => {
         if (checkbox.checked) {
             selectedItems.add(item.tag);
