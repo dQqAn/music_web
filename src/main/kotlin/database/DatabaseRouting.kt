@@ -22,6 +22,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.koin.ktor.ext.inject
@@ -243,16 +244,17 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                                     }
 
                                     "category" -> {
-                                        categoryList = Json.decodeFromString<List<String>>(part.value)
+                                        val fullCategoryList = Json.decodeFromString<List<MenuGenre>>(part.value)
+                                        categoryList = fullCategoryList.map { it.tag }
                                     }
 
-                                    "mood" -> {
+                                    /*"mood" -> {
                                         moodList = Json.decodeFromString<List<String>>(part.value)
                                     }
 
                                     "instrument" -> {
                                         instrumentList = Json.decodeFromString<List<String>>(part.value)
-                                    }
+                                    }*/
                                 }
                             }
 
@@ -492,3 +494,9 @@ fun getMp3DurationInSeconds(file: File): Int {
     val mp3 = Mp3File(file)
     return (mp3.lengthInMilliseconds / 1000).toInt()
 }
+
+@Serializable
+data class MenuGenre(
+    val tag: String,
+    val name: String
+)
