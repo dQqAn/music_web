@@ -167,15 +167,15 @@ function createMenuItem(clearButtonName, rootItems, item, selectedItems, navigat
     checkbox.className = 'form-checkbox';
     checkbox.dataset.tag = item.tag;
 
-    if (selectedItems.has(item.tag)) {
+    if ([...selectedItems].find(selected => selected.tag === item.tag)) {
         checkbox.checked = true
     }
 
     checkbox.addEventListener('change', () => {
         if (checkbox.checked) {
-            selectedItems.add(item.tag);
+            selectedItems.add(item);
         } else {
-            selectedItems.delete(item.tag);
+            selectedItems.delete(item);
         }
         updateSelectedItems(selectedItemsContainer, selectedItems);
     });
@@ -216,26 +216,29 @@ function updateSelectedItems(selectedItemsContainer, selectedItems) {
     const selectedContainer = document.getElementById(selectedItemsContainer);
     selectedContainer.innerHTML = '';
 
-    selectedItems.forEach(tag => {
+    for (let selected of selectedItems) {
+        const selectedTag = selected.tag
+        const selectedName = selected.name
+
         const item = document.createElement('div');
         item.className = 'flex items-center bg-blue-200 text-blue-800 px-2 py-1 rounded text-sm space-x-1';
 
         const tagName = document.createElement('span');
-        tagName.textContent = tag;
+        tagName.textContent = selectedName;
 
         const removeBtn = document.createElement('button');
         removeBtn.innerHTML = '×';
         removeBtn.className = 'text-red-600 font-bold';
         removeBtn.addEventListener('click', () => {
-            selectedItems.delete(tag);
-            uncheckCheckbox(tag);
+            selectedItems.delete(selected);
+            uncheckCheckbox(selected.tag);
             updateSelectedItems(selectedItemsContainer, selectedItems);
         });
 
         item.appendChild(tagName);
         item.appendChild(removeBtn);
         selectedContainer.appendChild(item);
-    });
+    }
 }
 
 function uncheckCheckbox(tag) {
@@ -265,7 +268,7 @@ async function fetchSubCategories(tag, metaDataName) {
 }
 
 function clearAllSelections(selectedItemsContainer, selectedItems) {
-    selectedItems.clear();
+    selectedItems = new Set();
     resetDuration()
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
     updateSelectedItems(selectedItemsContainer, selectedItems);
