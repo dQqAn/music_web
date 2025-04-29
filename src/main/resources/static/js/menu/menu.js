@@ -268,7 +268,7 @@ async function fetchSubCategories(tag, metaDataName) {
 }
 
 function clearAllSelections(selectedItemsContainer, selectedItems) {
-    selectedItems = new Set();
+    selectedItems.clear();
     resetDuration()
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
     updateSelectedItems(selectedItemsContainer, selectedItems);
