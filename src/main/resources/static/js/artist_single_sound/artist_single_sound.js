@@ -19,9 +19,9 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
     formData.append("image", imageInput.files[0]);
     formData.append("sound", soundInput.files[0]);
     formData.append("name", soundName.value);
-    formData.append("category", JSON.stringify([...categorySelectedItems]));
-    // formData.append("mood", JSON.stringify([...moodsSelectedTags]));
-    // formData.append("instrument", JSON.stringify([...instrumentsSelectedTags]));
+    formData.append("category", JSON.stringify([...categorySelectedTags]));
+    formData.append("mood", JSON.stringify([...moodsSelectedTags]));
+    formData.append("instrument", JSON.stringify([...instrumentsSelectedTags]));
 
     fileInfo.style.display = "none";
     errorInfo.style.display = "none";
