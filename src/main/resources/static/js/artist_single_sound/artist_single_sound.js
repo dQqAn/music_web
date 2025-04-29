@@ -46,31 +46,16 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
 });
 
 //Category
-let categoryParentStack = [];
 let categoryMenuData = [];
 const categorySelectedTags = new Set();
-const categoryMenuWrapper = document.getElementById('categoryMenuWrapper');
-const categoryMenuContainer = document.getElementById('categoryMenuContainer');
-const categoryClearButton = 'categoryClearButton'
-const categorySelectedContainerDiv = 'categorySelectedContainerDiv'
 
 //Moods
-let moodsParentStack = [];
 let moodsMenuData = [];
 const moodsSelectedTags = new Set();
-const moodsMenuWrapper = document.getElementById('moodsMenuWrapper');
-const moodsMenuContainer = document.getElementById('moodsMenuContainer');
-const moodsClearButton = 'moodsClearButton'
-const moodsSelectedContainerDiv = 'moodsSelectedContainerDiv'
 
 //Instruments
-let instrumentsParentStack = [];
 let instrumentsMenuData = [];
 const instrumentsSelectedTags = new Set();
-const instrumentsMenuWrapper = document.getElementById('instrumentsMenuWrapper');
-const instrumentsMenuContainer = document.getElementById('instrumentsMenuContainer');
-const instrumentsClearButton = 'instrumentsClearButton'
-const instrumentsSelectedContainerDiv = 'instrumentsSelectedContainerDiv'
 
 document.addEventListener('DOMContentLoaded', async () => {
     fetch('/allMetaData')
@@ -82,25 +67,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         })
         .then(data => {
             categoryMenuData = data.categories;
-            // renderMenu(categoryMenuContainer, categoryMenuData, categoryMenuData, '', categorySelectedTags, categoryParentStack, categoryClearButton, categorySelectedContainerDiv, "category");
-            // searchBoxDiv(categoryMenuWrapper, categoryMenuContainer, categoryMenuData, categoryMenuData, categorySelectedTags, categoryParentStack, categoryClearButton, categorySelectedContainerDiv, "category")
 
             moodsMenuData = data.moods;
-            // renderMenu(moodsMenuContainer, moodsMenuData, moodsMenuData, '', moodsSelectedTags, moodsParentStack, moodsClearButton, moodsSelectedContainerDiv, "moods");
-            // searchBoxDiv(moodsMenuWrapper, moodsMenuContainer, moodsMenuData, moodsMenuData, moodsSelectedTags, moodsParentStack, moodsClearButton, moodsSelectedContainerDiv, "moods")
 
             instrumentsMenuData = data.instruments;
-            // renderMenu(instrumentsMenuContainer, instrumentsMenuData, instrumentsMenuData, '', instrumentsSelectedTags, instrumentsParentStack, instrumentsClearButton, instrumentsSelectedContainerDiv, "instruments");
-            // searchBoxDiv(instrumentsMenuWrapper, instrumentsMenuContainer, instrumentsMenuData, instrumentsMenuData, instrumentsSelectedTags, instrumentsParentStack, instrumentsClearButton, instrumentsSelectedContainerDiv, "instruments")
 
-
-            const menuContainer = document.getElementById('menuContainer');
-            categoryMenuData.forEach(item => {
-                const menuItem = createMenuItem(item);
-                menuContainer.appendChild(menuItem);
-            });
+            rootItems = data.categories;
+            renderMenu(categoryMenuData);
             document.getElementById('searchInput').addEventListener('input', filterMenu);
             document.getElementById('clearSelection').addEventListener('click', clearAllSelections);
+            document.getElementById('backButton').addEventListener('click', async () => {
+                if (navigationStack.length > 0) {
+                    const previous = navigationStack.pop();
+                    if (previous && previous.tag && previous.length > 0) {
+                        const metaDataName = 'category';
+                        const response = await fetch(`/database/getMetaDataSubCategory/${previous.tag}/${metaDataName}`, {
+                            headers: {'Accept': 'application/json'}
+                        });
+                        const data = await response.json();
+                        currentItems = data.categories;
+                    } else {
+                        currentItems = rootItems;
+                    }
+
+                    renderMenu(currentItems);
+
+                    if (navigationStack.length === 0) {
+                        showBackButton(false);
+                    }
+                } else {
+                    currentItems = rootItems;
+                    renderMenu(currentItems);
+                    showBackButton(false);
+                }
+            });
         })
         .catch(error => {
             console.error('Menu Json error:', error);
@@ -108,10 +108,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 let selectedItems = new Set();
+let navigationStack = [];
+let currentItems = [];
+let rootItems = [];
 
-function createMenuItem(item, level = 0) {
+function renderMenu(items) {
+    const menuContainer = document.getElementById('menuContainer');
+    menuContainer.innerHTML = '';
+
+    items.forEach(item => {
+        const menuItem = createMenuItem(item);
+        menuContainer.appendChild(menuItem);
+    });
+}
+
+function createMenuItem(item) {
     const container = document.createElement('div');
-    container.className = `pl-${level * 4} flex items-center space-x-2 py-1 relative group`;
+    container.className = `flex items-center space-x-2 py-1 relative group`;
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -133,30 +146,19 @@ function createMenuItem(item, level = 0) {
     container.appendChild(checkbox);
     container.appendChild(label);
 
-    checkIfHasSubCategory(item.tag).then(hasSub => {
-        if (hasSub) {
-            const expandBtn = document.createElement('button');
-            expandBtn.textContent = '+';
-            expandBtn.className = 'ml-auto text-gray-500';
-
-            const childrenContainer = document.createElement('div');
-            childrenContainer.className = 'pl-4 hidden';
-
-            expandBtn.addEventListener('click', async () => {
-                if (childrenContainer.childNodes.length === 0) {
-                    const subCategories = await fetchSubCategories(item.tag);
-                    console.log(subCategories)
-                    subCategories.categories.forEach(subItem => {
-                        const subMenuItem = createMenuItem(subItem, level + 1);
-                        childrenContainer.appendChild(subMenuItem);
-                    });
-                }
-                childrenContainer.classList.toggle('hidden');
-                expandBtn.textContent = childrenContainer.classList.contains('hidden') ? '+' : '-';
-            });
-
-            container.appendChild(expandBtn);
-            container.appendChild(childrenContainer);
+    container.addEventListener('click', async (e) => {
+        if (e.target !== checkbox) {
+            const hasSub = await checkIfHasSubCategory(item.tag);
+            if (hasSub) {
+                navigationStack.push({
+                    tag: item.tag,
+                    parentName: item.name
+                });
+                const subCategories = await fetchSubCategories(item.tag);
+                currentItems = subCategories.categories;
+                renderMenu(currentItems);
+                showBackButton(true);
+            }
         }
     });
 
@@ -236,6 +238,11 @@ function filterMenu() {
             parent.classList.add('hidden');
         }
     });
+}
+
+function showBackButton(show) {
+    const backButtonContainer = document.getElementById('backButtonContainer');
+    backButtonContainer.classList.toggle('hidden', !show);
 }
 
 /*function updateIcons(soundID, isPlaying) {

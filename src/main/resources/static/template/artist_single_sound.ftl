@@ -55,6 +55,10 @@
 
     <div id="selectedItems" class="flex flex-wrap gap-2 mb-4"></div>
 
+    <div id="backButtonContainer" class="mb-2 hidden">
+        <button id="backButton" class="text-blue-600 text-sm">← Back</button>
+    </div>
+
     <div id="menuContainer" class="bg-white rounded shadow p-4"></div>
 
     <#--<div id="categoryMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
