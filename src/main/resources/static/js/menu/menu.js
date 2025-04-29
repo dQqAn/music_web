@@ -1,6 +1,47 @@
-//region Duration
 import {soundList} from "../soundList.js";
 import {updatePagination} from "../pagination.js";
+
+document.addEventListener('DOMContentLoaded', async () => {
+    //region Duration
+    minSlider.value = minSliderValue
+    maxSlider.value = maxSliderValue
+    minSlider.addEventListener('input', () => updateDisplay(true));
+    maxSlider.addEventListener('input', () => updateDisplay(true));
+    updateDisplay(false);
+    //endregion
+
+    //region Tag Menu
+    openCloseButtons('menuWrapper')
+
+    fetch('/allMetaData')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Menu loading error');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('categorySearchInput').addEventListener('input', (event) => {
+                filterMenu('categorySearchInput', 'categoryMenuContainer')
+            });
+            document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
+                clearAllSelections('selectedItemsContainer', categorySelectedItems)
+            });
+            const categoryDataName = 'categories'
+            categoryMenuData = data[categoryDataName];
+            categoryRootItems = data[categoryDataName];
+            renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
+                categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
+
+            // instrumentsMenuData = data.instruments;
+            // instrumentsRootItems = data.instruments;
+        })
+    //endregion
+
+    menuSubmit('menuSubmitDiv')
+});
+
+//region Duration
 
 function parseTimeRange(rangeStr) {
     const [minStr, maxStr] = rangeStr.split("-");
@@ -53,55 +94,24 @@ function resetDuration() {
     updateDisplay(false)
 }
 
+function updateSelected() {
+    if (isDurationChanged) {
+        categorySelectedItems.add('duration');
+    } else {
+        categorySelectedItems.delete('duration');
+    }
+    updateSelectedItems('selectedItemsContainer', categorySelectedItems)
+}
+
 //endregion
 
+//region Tag Menu
 let categoryMenuData = [];
 let categorySelectedItems = new Set();
 let categoryNavigationStack = [];
 let categoryCurrentItems = [];
 let categoryRootItems = [];
 
-document.addEventListener('DOMContentLoaded', async () => {
-    //region Duration
-    minSlider.value = minSliderValue
-    maxSlider.value = maxSliderValue
-    minSlider.addEventListener('input', () => updateDisplay(true));
-    maxSlider.addEventListener('input', () => updateDisplay(true));
-    updateDisplay(false);
-    //endregion
-
-    //region Tag Menu
-    openCloseButtons()
-
-    fetch('/allMetaData')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Menu loading error');
-            }
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('categorySearchInput').addEventListener('input', (event) => {
-                filterMenu('categorySearchInput', 'categoryMenuContainer')
-            });
-            document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
-                clearAllSelections('selectedItemsContainer', categorySelectedItems)
-            });
-            const categoryDataName = 'categories'
-            categoryMenuData = data[categoryDataName];
-            categoryRootItems = data[categoryDataName];
-            renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
-                categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
-
-            // instrumentsMenuData = data.instruments;
-            // instrumentsRootItems = data.instruments;
-        })
-    //endregion
-
-    // menuSubmit()
-});
-
-//region Tag Menu
 function handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
     const btn = document.getElementById(clearButtonName)
     if (!btn) return
@@ -278,8 +288,8 @@ function filterMenu(searchInput, menuContainerID) {
 
 //endregion
 
-function openCloseButtons() {
-    const menuWrapper = document.getElementById('menuWrapper')
+function openCloseButtons(menuWrapperID) {
+    const menuWrapper = document.getElementById(menuWrapperID)
     const openMenuButton = document.createElement('button');
     openMenuButton.textContent = 'Menu';
     openMenuButton.className = 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded my-4 mx-auto md:hidden max-w-24 max-h-18';
@@ -301,13 +311,8 @@ function openCloseButtons() {
     });
 }
 
-/*function menuSubmit() {
-    const menuSubmitDiv = document.getElementById('menuSubmitDiv');
-    const submitButton = document.createElement('button');
-    submitButton.textContent = 'Show Selected Tags';
-    submitButton.className = 'show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4';
-    menuSubmitDiv.appendChild(submitButton);
-
+function menuSubmit(menuSubmitBtnID) {
+    const submitButton = document.getElementById(menuSubmitBtnID);
     submitButton.addEventListener('click', async function () {
         filterSounds(1)
     });
@@ -329,7 +334,7 @@ function filterSounds(page) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            selectedTags: Array.from(selectedTags),
+            selectedTags: Array.from(categorySelectedItems),
             minDuration: minDuration,
             maxDuration: maxDuration
         })
@@ -353,4 +358,4 @@ function filterSounds(page) {
     }).catch(error => {
         console.error("Error:", error);
     });
-}*/
+}

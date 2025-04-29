@@ -43,7 +43,7 @@
     </div>
 
     <div class="main_box">
-        <div id="menuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
+        <div id="menuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white w-72">
             <div id="menuContainer" class="gap-4 w-full max-w-md mx-auto p-4">
                 <div class="mb-4">
                     <input id="categorySearchInput" type="text" placeholder="Search..."
@@ -76,7 +76,12 @@
                 </div>
                 <div id="durationOutput"></div>
             </div>
-            <div id="menuSubmitDiv"></div>
+            <div id="menuSubmitDiv">
+                <button id="menuSubmitButton"
+                        class="show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4">
+                    Show Selected Tags
+                </button>
+            </div>
         </div>
 
         <div class="main_content">
