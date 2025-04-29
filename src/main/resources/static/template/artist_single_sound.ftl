@@ -11,7 +11,8 @@
     <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
     <link href="../js/artist_single_sound/artist_single_sound.css" rel="stylesheet">
-    <script src="../js/artist_single_sound/artist_single_sound.js" defer></script>
+    <#--    <script src="../js/artist_single_sound/artist_single_sound.js" defer></script>-->
+    <script src="../js/menu/modularMenu.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
 
     <link href="../tailwind/output.css" rel="stylesheet">
@@ -45,21 +46,21 @@
     </div>
 
     <div class="mb-4">
-        <input id="searchInput" type="text" placeholder="Search..." class="w-full p-2 border rounded">
+        <input id="categorySearchInput" type="text" placeholder="Search..." class="w-full p-2 border rounded">
     </div>
 
     <div class="flex justify-between items-center mb-2">
         <h2 class="text-lg font-semibold">Selected Items</h2>
-        <button id="clearSelection" class="text-red-600 text-sm">Clear</button>
+        <button id="categoryClearSelection" class="text-red-600 text-sm">Clear</button>
     </div>
 
-    <div id="selectedItems" class="flex flex-wrap gap-2 mb-4"></div>
+    <div id="selectedItemsContainer" class="flex flex-wrap gap-2 mb-4"></div>
 
-    <div id="backButtonContainer" class="mb-2 hidden">
-        <button id="backButton" class="text-blue-600 text-sm">← Back</button>
+    <div id="categoryBackButtonContainer" class="mb-2 hidden">
+        <button id="categoryBackButton" class="text-blue-600 text-sm">← Back</button>
     </div>
 
-    <div id="menuContainer" class="bg-white rounded shadow p-4"></div>
+    <div id="categoryMenuContainer" class="bg-white rounded shadow p-4"></div>
 
     <#--<div id="categoryMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
         <div id="categoryMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
