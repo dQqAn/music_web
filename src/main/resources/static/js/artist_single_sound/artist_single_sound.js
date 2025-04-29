@@ -232,7 +232,7 @@ function filterMenu() {
 
     items.forEach(span => {
         const parent = span.parentElement;
-        if (span.textContent.toLowerCase().includes(searchTerm)) {
+        if (span.textContent.toLowerCase().includes(searchTerm.toLowerCase())) {
             parent.classList.remove('hidden');
         } else {
             parent.classList.add('hidden');
