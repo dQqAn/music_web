@@ -11,8 +11,7 @@
     <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
     <link href="../js/artist_single_sound/artist_single_sound.css" rel="stylesheet">
-    <#--    <script src="../js/artist_single_sound/artist_single_sound.js" defer></script>-->
-    <script src="../js/menu/modularMenu.js" defer></script>
+    <script src="../js/artist_single_sound/artist_single_sound.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
 
     <link href="../tailwind/output.css" rel="stylesheet">

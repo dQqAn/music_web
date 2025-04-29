@@ -47,15 +47,14 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
 
 //Category
 let categoryMenuData = [];
-const categorySelectedTags = new Set();
-
-//Moods
-let moodsMenuData = [];
-const moodsSelectedTags = new Set();
+let categorySelectedItems = new Set();
+let categoryNavigationStack = [];
+let categoryCurrentItems = [];
+let categoryRootItems = [];
 
 //Instruments
 let instrumentsMenuData = [];
-const instrumentsSelectedTags = new Set();
+let instrumentsRootItems = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     fetch('/allMetaData')
@@ -66,63 +65,70 @@ document.addEventListener('DOMContentLoaded', async () => {
             return response.json();
         })
         .then(data => {
-            categoryMenuData = data.categories;
-
-            moodsMenuData = data.moods;
-
-            instrumentsMenuData = data.instruments;
-
-            rootItems = data.categories;
-            renderMenu(categoryMenuData);
-            document.getElementById('searchInput').addEventListener('input', filterMenu);
-            document.getElementById('clearSelection').addEventListener('click', clearAllSelections);
-            document.getElementById('backButton').addEventListener('click', async () => {
-                if (navigationStack.length > 0) {
-                    const previous = navigationStack.pop();
-                    if (previous && previous.tag && previous.length > 0) {
-                        const metaDataName = 'category';
-                        const response = await fetch(`/database/getMetaDataSubCategory/${previous.tag}/${metaDataName}`, {
-                            headers: {'Accept': 'application/json'}
-                        });
-                        const data = await response.json();
-                        currentItems = data.categories;
-                    } else {
-                        currentItems = rootItems;
-                    }
-
-                    renderMenu(currentItems);
-
-                    if (navigationStack.length === 0) {
-                        showBackButton(false);
-                    }
-                } else {
-                    currentItems = rootItems;
-                    renderMenu(currentItems);
-                    showBackButton(false);
-                }
+            document.getElementById('categorySearchInput').addEventListener('input', (event) => {
+                filterMenu('categorySearchInput', 'categoryMenuContainer')
             });
+            document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
+                clearAllSelections('selectedItemsContainer', categorySelectedItems)
+            });
+            const categoryDataName = 'categories'
+            categoryMenuData = data[categoryDataName];
+            categoryRootItems = data[categoryDataName];
+            renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
+                categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
+
+            // instrumentsMenuData = data.instruments;
+            // instrumentsRootItems = data.instruments;
         })
-        .catch(error => {
-            console.error('Menu Json error:', error);
-        });
-});
+})
 
-let selectedItems = new Set();
-let navigationStack = [];
-let currentItems = [];
-let rootItems = [];
+function handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
+    const btn = document.getElementById(clearButtonName)
+    if (!btn) return
 
-function renderMenu(items) {
-    const menuContainer = document.getElementById('menuContainer');
-    menuContainer.innerHTML = '';
-
-    items.forEach(item => {
-        const menuItem = createMenuItem(item);
-        menuContainer.appendChild(menuItem);
+    btn.addEventListener("click", (event) => {
+        setupClearButton(clearButtonName, event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer);
     });
 }
 
-function createMenuItem(item) {
+async function setupClearButton(clearButtonName, event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
+    if (navigationStack.length > 0) {
+        const previous = navigationStack.pop();
+        if (previous && previous.tag && previous.length > 0) {
+            const response = await fetch(`/database/getMetaDataSubCategory/${previous.tag}/${metaDataName}`, {
+                headers: {'Accept': 'application/json'}
+            });
+            const data = await response.json();
+            currentItems = data[dataName];
+        } else {
+            currentItems = rootItems;
+        }
+
+        renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+
+        if (navigationStack.length === 0) {
+            showBackButton(false, backButtonID);
+        }
+    } else {
+        currentItems = rootItems;
+        renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+        showBackButton(false, backButtonID);
+    }
+}
+
+function renderMenu(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID) {
+    const menuContainer = document.getElementById(menuContainerID);
+    menuContainer.innerHTML = '';
+
+    items.forEach(item => {
+        const menuItem = createMenuItem(clearButtonName, rootItems, item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID);
+        menuContainer.appendChild(menuItem);
+    });
+
+    handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer)
+}
+
+function createMenuItem(clearButtonName, rootItems, item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID) {
     const container = document.createElement('div');
     container.className = `flex items-center space-x-2 py-1 relative group`;
 
@@ -131,13 +137,17 @@ function createMenuItem(item) {
     checkbox.className = 'form-checkbox';
     checkbox.dataset.tag = item.tag;
 
+    if (selectedItems.has(item.tag)) {
+        checkbox.checked = true
+    }
+
     checkbox.addEventListener('change', () => {
         if (checkbox.checked) {
             selectedItems.add(item.tag);
         } else {
             selectedItems.delete(item.tag);
         }
-        updateSelectedItems();
+        updateSelectedItems(selectedItemsContainer, selectedItems);
     });
 
     const label = document.createElement('span');
@@ -154,10 +164,10 @@ function createMenuItem(item) {
                     tag: item.tag,
                     parentName: item.name
                 });
-                const subCategories = await fetchSubCategories(item.tag);
-                currentItems = subCategories.categories;
-                renderMenu(currentItems);
-                showBackButton(true);
+                const subCategories = await fetchSubCategories(item.tag, metaDataName);
+                currentItems = subCategories[dataName];
+                renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+                showBackButton(true, backButtonID);
             }
         }
     });
@@ -165,29 +175,15 @@ function createMenuItem(item) {
     return container;
 }
 
-async function checkIfHasSubCategory(tag) {
-    const response = await fetch('/database/checkMetaDataSubCategory', {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: `key=${encodeURIComponent(tag)}`
-    });
-    const result = await response.json();
-    return result === true;
+function showBackButton(show, backButtonID) {
+    const backButtonContainer = document.getElementById(backButtonID);
+    if (backButtonContainer) {
+        backButtonContainer.classList.toggle('hidden', !show);
+    }
 }
 
-async function fetchSubCategories(tag) {
-    const metaDataName = 'category';
-    const response = await fetch(`/database/getMetaDataSubCategory/${tag}/${metaDataName}`, {
-        headers: {'Accept': 'application/json'}
-    });
-    const data = await response.json();
-    return data;
-}
-
-function updateSelectedItems() {
-    const selectedContainer = document.getElementById('selectedItems');
+function updateSelectedItems(selectedItemsContainer, selectedItems) {
+    const selectedContainer = document.getElementById(selectedItemsContainer);
     selectedContainer.innerHTML = '';
 
     selectedItems.forEach(tag => {
@@ -203,7 +199,7 @@ function updateSelectedItems() {
         removeBtn.addEventListener('click', () => {
             selectedItems.delete(tag);
             uncheckCheckbox(tag);
-            updateSelectedItems();
+            updateSelectedItems(selectedItemsContainer, selectedItems);
         });
 
         item.appendChild(tagName);
@@ -219,15 +215,34 @@ function uncheckCheckbox(tag) {
     }
 }
 
-function clearAllSelections() {
-    selectedItems.clear();
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    updateSelectedItems();
+async function checkIfHasSubCategory(tag) {
+    const response = await fetch('/database/checkMetaDataSubCategory', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `key=${encodeURIComponent(tag)}`
+    });
+    const result = await response.json();
+    return result === true;
 }
 
-function filterMenu() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const menuContainer = document.getElementById('menuContainer');
+async function fetchSubCategories(tag, metaDataName) {
+    const response = await fetch(`/database/getMetaDataSubCategory/${tag}/${metaDataName}`, {
+        headers: {'Accept': 'application/json'}
+    });
+    return await response.json();
+}
+
+function clearAllSelections(selectedItemsContainer, selectedItems) {
+    selectedItems.clear();
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateSelectedItems(selectedItemsContainer, selectedItems);
+}
+
+function filterMenu(searchInput, menuContainerID) {
+    const searchTerm = document.getElementById(searchInput).value.toLowerCase();
+    const menuContainer = document.getElementById(menuContainerID);
     const items = menuContainer.querySelectorAll('div > span');
 
     items.forEach(span => {
@@ -238,11 +253,6 @@ function filterMenu() {
             parent.classList.add('hidden');
         }
     });
-}
-
-function showBackButton(show) {
-    const backButtonContainer = document.getElementById('backButtonContainer');
-    backButtonContainer.classList.toggle('hidden', !show);
 }
 
 /*function updateIcons(soundID, isPlaying) {
