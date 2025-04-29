@@ -44,7 +44,20 @@
         </div>
     </div>
 
-    <div id="categoryMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
+    <div class="mb-4">
+        <input id="searchInput" type="text" placeholder="Search..." class="w-full p-2 border rounded">
+    </div>
+
+    <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">Selected Items</h2>
+        <button id="clearSelection" class="text-red-600 text-sm">Clear</button>
+    </div>
+
+    <div id="selectedItems" class="flex flex-wrap gap-2 mb-4"></div>
+
+    <div id="menuContainer" class="bg-white rounded shadow p-4"></div>
+
+    <#--<div id="categoryMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
         <div id="categoryMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
     </div>
 
@@ -54,7 +67,7 @@
 
     <div id="instrumentsMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
         <div id="instrumentsMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
-    </div>
+    </div>-->
 </main>
 
 <script>
