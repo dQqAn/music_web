@@ -77,10 +77,7 @@
                 <div id="durationOutput"></div>
             </div>
             <div id="menuSubmitDiv">
-                <button id="menuSubmitButton"
-                        class="show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4">
-                    Show Selected Tags
-                </button>
+                <button id="menuSubmitButton" class="show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4">Show Selected Tags</button>
             </div>
         </div>
 
