@@ -55,13 +55,13 @@ function resetDuration() {
 
 //endregion
 
-let parentStack = [];
-let fullMenuData = [];
-const selectedTags = new Set();
-const menuWrapper = document.getElementById('menuWrapper');
-const menuContainer = document.getElementById('menuContainer');
+let categoryMenuData = [];
+let categorySelectedItems = new Set();
+let categoryNavigationStack = [];
+let categoryCurrentItems = [];
+let categoryRootItems = [];
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async () => {
     //region Duration
     minSlider.value = minSliderValue
     maxSlider.value = maxSliderValue
@@ -73,9 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
     //region Tag Menu
     openCloseButtons()
 
-    searchBoxDiv()
-
-    fetch('/menuItems')
+    fetch('/allMetaData')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Menu loading error');
@@ -83,210 +81,205 @@ document.addEventListener('DOMContentLoaded', function () {
             return response.json();
         })
         .then(data => {
-            fullMenuData = data.categories;
-            renderMenu(data.categories);
+            document.getElementById('categorySearchInput').addEventListener('input', (event) => {
+                filterMenu('categorySearchInput', 'categoryMenuContainer')
+            });
+            document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
+                clearAllSelections('selectedItemsContainer', categorySelectedItems)
+            });
+            const categoryDataName = 'categories'
+            categoryMenuData = data[categoryDataName];
+            categoryRootItems = data[categoryDataName];
+            renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
+                categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
+
+            // instrumentsMenuData = data.instruments;
+            // instrumentsRootItems = data.instruments;
         })
-        .catch(error => {
-            console.error('Menu Json error:', error);
-        });
     //endregion
 
-    menuSubmit()
+    // menuSubmit()
 });
 
 //region Tag Menu
-function updateSelected() {
-    const selectedContainer = document.querySelector('.selected-container');
-    const clearButton = document.querySelector('.clear-all-btn');
+function handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
+    const btn = document.getElementById(clearButtonName)
+    if (!btn) return
 
-    if (!selectedContainer || !clearButton) return;
-
-    selectedContainer.innerHTML = '';
-
-    selectedTags.forEach(tag => {
-        const name = findNameByTag(fullMenuData, tag);
-        if (name) {
-            const badge = document.createElement('div');
-            badge.className = 'flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm';
-            badge.innerHTML = `${name} <span data-tag="${tag}" class="remove-item ml-2 cursor-pointer text-red-500 hover:text-red-700">&times;</span>`;
-            selectedContainer.appendChild(badge);
-        }
+    btn.addEventListener("click", (event) => {
+        setupClearButton(clearButtonName, event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer);
     });
+}
 
-    if (isDurationChanged) {
-        const badge = document.createElement('div');
-        badge.className = 'flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm';
-        badge.innerHTML = `${output.textContent} <span data-tag="duration" class="remove-item ml-2 cursor-pointer text-red-500 hover:text-red-700">&times;</span>`;
-        selectedContainer.appendChild(badge);
+async function setupClearButton(clearButtonName, event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
+    if (navigationStack.length > 0) {
+        const previous = navigationStack.pop();
+        if (previous && previous.tag && previous.length > 0) {
+            const response = await fetch(`/database/getMetaDataSubCategory/${previous.tag}/${metaDataName}`, {
+                headers: {'Accept': 'application/json'}
+            });
+            const data = await response.json();
+            currentItems = data[dataName];
+        } else {
+            currentItems = rootItems;
+        }
 
+        renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+
+        if (navigationStack.length === 0) {
+            showBackButton(false, backButtonID);
+        }
+    } else {
+        currentItems = rootItems;
+        renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+        showBackButton(false, backButtonID);
     }
-
-    clearButton.style.display = (selectedTags.size > 0 || isDurationChanged === true) ? 'inline-block' : 'none';
 }
 
-function findNameByTag(items, tag) {
-    for (const item of items) {
-        if (item.tag === tag) return item.name;
-        if (item.subcategories) {
-            const subName = findNameByTag(item.subcategories, tag);
-            if (subName) return subName;
-        }
-    }
-    return null;
-}
-
-function filterMenu(items, query) {
-    let results = [];
-
-    items.forEach(item => {
-        if (item.name.toLowerCase().includes(query)) {
-            results.push(item);
-        }
-
-        if (item.subcategories) {
-            results = results.concat(filterMenu(item.subcategories, query));
-        }
-    });
-
-    return results;
-}
-
-function renderMenu(items, parentName = '') {
+function renderMenu(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID) {
+    const menuContainer = document.getElementById(menuContainerID);
     menuContainer.innerHTML = '';
 
-    const selectedContainer = document.createElement('div');
-    selectedContainer.className = 'selected-container mb-4 flex flex-wrap gap-2';
-    menuContainer.appendChild(selectedContainer);
-
-    const clearButton = document.createElement('button');
-    clearButton.textContent = 'Clear all';
-    clearButton.className = 'clear-all-btn bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition';
-    clearButton.style.display = 'none';
-    menuContainer.appendChild(clearButton);
-
-    if (parentName) {
-        const backButton = document.createElement('div');
-        backButton.textContent = '← ' + parentName;
-        backButton.className = 'back-button flex items-center text-blue-500 hover:text-blue-700 font-semibold mb-4 cursor-pointer';
-        menuContainer.appendChild(backButton);
-
-        backButton.addEventListener('click', function () {
-            const prev = parentStack.pop();
-            renderMenu(prev.items, prev.parentName);
-        });
-    }
-
-    const listContainer = document.createElement('div');
-    listContainer.className = 'space-y-2';
-    menuContainer.appendChild(listContainer);
-
     items.forEach(item => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'menu-item group flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100 transition';
-
-        const menuItem = document.createElement('div');
-        menuItem.className = 'flex items-center space-x-2';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'menu-checkbox accent-blue-500';
-        checkbox.dataset.name = item.name;
-        checkbox.dataset.tag = item.tag;
-        checkbox.checked = selectedTags.has(item.tag);
-        menuItem.appendChild(checkbox);
-
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = item.name;
-        nameSpan.className = 'category-name font-medium text-gray-700 group-hover:text-gray-900';
-        menuItem.appendChild(nameSpan);
-
-        itemDiv.appendChild(menuItem);
-
-        if (item.subcategories && item.subcategories.length > 0) {
-            const arrow = document.createElement('span');
-            arrow.className = 'text-gray-400 group-hover:text-gray-600';
-            arrow.innerHTML = '&rsaquo;';
-            itemDiv.appendChild(arrow);
-
-            itemDiv.addEventListener('click', function (e) {
-                if (e.target !== checkbox) {
-                    parentStack.push({items, parentName});
-                    renderMenu(item.subcategories, item.name);
-                }
-            });
-        }
-
-        listContainer.appendChild(itemDiv);
+        const menuItem = createMenuItem(clearButtonName, rootItems, item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID);
+        menuContainer.appendChild(menuItem);
     });
 
-    updateSelected();
+    handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer)
 }
 
-menuContainer.addEventListener('change', function (e) {
-    if (e.target.classList.contains('menu-checkbox')) {
-        const tag = e.target.dataset.tag;
-        if (e.target.checked) {
-            selectedTags.add(tag);
+function createMenuItem(clearButtonName, rootItems, item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID) {
+    const container = document.createElement('div');
+    container.className = `flex items-center space-x-2 py-1 relative group`;
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'form-checkbox';
+    checkbox.dataset.tag = item.tag;
+
+    if (selectedItems.has(item.tag)) {
+        checkbox.checked = true
+    }
+
+    checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+            selectedItems.add(item.tag);
         } else {
-            selectedTags.delete(tag);
+            selectedItems.delete(item.tag);
         }
-        updateSelected();
-    }
-});
-
-menuContainer.addEventListener('click', function (e) {
-    if (e.target.classList.contains('remove-item')) {
-        const tag = e.target.dataset.tag;
-        selectedTags.delete(tag);
-        const checkbox = menuContainer.querySelector(`.menu-checkbox[data-tag="${tag}"]`);
-        if (checkbox) {
-            checkbox.checked = false;
-        }
-
-        if (tag === 'duration') {
-            resetDuration()
-        }
-        updateSelected();
-    }
-
-    if (e.target.classList.contains('clear-all-btn')) {
-        selectedTags.clear();
-        const selected = menuContainer.querySelectorAll('.menu-checkbox:checked');
-        selected.forEach(checkbox => checkbox.checked = false);
-        resetDuration()
-        updateSelected();
-    }
-});
-
-function searchBoxDiv() {
-    const searchContainer = document.createElement('div');
-    searchContainer.className = 'flex items-center mb-4 w-full';
-    const clearButton = document.createElement('button');
-    clearButton.innerHTML = '&times;';
-    clearButton.className = 'p-2 bg-gray-200 hover:bg-gray-300 border border-l-0 border-gray-300 rounded-r';
-    const searchBox = document.createElement('input');
-    searchBox.type = 'text';
-    searchBox.placeholder = 'Search...';
-    searchBox.className = 'flex-1 p-2 border border-gray-300 rounded-l focus:outline-none focus:border-blue-400';
-    searchContainer.appendChild(searchBox);
-    searchContainer.appendChild(clearButton);
-    menuWrapper.insertBefore(searchContainer, menuContainer);
-    clearButton.addEventListener('click', function () {
-        searchBox.value = '';
-        searchBox.dispatchEvent(new Event('input'));
+        updateSelectedItems(selectedItemsContainer, selectedItems);
     });
-    searchBox.addEventListener('input', function () {
-        const query = searchBox.value.toLowerCase();
-        if (query === '') {
-            renderMenu(fullMenuData);
+
+    const label = document.createElement('span');
+    label.textContent = item.name;
+
+    container.appendChild(checkbox);
+    container.appendChild(label);
+
+    container.addEventListener('click', async (e) => {
+        if (e.target !== checkbox) {
+            const hasSub = await checkIfHasSubCategory(item.tag);
+            if (hasSub) {
+                navigationStack.push({
+                    tag: item.tag,
+                    parentName: item.name
+                });
+                const subCategories = await fetchSubCategories(item.tag, metaDataName);
+                currentItems = subCategories[dataName];
+                renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+                showBackButton(true, backButtonID);
+            }
+        }
+    });
+
+    return container;
+}
+
+function showBackButton(show, backButtonID) {
+    const backButtonContainer = document.getElementById(backButtonID);
+    if (backButtonContainer) {
+        backButtonContainer.classList.toggle('hidden', !show);
+    }
+}
+
+function updateSelectedItems(selectedItemsContainer, selectedItems) {
+    const selectedContainer = document.getElementById(selectedItemsContainer);
+    selectedContainer.innerHTML = '';
+
+    selectedItems.forEach(tag => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center bg-blue-200 text-blue-800 px-2 py-1 rounded text-sm space-x-1';
+
+        const tagName = document.createElement('span');
+        tagName.textContent = tag;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.innerHTML = '×';
+        removeBtn.className = 'text-red-600 font-bold';
+        removeBtn.addEventListener('click', () => {
+            selectedItems.delete(tag);
+            uncheckCheckbox(tag);
+            updateSelectedItems(selectedItemsContainer, selectedItems);
+        });
+
+        item.appendChild(tagName);
+        item.appendChild(removeBtn);
+        selectedContainer.appendChild(item);
+    });
+}
+
+function uncheckCheckbox(tag) {
+    const checkbox = document.querySelector(`input[type="checkbox"][data-tag="${tag}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+    }
+}
+
+async function checkIfHasSubCategory(tag) {
+    const response = await fetch('/database/checkMetaDataSubCategory', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `key=${encodeURIComponent(tag)}`
+    });
+    const result = await response.json();
+    return result === true;
+}
+
+async function fetchSubCategories(tag, metaDataName) {
+    const response = await fetch(`/database/getMetaDataSubCategory/${tag}/${metaDataName}`, {
+        headers: {'Accept': 'application/json'}
+    });
+    return await response.json();
+}
+
+function clearAllSelections(selectedItemsContainer, selectedItems) {
+    selectedItems.clear();
+    resetDuration()
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateSelectedItems(selectedItemsContainer, selectedItems);
+}
+
+function filterMenu(searchInput, menuContainerID) {
+    const searchTerm = document.getElementById(searchInput).value.toLowerCase();
+    const menuContainer = document.getElementById(menuContainerID);
+    const items = menuContainer.querySelectorAll('div > span');
+
+    items.forEach(span => {
+        const parent = span.parentElement;
+        if (span.textContent.toLowerCase().includes(searchTerm.toLowerCase())) {
+            parent.classList.remove('hidden');
         } else {
-            const filtered = filterMenu(fullMenuData, query);
-            renderMenu(filtered);
+            parent.classList.add('hidden');
         }
     });
 }
+
+//endregion
 
 function openCloseButtons() {
+    const menuWrapper = document.getElementById('menuWrapper')
     const openMenuButton = document.createElement('button');
     openMenuButton.textContent = 'Menu';
     openMenuButton.className = 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded my-4 mx-auto md:hidden max-w-24 max-h-18';
@@ -308,9 +301,7 @@ function openCloseButtons() {
     });
 }
 
-//endregion
-
-function menuSubmit() {
+/*function menuSubmit() {
     const menuSubmitDiv = document.getElementById('menuSubmitDiv');
     const submitButton = document.createElement('button');
     submitButton.textContent = 'Show Selected Tags';
@@ -362,4 +353,4 @@ function filterSounds(page) {
     }).catch(error => {
         console.error("Error:", error);
     });
-}
+}*/
