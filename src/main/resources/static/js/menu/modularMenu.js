@@ -27,27 +27,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             const categoryDataName = 'categories'
             categoryMenuData = data[categoryDataName];
             categoryRootItems = data[categoryDataName];
-
-            handleClearButton('categoryBackButton', categoryNavigationStack, 'category',
-                categoryCurrentItems, categoryRootItems, categoryDataName, 'categoryBackButtonContainer',
-                'categoryMenuContainer', categorySelectedItems, 'selectedItemsContainer')
-            renderMenu(categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
+            renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
                 categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
+
             // instrumentsMenuData = data.instruments;
             // instrumentsRootItems = data.instruments;
         })
 })
 
-function handleClearButton(buttonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
-    const btn = document.getElementById(buttonName)
+function handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
+    const btn = document.getElementById(clearButtonName)
     if (!btn) return
 
     btn.addEventListener("click", (event) => {
-        setupClearButton(event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer);
+        setupClearButton(clearButtonName, event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer);
     });
 }
 
-async function setupClearButton(event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
+async function setupClearButton(clearButtonName, event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
     if (navigationStack.length > 0) {
         const previous = navigationStack.pop();
         if (previous && previous.tag && previous.length > 0) {
@@ -60,29 +57,31 @@ async function setupClearButton(event, navigationStack, metaDataName, currentIte
             currentItems = rootItems;
         }
 
-        renderMenu(currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+        renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
 
         if (navigationStack.length === 0) {
             showBackButton(false, backButtonID);
         }
     } else {
         currentItems = rootItems;
-        renderMenu(currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+        renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
         showBackButton(false, backButtonID);
     }
 }
 
-function renderMenu(items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID) {
+function renderMenu(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID) {
     const menuContainer = document.getElementById(menuContainerID);
     menuContainer.innerHTML = '';
 
     items.forEach(item => {
-        const menuItem = createMenuItem(item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID);
+        const menuItem = createMenuItem(clearButtonName, rootItems, item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID);
         menuContainer.appendChild(menuItem);
     });
+
+    handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer)
 }
 
-function createMenuItem(item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID) {
+function createMenuItem(clearButtonName, rootItems, item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID) {
     const container = document.createElement('div');
     container.className = `flex items-center space-x-2 py-1 relative group`;
 
@@ -116,7 +115,7 @@ function createMenuItem(item, selectedItems, navigationStack, currentItems, meta
                 });
                 const subCategories = await fetchSubCategories(item.tag, metaDataName);
                 currentItems = subCategories[dataName];
-                renderMenu(currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+                renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
                 showBackButton(true, backButtonID);
             }
         }
