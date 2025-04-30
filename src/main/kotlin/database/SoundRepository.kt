@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.SQLException
 
@@ -48,7 +49,7 @@ class SoundRepository(database: Database) {
         }
     }
 
-    suspend fun getSounds(pageSize: Int = 20, page: Int): List<Sound> = suspendTransaction {
+    suspend fun getSounds(pageSize: Int = 10, page: Int): List<Sound> = suspendTransaction {
         SoundTable.selectAll()
             .where { (SoundTable.status eq SoundStatus.ACTIVE.toString()) }
             .limit(n = pageSize, offset = ((page - 1) * pageSize).toLong())
@@ -77,7 +78,7 @@ class SoundRepository(database: Database) {
     }
 
     suspend fun getCategorySounds(
-        pageSize: Int = 20,
+        pageSize: Int = 10,
         page: Int,
         category: String?,
         minDuration: Int?,
@@ -87,7 +88,7 @@ class SoundRepository(database: Database) {
             val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
 
             if (category != null) {
-                conditions += SoundTable.category1 eq category
+                conditions += SoundTable.categories eq category
             }
 
             if (minDuration != null && maxDuration != null) {
@@ -103,8 +104,62 @@ class SoundRepository(database: Database) {
                 .map { row -> row.toSound() }
         }
 
+    suspend fun filteredSounds(
+        pageSize: Int = 10,
+        page: Int,
+        selectedTags: List<String>,
+        minDuration: Int?,
+        maxDuration: Int?
+    ): List<Sound> = suspendTransaction {
+        val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
+
+        if (selectedTags.isNotEmpty()) {
+            val categoryConditions = selectedTags.map { tag ->
+                SoundTable.categories.like("%$tag%")
+            }.compoundOr()
+            conditions += categoryConditions
+        }
+
+        if (minDuration != null && maxDuration != null) {
+            conditions += SoundTable.duration greaterEq minDuration
+            conditions += SoundTable.duration lessEq maxDuration
+        }
+
+        SoundTable.selectAll()
+            .where {
+                conditions.reduce { acc, op -> acc and op }
+            }
+            .limit(n = pageSize, offset = ((page - 1) * pageSize).toLong())
+            .map { row -> row.toSound() }
+    }
+
+    suspend fun filteredSoundsSize(
+        selectedTags: List<String>,
+        minDuration: Int?,
+        maxDuration: Int?
+    ): Int = suspendTransaction {
+        val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
+
+        if (selectedTags.isNotEmpty()) {
+            val categoryConditions = selectedTags.map { tag ->
+                SoundTable.categories.like("%$tag%")
+            }.compoundOr()
+            conditions += categoryConditions
+        }
+
+        if (minDuration != null && maxDuration != null) {
+            conditions += SoundTable.duration greaterEq minDuration
+            conditions += SoundTable.duration lessEq maxDuration
+        }
+
+        SoundTable.selectAll()
+            .where {
+                conditions.reduce { acc, op -> acc and op }
+            }.count().toInt()
+    }
+
     suspend fun getFilteredSize(
-        pageSize: Int = 20,
+        pageSize: Int = 10,
         page: Int,
         category: String?,
         minDuration: Int?,
@@ -113,7 +168,7 @@ class SoundRepository(database: Database) {
         val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
 
         if (category != null) {
-            conditions += SoundTable.category1 eq category
+            conditions += SoundTable.categories eq category
         }
 
         if (minDuration != null && maxDuration != null) {
@@ -133,7 +188,7 @@ class SoundRepository(database: Database) {
         SoundTable.selectAll()
             .where {
                 (SoundTable.status eq SoundStatus.ACTIVE.toString()) and
-                        ((SoundTable.category1 eq category))
+                        ((SoundTable.categories eq category))
             }.count().toInt()
     }
 

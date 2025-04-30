@@ -18,9 +18,3 @@ function toggleTheme() {
         localStorage.setItem("theme", "/js/theme/dark.css");
     }
 }
-
-function changeLanguage(lang) {
-    document.cookie = "lang=" + lang + "; path=/";
-    localStorage.setItem("lang", lang);
-    location.reload();
-}

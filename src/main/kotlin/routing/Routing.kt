@@ -56,8 +56,8 @@ fun Application.basicRouting() {
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 
             val name = sound.name
-            val artist = sound.artist
-            val category1 = sound.category1
+            val artistIDs = sound.artistIDs
+            val category1 = sound.categories[0]
             val image1Path = sound.image1Path
 
             val userSession = call.sessions.get<UserSession>()
@@ -68,7 +68,7 @@ fun Application.basicRouting() {
 
             val basicSound = SoundBasic(
                 name = name,
-                artist = artist,
+                artistIDs = artistIDs,
                 category1 = category1,
                 image1Path = image1Path,
                 soundID = soundID,

@@ -1,6 +1,7 @@
 package com.example.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.statements.InsertStatement
@@ -8,21 +9,22 @@ import org.jetbrains.exposed.sql.statements.InsertStatement
 @Serializable
 data class Sound(
     val name: String,
-    val artist: String,
+    val artistIDs: List<Int>,
     var status: String,
-    var category1: String,
+    var categories: List<String>,
+    var moods: List<String>,
+    var instruments: List<String>,
     val soundPath: String,
     var image1Path: String,
     var duration: Int,
     val soundID: String,
-    val artistID: Int,
     val id: Int = -1
 )
 
 @Serializable
 data class SoundBasic(
     val name: String,
-    val artist: String,
+    val artistIDs: List<Int>,
     val category1: String,
     val image1Path: String,
     val soundID: String,
@@ -35,39 +37,42 @@ enum class SoundStatus {
 
 object SoundTable : Table("sound") {
     val name = varchar("name", 50)
-    val artist = varchar("artist", 50)
+    val artistIDs = largeText("artistIDs")
     var status = varchar("status", 50)
-    var category1 = varchar("category1", 50)
+    var categories = largeText("categories")
+    var moods = largeText("moods")
+    var instruments = largeText("instruments")
     val soundPath = varchar("soundPath", 512)
     var image1Path = varchar("image1Path", 512)
     var duration = integer("duration")
     val soundID = varchar("soundID", 50)
-    val artistID = integer("artistID").references(ArtistTable.id)
     val id = integer("id").autoIncrement()
     override val primaryKey = PrimaryKey(id, name = "sound_pk")
 }
 
 fun ResultRow.toSound(): Sound = Sound(
     name = this[SoundTable.name],
-    artist = this[SoundTable.artist],
+    artistIDs = Json.decodeFromString(this[SoundTable.artistIDs]),
     status = this[SoundTable.status],
-    category1 = this[SoundTable.category1],
+    categories = Json.decodeFromString(this[SoundTable.categories]),
+    moods = Json.decodeFromString(this[SoundTable.moods]),
+    instruments = Json.decodeFromString(this[SoundTable.instruments]),
     soundPath = this[SoundTable.soundPath],
     image1Path = this[SoundTable.image1Path],
     duration = this[SoundTable.duration],
     soundID = this[SoundTable.soundID],
-    artistID = this[SoundTable.artistID],
     id = this[SoundTable.id]
 )
 
 fun InsertStatement<Number>.fromSound(sound: Sound) {
     this[SoundTable.name] = sound.name
-    this[SoundTable.artist] = sound.artist
+    this[SoundTable.artistIDs] = Json.encodeToString(sound.artistIDs)
     this[SoundTable.status] = sound.status
-    this[SoundTable.category1] = sound.category1
+    this[SoundTable.categories] = Json.encodeToString(sound.categories)
+    this[SoundTable.moods] = Json.encodeToString(sound.moods)
+    this[SoundTable.instruments] = Json.encodeToString(sound.instruments)
     this[SoundTable.soundPath] = sound.soundPath
     this[SoundTable.image1Path] = sound.image1Path
     this[SoundTable.duration] = sound.duration
     this[SoundTable.soundID] = sound.soundID
-    this[SoundTable.artistID] = sound.artistID
 }

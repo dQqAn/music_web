@@ -16,7 +16,11 @@ data class User(
     var name: String,
     var surname: String,
     var role: String,
-    var premium: String
+    var premium: String,
+    val favouriteStatus: String,
+    val privacy: String,
+    val profileImage: String,
+    val backgroundImage: String
 ) : UserInterface
 
 interface UserInterface {
@@ -37,6 +41,28 @@ data class UserRegister(
     val surname: String
 )
 
+@Serializable
+data class UserPublic(
+    override val id: Int = -1,
+    var status: String,
+    var name: String,
+    var surname: String,
+    var role: String,
+    var premium: String,
+    val favouriteStatus: String,
+    val privacy: String,
+    val profileImage: String,
+    val backgroundImage: String
+) : UserInterface
+
+enum class PrivacyStatus {
+    PRIVATE, PUBLIC
+}
+
+enum class FavouriteStatus {
+    PRIVATE, PUBLIC
+}
+
 object UserTable : Table("users") {
     val id = integer("id").autoIncrement()
     val status = varchar("status", 50)
@@ -46,8 +72,25 @@ object UserTable : Table("users") {
     val surname = varchar("surname", 50)
     val role = varchar("role", 50)
     val premium = varchar("premium", 50)
+    val privacy = varchar("privacy", 50)
+    val favouriteStatus = varchar("favouriteStatus", 50)
+    val profileImage = varchar("profileImage", 100)
+    val backgroundImage = varchar("backgroundImage", 100)
     override val primaryKey = PrimaryKey(id, name = "users_pk")
 }
+
+fun ResultRow.toUserPublic(): UserPublic = UserPublic(
+    id = this[UserTable.id],
+    status = this[UserTable.status],
+    name = this[UserTable.name],
+    surname = this[UserTable.surname],
+    role = this[UserTable.role],
+    premium = this[UserTable.premium],
+    favouriteStatus = this[UserTable.favouriteStatus],
+    privacy = this[UserTable.privacy],
+    profileImage = this[UserTable.profileImage],
+    backgroundImage = this[UserTable.backgroundImage]
+)
 
 fun ResultRow.toUser(): User = User(
     id = this[UserTable.id],
@@ -57,7 +100,11 @@ fun ResultRow.toUser(): User = User(
     name = this[UserTable.name],
     surname = this[UserTable.surname],
     role = this[UserTable.role],
-    premium = this[UserTable.premium]
+    premium = this[UserTable.premium],
+    favouriteStatus = this[UserTable.favouriteStatus],
+    privacy = this[UserTable.privacy],
+    profileImage = this[UserTable.profileImage],
+    backgroundImage = this[UserTable.backgroundImage]
 )
 
 fun ResultRow.toUserSession() = UserSession(
@@ -74,6 +121,10 @@ fun InsertStatement<Number>.fromUser(user: User) {
     this[UserTable.surname] = user.surname
     this[UserTable.role] = user.role
     this[UserTable.premium] = user.premium
+    this[UserTable.favouriteStatus] = user.favouriteStatus
+    this[UserTable.privacy] = user.privacy
+    this[UserTable.profileImage] = user.profileImage
+    this[UserTable.backgroundImage] = user.backgroundImage
 }
 
 fun UpdateStatement.fromUser(user: User) {
@@ -84,4 +135,8 @@ fun UpdateStatement.fromUser(user: User) {
     this[UserTable.surname] = user.surname
     this[UserTable.role] = user.role
     this[UserTable.premium] = user.premium
+    this[UserTable.favouriteStatus] = user.favouriteStatus
+    this[UserTable.privacy] = user.privacy
+    this[UserTable.profileImage] = user.profileImage
+    this[UserTable.backgroundImage] = user.backgroundImage
 }

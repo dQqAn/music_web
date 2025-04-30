@@ -1,0 +1,176 @@
+{
+  "categories": [
+    {
+      "name": "Pop",
+      "tag": "pop",
+      "subcategories": [
+        {
+          "name": "Dance Pop",
+          "tag": "dance-pop"
+        },
+        {
+          "name": "Teen Pop",
+          "tag": "teen-pop"
+        },
+        {
+          "name": "Electropop",
+          "tag": "electropop"
+        }
+      ]
+    },
+    {
+      "name": "Rock",
+      "tag": "rock",
+      "subcategories": [
+        {
+          "name": "Alternative Rock",
+          "tag": "alternative-rock"
+        },
+        {
+          "name": "Hard Rock",
+          "tag": "hard-rock"
+        },
+        {
+          "name": "Indie Rock",
+          "tag": "indie-rock"
+        },
+        {
+          "name": "Punk Rock",
+          "tag": "punk-rock"
+        }
+      ]
+    },
+    {
+      "name": "Classic",
+      "tag": "classic",
+      "subcategories": [
+        {
+          "name": "Baroque",
+          "tag": "baroque"
+        },
+        {
+          "name": "Romantic",
+          "tag": "romantic"
+        },
+        {
+          "name": "Modern Classical",
+          "tag": "modern-classical"
+        }
+      ]
+    },
+    {
+      "name": "Rap",
+      "tag": "rap",
+      "subcategories": [
+        {
+          "name": "Trap",
+          "tag": "trap"
+        },
+        {
+          "name": "Boom Bap",
+          "tag": "boom-bap"
+        },
+        {
+          "name": "Drill",
+          "tag": "drill"
+        }
+      ]
+    },
+    {
+      "name": "Jazz",
+      "tag": "jazz",
+      "subcategories": [
+        {
+          "name": "Smooth Jazz",
+          "tag": "smooth-jazz"
+        },
+        {
+          "name": "Swing",
+          "tag": "swing"
+        },
+        {
+          "name": "Bebop",
+          "tag": "bebop"
+        },
+        {
+          "name": "Fusion",
+          "tag": "fusion"
+        }
+      ]
+    },
+    {
+      "name": "Electronic",
+      "tag": "electronic",
+      "subcategories": [
+        {
+          "name": "House",
+          "tag": "house"
+        },
+        {
+          "name": "Techno",
+          "tag": "techno"
+        },
+        {
+          "name": "Dubstep",
+          "tag": "dubstep"
+        }
+      ]
+    }
+  ],
+  "moods": [
+    {
+      "name": "Happy",
+      "tag": "happy"
+    },
+    {
+      "name": "Sad",
+      "tag": "sad"
+    },
+    {
+      "name": "Energetic",
+      "tag": "energetic"
+    },
+    {
+      "name": "Calm",
+      "tag": "calm"
+    },
+    {
+      "name": "Romantic",
+      "tag": "romantic-mood"
+    },
+    {
+      "name": "Aggressive",
+      "tag": "aggressive"
+    }
+  ],
+  "instruments": [
+    {
+      "name": "Guitar",
+      "tag": "guitar"
+    },
+    {
+      "name": "Piano",
+      "tag": "piano"
+    },
+    {
+      "name": "Drums",
+      "tag": "drums"
+    },
+    {
+      "name": "Bass",
+      "tag": "bass"
+    },
+    {
+      "name": "Violin",
+      "tag": "violin"
+    },
+    {
+      "name": "Saxophone",
+      "tag": "saxophone"
+    },
+    {
+      "name": "Synthesizer",
+      "tag": "synthesizer"
+    }
+  ]
+}

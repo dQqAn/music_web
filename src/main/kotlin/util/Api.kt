@@ -3,8 +3,11 @@ package com.example.util
 import com.example.auth.Role
 import com.example.auth.UserSession
 import com.example.database.FavouriteRepository
+import com.example.database.MetaDataRepository
 import com.example.database.PlaylistRepository
 import com.example.database.SoundRepository
+import com.example.model.MetaDataMenuResponse
+import com.example.model.MetaDataToMenu
 import com.example.model.Playlist
 import com.example.model.SoundStatus
 import io.ktor.http.*
@@ -15,6 +18,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 import java.io.File
 import java.net.URLEncoder
@@ -23,6 +27,7 @@ fun Application.databaseApi() {
     val soundRepository by inject<SoundRepository>()
     val favouriteRepository by inject<FavouriteRepository>()
     val playlistRepository by inject<PlaylistRepository>()
+    val metaDataRepository by inject<MetaDataRepository>()
 
     routing {
         get("/check_auth") {
@@ -131,7 +136,6 @@ fun Application.databaseApi() {
             }
         }
 
-
         get("/download/sound/{soundID}") {
             val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
             val soundPath = soundRepository.getSoundPath(soundID, SoundStatus.ACTIVE)
@@ -153,10 +157,18 @@ fun Application.databaseApi() {
             call.respond(mapOf("sound" to sound))
         }
 
-        get("/database/sounds") {
+        /*get("/database/sounds") {
             val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            println(page)
             val sounds = soundRepository
-                .getSounds(pageSize = 20, page = page)
+                .getSounds(pageSize = 10, page = page)
+            call.respond(mapOf("sounds" to sounds))
+        }*/
+
+        get("/loadFavourites/{userID}") {
+            val userID = call.parameters["userID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val sounds = favouriteRepository.favouriteSounds(userID.toInt(), 20, page)
             call.respond(mapOf("sounds" to sounds))
         }
 
@@ -196,13 +208,103 @@ fun Application.databaseApi() {
             call.respond(categorySize)
         }*/
 
+        get("/menuItems") {
+            val menu = MenuJsonCache.getMenu()
+            val menuJson = Json.encodeToString(menu)
+            call.respondText(menuJson, contentType = ContentType.Application.Json)
+        }
+
+        get("/allMetaData") {
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val categoryList = metaDataRepository.metaDataToMenu(10, page, null, null)
+//            val moodsList = metaDataRepository.metaDataToMenu(10, page, "null", null)
+            val instrumentsList = metaDataRepository.metaDataToMenu(10, page, "INSTRUMENT", null)
+            val response = MetaDataMenuResponse(categoryList, emptyList(), instrumentsList)
+            val responseJson = Json.encodeToString(response)
+            call.respondText(responseJson, contentType = ContentType.Application.Json)
+        }
+
+        /*get("/allMetaDataSize"){
+            val tag = call.request.queryParameters["tag"]?.takeIf { it != "null" }
+            val contentType = call.request.queryParameters["contentType"]?.takeIf { it != "null" }
+            println(tag)
+            println(contentType)
+            println(metaDataRepository.getMetaDataMenuSize(contentType, tag))
+            call.respond(metaDataRepository.getMetaDataMenuSize(contentType, tag))
+        }*/
+
+        post("/database/checkMetaDataSubCategory") {
+            val key = call.receiveParameters()["key"]?.trim() ?: return@post call.respond(
+                HttpStatusCode.BadRequest,
+                "BadRequest"
+            )
+            val control = metaDataRepository.checkMetaDataSubCategory(key)
+            call.respond(HttpStatusCode.OK, control.toString())
+        }
+
+        get("/database/getMetaDataSubCategory/{key}/{metaDataName}") {
+            val key = call.parameters["key"] ?: return@get call.respond(HttpStatusCode.BadRequest, "BadRequest")
+            val menuList = metaDataRepository.metaDataToMenu(10, 1, "SUBGENRE", key)
+            val metaDataName =
+                call.parameters["metaDataName"] ?: return@get call.respond(HttpStatusCode.BadRequest, "BadRequest")
+
+            var categoryList: List<MetaDataToMenu> = emptyList()
+            var moodsList: List<MetaDataToMenu> = emptyList()
+            var instrumentsList: List<MetaDataToMenu> = emptyList()
+
+            when (metaDataName) {
+                "category" -> {
+                    categoryList = menuList
+                }
+
+                "moods" -> {
+                    moodsList = menuList
+                }
+
+                "instruments" -> {
+                    instrumentsList = menuList
+                }
+            }
+
+            val response = MetaDataMenuResponse(categoryList, moodsList, instrumentsList)
+            val responseJson = Json.encodeToString(response)
+            call.respondText(responseJson, contentType = ContentType.Application.Json)
+        }
+
+        post("/database/filterSounds") {
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val selectedFilters = call.receive<SelectedFilters>()
+            val sounds = soundRepository.filteredSounds(
+                pageSize = 10,
+                page = page,
+                selectedFilters.selectedTags,
+                selectedFilters.minDuration,
+                selectedFilters.maxDuration
+            )
+            call.respond(HttpStatusCode.OK, mapOf("sounds" to sounds))
+        }
+
+        post("/database/filterSoundsSize") {
+            val selectedFilters = call.receive<SelectedFilters>()
+            val minDuration = selectedFilters.minDuration?.takeIf { it != 0 }
+            val maxDuration = selectedFilters.maxDuration?.takeIf { it != 0 }
+            call.respond(
+                HttpStatusCode.OK,
+                soundRepository.filteredSoundsSize(
+                    selectedFilters.selectedTags,
+                    minDuration,
+                    maxDuration
+                )
+            )
+        }
+
         authenticate("auth-session") {
-            get("/database/moderator_sounds_count") {
+            /*get("/database/moderator_sounds_count") {
                 val userSession = call.sessions.get<UserSession>()
                 if (userSession?.role == Role.MODERATOR.toString()) {
                     call.respond(soundRepository.getModeratorSoundsCount())
                 }
-            }
+            }*/
 
             get("/database/moderatorSounds") {
                 val userSession = call.sessions.get<UserSession>()
@@ -341,7 +443,56 @@ private data class SelectedSoundIdsToPlaylists(
 )
 
 @Serializable
+data class SelectedFilters(
+    val selectedTags: List<String>,
+    val minDuration: Int? = null,
+    val maxDuration: Int? = null
+)
+
+@Serializable
 data class FavouriteStatusResponse(val favouriteStatus: Boolean)
 
 @Serializable
 data class UserPlaylists(val playlist: Playlist, val soundStatus: Boolean)
+
+@Serializable
+data class FullMenu(
+    val categories: List<MenuItem>,
+    val moods: List<MoodItem>,
+    val instruments: List<InstrumentItem>
+)
+
+@Serializable
+data class MenuItem(
+    val name: String,
+    val tag: String,
+    val subcategories: List<MenuItem>? = null
+)
+
+@Serializable
+data class MoodItem(
+    val name: String,
+    val tag: String
+)
+
+@Serializable
+data class InstrumentItem(
+    val name: String,
+    val tag: String
+)
+
+object MenuJsonCache {
+    private var cachedMenu: FullMenu? = null
+    private var lastModified: Long = -1L
+
+    private val file = File("src/main/resources/static/js/menu/menuItems_EN.json")
+
+    fun getMenu(): FullMenu {
+        if (cachedMenu == null || file.lastModified() > lastModified) {
+            val jsonString = file.bufferedReader(Charsets.UTF_8).use { it.readText() }
+            cachedMenu = Json.decodeFromString<FullMenu>(jsonString)
+            lastModified = file.lastModified()
+        }
+        return cachedMenu!!
+    }
+}

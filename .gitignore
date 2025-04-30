@@ -34,4 +34,6 @@ out/
 
 ### VS Code ###
 .vscode/
-/uploads/
+/node_modules/
+/uploads/image/
+/uploads/sound/

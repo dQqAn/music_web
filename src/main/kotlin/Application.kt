@@ -53,6 +53,7 @@ fun Application.ktorApp() {
         singleOf(::DotEnvironment)
         singleOf(::EncryptionSystem)
         singleOf(::HashingSystem)
+        singleOf(::MetaDataRepository)
     }
 
     //region Koin Log

@@ -1,204 +1,70 @@
-function toggleSubmenu(element) {
-    const submenu = element.nextElementSibling;
-    if (submenu && submenu.classList.contains('submenu')) {
-        const computedStyle = window.getComputedStyle(submenu);
-        const isOpen = computedStyle.display === 'block';
-        if (isOpen) {
-            const nestedSubmenus = submenu.querySelectorAll('.submenu');
-            nestedSubmenus.forEach(nested => {
-                nested.style.display = 'none';
-            });
-        }
-        submenu.style.display = isOpen ? 'none' : 'block';
+import {soundList} from "../soundList.js";
+import {updatePagination} from "../pagination.js";
+
+document.addEventListener('DOMContentLoaded', async () => {
+    if (minSlider && maxSlider) {
+        //region Duration
+        minSlider.value = minSliderValue
+        maxSlider.value = maxSliderValue
+        minSlider.addEventListener('input', () => updateDisplay(true));
+        maxSlider.addEventListener('input', () => updateDisplay(true));
+        updateDisplay(false);
+        //endregion
+
+        //region Tag Menu
+        openCloseButtons('menuWrapper')
+        const categoryDataName = 'categories'
+        loadMenuItems('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
+            categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer', 1)
+        //endregion
+
+        menuSubmit('menuSubmitDiv')
     }
-}
-
-function getMenuId(checkbox) {
-    return checkbox.getAttribute('data-menu') || checkbox.closest('.menu')?.getAttribute('data-menu') || 'menu1';
-}
-
-function updateFilters() {
-    const selectedFiltersDiv = document.getElementById('selected-filters');
-    selectedFiltersDiv.innerHTML = '';
-
-    const checkedCheckbox = document.querySelector('.menu-checkbox:checked');
-    if (checkedCheckbox) {
-        const filterText = checkedCheckbox.nextElementSibling.textContent.trim();
-        const menuId = getMenuId(checkedCheckbox);
-
-        if (!filterText) {
-            console.error('filterText is empty!');
-            return;
-        }
-
-        const displayText = getFullHierarchy(checkedCheckbox);
-
-        const filterItem = document.createElement('div');
-        filterItem.className = 'filter-item';
-        filterItem.style.backgroundColor = menuId === 'menu1' ? '#ed6d6d' : '#5696dc';
-
-        const textSpan = document.createElement('span');
-        textSpan.className = 'filter_text';
-        textSpan.textContent = displayText;
-
-        const removeSpan = document.createElement('span');
-        removeSpan.className = 'pointer filter-remove';
-        removeSpan.textContent = '✖';
-
-        removeSpan.addEventListener('click', function () {
-            checkedCheckbox.checked = false;
-            updateFilters();
-        });
-
-        filterItem.appendChild(textSpan);
-        filterItem.appendChild(removeSpan);
-        selectedFiltersDiv.appendChild(filterItem);
-
-        filteredSounds(1)
-    } else {
-        loadSounds(1);
-    }
-
-    const filtersDiv = document.querySelector('.filters');
-    filtersDiv.style.display = checkedCheckbox ? 'block' : 'none';
-}
-
-function clearAllFilters() {
-    const allCheckboxes = document.querySelectorAll('.menu-checkbox');
-    allCheckboxes.forEach(cb => {
-        cb.checked = false;
-    });
-    updateFilters();
-}
-
-function getFullHierarchy(checkbox, maxLevels = Infinity) {
-    const hierarchy = [];
-    let currentElement = checkbox.closest('li');
-    let level = 0;
-
-    while (currentElement && level < maxLevels) {
-        const menuText = currentElement.querySelector('.menu-text');
-        if (menuText) {
-            hierarchy.unshift(menuText.textContent.trim());
-        }
-        currentElement = currentElement.parentElement.closest('li');
-        level++;
-    }
-
-    return hierarchy.join(' > ');
-}
-
-function countGreaterThan(text) {
-    return (text.match(/>/g) || []).length;
-}
-
-function getTextAfterLastGreaterThan(text) {
-    const lastIndex = text.lastIndexOf(">");
-    if (lastIndex === -1) {
-        return text.trim();
-    } else if (lastIndex === text.length - 1) {
-        return "";
-    } else {
-        return text.substring(lastIndex + 1).trim();
-    }
-}
-
-function filteredSounds(page) {
-    const filterText = document.querySelector('.filter_text').textContent;
-    if (typeof filterText !== 'string') {
-        throw new Error('filterText is not a string');
-    }
-    const category = getTextAfterLastGreaterThan(filterText)
-    const counter = countGreaterThan(filterText)
-
-    const output = document.getElementById('durationOutput');
-    const result = parseTimeRange(output.textContent)
-    const minDuration = result.minSeconds
-    const maxDuration = result.maxSeconds
-
-    fetchSoundsWithPagination(
-        {
-            url: `/database/category/${category}/${counter}/${minDuration}/${maxDuration}?page=${page}`,
-            page: page, gridId: 'grid', paginationId: 'pagination'
-        });
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    const checkboxes = document.querySelectorAll('.menu-checkbox');
-
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
-            if (this.checked) {
-                checkboxes.forEach(otherCb => {
-                    if (otherCb !== this) {
-                        otherCb.checked = false;
-                    }
-                });
-            }
-            updateFilters();
-        });
-    });
-
-    const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => {
-        item.addEventListener('click', function (e) {
-            if (e.target.type !== 'checkbox') {
-                toggleSubmenu(this);
-            }
-        });
-    });
-    document.getElementById('clear-all-filters').addEventListener('click', clearAllFilters);
-
-    updateFilters();
 });
 
-function parseTimeRange(rangeStr) {
-    const [minStr, maxStr] = rangeStr.split("-");
+function loadMenuItems(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, page) {
+    fetch(`/allMetaData?page=${page}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Menu loading error');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('categorySearchInput').addEventListener('input', (event) => {
+                filterMenu('categorySearchInput', 'categoryMenuContainer')
+            });
+            document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
+                clearAllSelections('selectedItemsContainer', categorySelectedItems, true)
+            });
+            items = data[dataName];
+            rootItems = data[dataName];
 
-    function toSeconds(timeStr) {
-        const [min, sec] = timeStr.split(":").map(Number);
-        return (min * 60) + sec;
-    }
+            renderMenu(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, items, metaDataName, dataName, selectedItemsContainer, backButtonID)
 
-    const minSeconds = toSeconds(minStr);
-    const maxSeconds = toSeconds(maxStr);
+            /*const lastTag = navigationStack.at(-1)?.tag ?? "null"; // const lastTag = navigationStack.length > 0 ? data.at(-1).tag : "null";
+            let lastContentType = null
+            if (navigationStack.length < 1){
+                lastContentType = "GENRE"
+            }else{
+                lastContentType = "SUBGENRE"
+            }
+            console.log(items)
+            menuListSize(lastContentType, lastTag).then(r => {
+                const totalPages = Math.floor((r + 10 - 1) / 10);
+                updatePagination('mainPagination', page, totalPages, (p) => {
+                    loadMenuItems(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, p);
+                }, false)
+            })*/
 
-    return {minSeconds, maxSeconds};
+            // instrumentsMenuData = data.instruments;
+            // instrumentsRootItems = data.instruments;
+        })
 }
 
-let selectedCategory = null
-let selectedDuration = null
-
-function getFilteredSounds() {
-    const output = document.getElementById('durationOutput');
-    const category = document.querySelector(".filter_text");
-    selectedDuration = output.textContent || null
-    selectedCategory = category || null
-
-    let categoryName = null
-    let counter = null
-
-    if (selectedCategory?.textContent?.trim()) {
-        categoryName = getTextAfterLastGreaterThan(selectedCategory.textContent)
-        counter = countGreaterThan(selectedDuration)
-    } else {
-        categoryName = null
-    }
-
-    const result = parseTimeRange(output.textContent)
-    const minDuration = result.minSeconds
-    const maxDuration = result.maxSeconds
-
-    fetchSoundsWithPagination(
-        {
-            url: `/database/category/${categoryName}/${counter}/${minDuration}/${maxDuration}?page=${1}`,
-            page: 1, gridId: 'grid', paginationId: 'pagination'
-        });
-}
-
-/*async function filteredSize(category, counter, minDuration, maxDuration) {
+/*async function menuListSize(contentType = null, tag = null) {
     try {
-        const response = await fetch(`/database/category_size/${category}/${counter}/${minDuration}/${maxDuration}`);
+        const response = await fetch(`/allMetaDataSize?tag=${tag}&contentType=${contentType}`);
         if (!response.ok) {
             console.error(`HTTP error! Status: ${response.status}`);
             return null;
@@ -217,3 +83,364 @@ function getFilteredSounds() {
         throw error;
     }
 }*/
+
+export async function soundListSize(selectedItems = [], minDuration = 0, maxDuration = 0) {
+    try {
+        const response = await fetch(`/database/filterSoundsSize`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                selectedTags: [...selectedItems].map(item => item.tag),
+                minDuration: minDuration,
+                maxDuration: maxDuration
+            })
+        })
+
+        if (!response.ok) {
+            console.error(`HTTP error! Status: ${response.status}`);
+            return null;
+        }
+
+        const data = await response.text();
+        const integerValue = parseInt(data);
+
+        if (isNaN(integerValue)) {
+            console.error(`${integerValue} is not a number`);
+            return null;
+        }
+        return integerValue;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+//region Duration
+
+function parseTimeRange(rangeStr) {
+    const [minStr, maxStr] = rangeStr.split("-");
+
+    function toSeconds(timeStr) {
+        const [min, sec] = timeStr.split(":").map(Number);
+        return (min * 60) + sec;
+    }
+
+    const minSeconds = toSeconds(minStr);
+    const maxSeconds = toSeconds(maxStr);
+
+    return {minSeconds, maxSeconds};
+}
+
+function formatDuration(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return minutes + ':' + secs.toString().padStart(2, '0');
+}
+
+let isDurationChanged = false;
+const minSlider = document.getElementById('minDuration');
+const maxSlider = document.getElementById('maxDuration');
+const output = document.getElementById('durationOutput');
+const minSliderValue = 0
+const maxSliderValue = 600
+
+function updateDisplay(durationChanges) {
+    if (minSlider && maxSlider) {
+        let min = parseInt(minSlider.value);
+        let max = parseInt(maxSlider.value);
+
+        if (min > max) {
+            [minSlider.value, maxSlider.value] = [max, min];
+            [min, max] = [max, min];
+        }
+
+        output.textContent = formatDuration(min) + '-' + formatDuration(max);
+
+        isDurationChanged = durationChanges === true
+
+        if (isDurationChanged) {
+            updateSelected()
+        }
+    }
+}
+
+function resetDuration() {
+    if (minSlider && maxSlider) {
+        minSlider.value = minSliderValue
+        maxSlider.value = maxSliderValue
+        updateDisplay(false)
+    }
+}
+
+function updateSelected() {
+    if (isDurationChanged) {
+        categorySelectedItems.add('duration');
+    } else {
+        categorySelectedItems.delete('duration');
+    }
+    updateSelectedItems('selectedItemsContainer', categorySelectedItems)
+}
+
+//endregion
+
+//region Tag Menu
+let categoryMenuData = [];
+let categorySelectedItems = new Set();
+let categoryNavigationStack = [];
+let categoryCurrentItems = [];
+let categoryRootItems = [];
+
+function handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
+    const btn = document.getElementById(clearButtonName)
+    if (!btn) return
+
+    btn.addEventListener("click", (event) => {
+        setupClearButton(clearButtonName, event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer);
+    });
+}
+
+async function setupClearButton(clearButtonName, event, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer) {
+    if (navigationStack.length > 0) {
+        const previous = navigationStack.pop();
+        if (previous && previous.tag && previous.length > 0) {
+            const data = fetchSubCategories(previous.tag, metaDataName)
+            currentItems = data[dataName];
+        } else {
+            currentItems = rootItems;
+        }
+
+        renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+
+        if (navigationStack.length === 0) {
+            showBackButton(false, backButtonID);
+        }
+    } else {
+        currentItems = rootItems;
+        renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+        showBackButton(false, backButtonID);
+    }
+}
+
+export function renderMenu(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID) {
+    const menuContainer = document.getElementById(menuContainerID);
+    menuContainer.innerHTML = '';
+
+    items.forEach(item => {
+        const menuItem = createMenuItem(clearButtonName, rootItems, item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID);
+        menuContainer.appendChild(menuItem);
+    });
+
+    handleClearButton(clearButtonName, navigationStack, metaDataName, currentItems, rootItems, dataName, backButtonID, menuContainerID, selectedItems, selectedItemsContainer)
+}
+
+function createMenuItem(clearButtonName, rootItems, item, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, menuContainerID) {
+    const container = document.createElement('div');
+    container.className = `flex items-center space-x-2 py-1 relative group`;
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'form-checkbox';
+    checkbox.dataset.tag = item.tag;
+
+    if ([...selectedItems].find(selected => selected.tag === item.tag)) {
+        checkbox.checked = true
+    }
+
+    checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+            selectedItems.add(item);
+        } else {
+            selectedItems.delete(item);
+        }
+        updateSelectedItems(selectedItemsContainer, selectedItems);
+    });
+
+    const label = document.createElement('span');
+    label.textContent = item.name;
+
+    container.appendChild(checkbox);
+    container.appendChild(label);
+
+    container.addEventListener('click', async (e) => {
+        if (e.target !== checkbox) {
+            const hasSub = await checkIfHasSubCategory(item.tag);
+            if (hasSub) {
+                navigationStack.push({
+                    tag: item.tag,
+                    parentName: item.name
+                });
+                const subCategories = await fetchSubCategories(item.tag, metaDataName);
+                currentItems = subCategories[dataName];
+                renderMenu(clearButtonName, rootItems, currentItems, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID);
+                showBackButton(true, backButtonID);
+            }
+        }
+    });
+
+    return container;
+}
+
+function showBackButton(show, backButtonID) {
+    const backButtonContainer = document.getElementById(backButtonID);
+    if (backButtonContainer) {
+        backButtonContainer.classList.toggle('hidden', !show);
+    }
+}
+
+function updateSelectedItems(selectedItemsContainer, selectedItems) {
+    const selectedContainer = document.getElementById(selectedItemsContainer);
+    selectedContainer.innerHTML = '';
+
+    for (let selected of selectedItems) {
+        const selectedTag = selected.tag
+        const selectedName = selected.name
+
+        const item = document.createElement('div');
+        item.className = 'flex items-center bg-blue-200 text-blue-800 px-2 py-1 rounded text-sm space-x-1';
+
+        const tagName = document.createElement('span');
+        tagName.textContent = selectedName;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.innerHTML = '×';
+        removeBtn.className = 'text-red-600 font-bold';
+        removeBtn.addEventListener('click', () => {
+            selectedItems.delete(selected);
+            uncheckCheckbox(selected.tag);
+            updateSelectedItems(selectedItemsContainer, selectedItems);
+        });
+
+        item.appendChild(tagName);
+        item.appendChild(removeBtn);
+        selectedContainer.appendChild(item);
+    }
+}
+
+function uncheckCheckbox(tag) {
+    const checkbox = document.querySelector(`input[type="checkbox"][data-tag="${tag}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+    }
+}
+
+async function checkIfHasSubCategory(tag) {
+    const response = await fetch('/database/checkMetaDataSubCategory', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `key=${encodeURIComponent(tag)}`
+    });
+    const result = await response.json();
+    return result === true;
+}
+
+async function fetchSubCategories(tag, metaDataName) {
+    const response = await fetch(`/database/getMetaDataSubCategory/${tag}/${metaDataName}`, {
+        headers: {'Accept': 'application/json'}
+    });
+    return await response.json();
+}
+
+export function clearAllSelections(selectedItemsContainer, selectedItems, hasDurationProgressiveBar) {
+    selectedItems.clear();
+    if (hasDurationProgressiveBar) {
+        resetDuration()
+    }
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateSelectedItems(selectedItemsContainer, selectedItems);
+}
+
+export function filterMenu(searchInput, menuContainerID) {
+    const searchTerm = document.getElementById(searchInput).value.toLowerCase();
+    const menuContainer = document.getElementById(menuContainerID);
+    const items = menuContainer.querySelectorAll('div > span');
+
+    items.forEach(span => {
+        const parent = span.parentElement;
+        if (span.textContent.toLowerCase().includes(searchTerm.toLowerCase())) {
+            parent.classList.remove('hidden');
+        } else {
+            parent.classList.add('hidden');
+        }
+    });
+}
+
+//endregion
+
+function openCloseButtons(menuWrapperID) {
+    const menuWrapper = document.getElementById(menuWrapperID)
+    const openMenuButton = document.createElement('button');
+    openMenuButton.textContent = 'Menu';
+    openMenuButton.className = 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded my-4 mx-auto md:hidden max-w-24 max-h-18';
+    menuWrapper.parentNode.insertBefore(openMenuButton, menuWrapper);
+    const closeMenuButton = document.createElement('button');
+    closeMenuButton.textContent = 'Menu';
+    closeMenuButton.className = 'bg-red-500 hover:bg-red-600 text-white p-2 rounded mb-4 w-full';
+    menuWrapper.insertBefore(closeMenuButton, menuWrapper.firstChild);
+    closeMenuButton.classList.add('hidden');
+    openMenuButton.addEventListener('click', function () {
+        menuWrapper.classList.remove('hidden');
+        openMenuButton.classList.add('hidden');
+        closeMenuButton.classList.remove('hidden');
+    });
+    closeMenuButton.addEventListener('click', function () {
+        menuWrapper.classList.add('hidden');
+        openMenuButton.classList.remove('hidden');
+        closeMenuButton.classList.add('hidden');
+    });
+}
+
+function menuSubmit(menuSubmitBtnID) {
+    const submitButton = document.getElementById(menuSubmitBtnID);
+    submitButton.addEventListener('click', async function () {
+        filterSounds(1)
+    });
+}
+
+export function filterSounds(page) {
+    let minDuration = null
+    let maxDuration = null
+    if (isDurationChanged) {
+        const output = document.getElementById('durationOutput');
+        const outputResult = parseTimeRange(output.textContent)
+        minDuration = outputResult.minSeconds
+        maxDuration = outputResult.maxSeconds
+    }
+
+    fetch(`/database/filterSounds?page=${page}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            selectedTags: [...categorySelectedItems].map(item => item.tag),
+            minDuration: minDuration,
+            maxDuration: maxDuration
+        })
+    }).then(response => {
+        if (!response.ok) {
+            console.log(`HTTP error! Status: ${response.status}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    }).then(data => {
+        const sounds = Array.isArray(data) ? data : (data.sounds || []);
+        soundList('soundList', sounds)
+
+        lucide.createIcons();
+        window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
+
+        soundListSize(categorySelectedItems, minDuration, maxDuration).then(r => {
+                const totalPages = Math.floor((r + 10 - 1) / 10);
+                updatePagination("pagination", page, totalPages, (p) => {
+                    filterSounds(p);
+                });
+            }
+        )
+    }).catch(error => {
+        console.error("Error:", error);
+    });
+}

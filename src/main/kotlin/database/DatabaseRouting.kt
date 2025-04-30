@@ -9,6 +9,7 @@ import com.example.routing.loadWords
 import com.example.util.DotEnvironment
 import com.example.util.EncryptionSystem
 import com.example.util.HashingSystem
+import com.example.util.loadMetaItems
 import com.mpatric.mp3agic.Mp3File
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -21,6 +22,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.koin.ktor.ext.inject
 import java.io.BufferedInputStream
@@ -49,17 +52,25 @@ fun Application.databaseRouting() {
     val dotEnv by inject<DotEnvironment>()
     val encryptionSystem by inject<EncryptionSystem>()
     val hashingSystem by inject<HashingSystem>()
+    val metaDataRepository by inject<MetaDataRepository>()
 
     auth(userRepository, encryptionSystem, hashingSystem)
 
     routing {
         staticFiles("/uploads", File("uploads"))
 
-        adminRoute(adminRepository, moderatorRepository, artistRepository, userRepository, encryptionSystem)
+        adminRoute(
+            adminRepository,
+            moderatorRepository,
+            artistRepository,
+            userRepository,
+            encryptionSystem,
+            metaDataRepository
+        )
         moderatorRoute()
         artistRoute(soundRepository, userRepository)
         userRoute()
-        commonRoute(soundRepository)
+        commonRoute(soundRepository, userRepository)
     }
 }
 
@@ -68,7 +79,8 @@ private fun Routing.adminRoute(
     moderatorRepository: ModeratorRepository,
     artistRepository: ArtistRepository,
     userRepository: UserRepository,
-    encryptionSystem: EncryptionSystem
+    encryptionSystem: EncryptionSystem,
+    metaDataRepository: MetaDataRepository
 ) {
     route("/admin") {
         authenticate("auth-session") {
@@ -148,6 +160,20 @@ private fun Routing.adminRoute(
                     }
                 }
             }
+
+            get("/metaDataSave") {
+                val lang = call.request.cookies["lang"] ?: "tr"
+                val supportedLang = if (lang in listOf("en", "tr")) lang else "tr"
+                val words = loadWords(supportedLang)
+                val model = mapOf(
+                    "words" to words,
+                    "lang" to supportedLang
+                )
+                val items = loadMetaItems("src/main/resources/static/js/menu/metaData/AIRadioMetas.json")
+                val size = metaDataRepository.addAllMetaData(items)
+//                println(size)
+                call.respond(FreeMarkerContent("admin_dashboard.ftl", model))
+            }
         }
     }
 }
@@ -204,7 +230,9 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                     var soundFile: File? = null
 
                     var soundName: String? = null
-                    var category1: String? = null
+                    var categoryList = listOf<String>()
+                    var moodList = listOf<String>()
+                    var instrumentList = listOf<String>()
                     val artistName = userRepository.userName(userID)
 
                     multipart.forEachPart { part ->
@@ -215,9 +243,18 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                                         soundName = part.value
                                     }
 
-                                    "category1" -> {
-                                        category1 = part.value
+                                    "category" -> {
+                                        val fullCategoryList = Json.decodeFromString<List<MenuGenre>>(part.value)
+                                        categoryList = fullCategoryList.map { it.tag }
                                     }
+
+                                    /*"mood" -> {
+                                        moodList = Json.decodeFromString<List<String>>(part.value)
+                                    }
+
+                                    "instrument" -> {
+                                        instrumentList = Json.decodeFromString<List<String>>(part.value)
+                                    }*/
                                 }
                             }
 
@@ -292,7 +329,7 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                     }
 
                     if (soundFile != null && imageFile != null && soundName != null
-                        && category1 != null && artistName != null
+                        && artistName != null
                     ) {
                         val duration = if (soundFile.extension == "mp3") {
                             getMp3DurationInSeconds(soundFile)
@@ -303,14 +340,15 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                             val checkSound = soundRepository.addSound(
                                 Sound(
                                     name = normalizeSpaces(soundName),
-                                    artist = normalizeSpaces(artistName),
+                                    artistIDs = listOf(userID),
                                     status = SoundStatus.UNDER_CONTROL.toString(),
-                                    category1 = normalizeSpaces(category1),
+                                    categories = categoryList,
+                                    moods = moodList,
+                                    instruments = instrumentList,
                                     soundPath = soundFile.path,
                                     image1Path = imageFile.path,
                                     duration = duration,
-                                    soundID = generateUniqueId(),
-                                    artistID = userID
+                                    soundID = generateUniqueId()
                                 )
                             )
                             if (checkSound != -1) {
@@ -350,7 +388,7 @@ private fun Routing.userRoute() {
     }
 }
 
-private fun Routing.commonRoute(soundRepository: SoundRepository) {
+private fun Routing.commonRoute(soundRepository: SoundRepository, userRepository: UserRepository) {
     authenticate("auth-session") {
         get("/profile") {
             val lang = call.request.cookies["lang"] ?: "tr"
@@ -376,7 +414,10 @@ private fun Routing.commonRoute(soundRepository: SoundRepository) {
                 }
 
                 Role.USER.toString() -> {
-                    call.respond(FreeMarkerContent("user_profile.ftl", model))
+                    val userID = userSession.id
+                    val user = userRepository.getUser(userID)
+                    val userModel = mapOf("user" to user) + model
+                    call.respond(FreeMarkerContent("user_profile.ftl", userModel))
                 }
             }
         }
@@ -422,10 +463,10 @@ private fun saveFile(file: File?, bufferedStream: BufferedInputStream) {
     }
 }
 
-private fun generateUniqueId(): String {
+fun generateUniqueId(): String {
     val characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     val timestamp = System.currentTimeMillis().toString().takeLast(4)
-    val randomPart = (1..6).map { characters.random() }.joinToString("")
+    val randomPart = (1..10).map { characters.random() }.joinToString("")
     return timestamp + randomPart
 }
 
@@ -453,3 +494,9 @@ fun getMp3DurationInSeconds(file: File): Int {
     val mp3 = Mp3File(file)
     return (mp3.lengthInMilliseconds / 1000).toInt()
 }
+
+@Serializable
+data class MenuGenre(
+    val tag: String,
+    val name: String
+)
