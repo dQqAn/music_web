@@ -56,7 +56,7 @@ class MetaDataRepository(database: Database) {
         MetaDataTable.selectAll().where {
             conditions.reduce { acc, op -> acc and op }
         }
-            .limit(n = pageSize, offset = ((page - 1) * pageSize).toLong())
+//            .limit(n = pageSize, offset = ((page - 1) * pageSize).toLong())
             .map { row ->
                 MetaDataToMenu(
                     tag = row[MetaDataTable.key],

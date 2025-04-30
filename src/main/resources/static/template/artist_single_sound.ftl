@@ -59,7 +59,7 @@
         <button id="categoryBackButton" class="text-blue-600 text-sm">← Back</button>
     </div>
 
-    <div id="categoryMenuContainer" class="bg-white rounded shadow p-4"></div>
+    <div id="categoryMenuContainer" class="bg-white rounded shadow p-4 overflow-y-auto max-h-128 pb-20"></div>
 
     <#--<div id="categoryMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
         <div id="categoryMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>

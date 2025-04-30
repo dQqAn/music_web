@@ -43,8 +43,8 @@
     </div>
 
     <div class="main_box">
-        <div id="menuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white w-72">
-            <div id="menuContainer" class="gap-4 w-full max-w-md mx-auto p-4">
+        <div id="menuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white w-80 max-h-fit">
+            <div class="gap-4 w-full max-w-md mx-auto p-4">
                 <div class="mb-4">
                     <input id="categorySearchInput" type="text" placeholder="Search..."
                            class="w-full p-2 border rounded">
@@ -54,7 +54,9 @@
                     <h2 class="text-lg font-semibold">Selected Items</h2>
                     <button id="categoryClearSelection" class="text-red-600 text-sm">Clear</button>
                 </div>
+            </div>
 
+            <div id="menuContainer" class="gap-4 w-full max-w-md mx-auto p-4 overflow-y-auto">
                 <div id="selectedItemsContainer" class="flex flex-wrap gap-2 mb-4"></div>
 
                 <div id="categoryBackButtonContainer" class="mb-2 hidden">
@@ -86,7 +88,7 @@
             </div>
         </div>
 
-        <div class="main_content">
+        <div class="main_content relative pb-20">
             <div id="soundList"></div>
 
             <div class="pointer pagination" id="pagination"></div>
