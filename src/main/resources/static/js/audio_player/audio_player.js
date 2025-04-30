@@ -10,11 +10,8 @@ export const wavesurfer = WaveSurfer.create({
     url: '',
 })
 
-/*const isMobile = top.matchMedia('(max-width: 900px)').matches*/
+// const isMobile = top.matchMedia('(max-width: 900px)').matches
 
-// Initialize the Envelope plugin"@tailwindcss/postcss": "^4.1.4",
-//     "postcss": "^8.5.3",
-//     "wavesurfer.js": "^7.9.4"
 /*const envelope = wavesurfer.registerPlugin(
     EnvelopePlugin.create({
         volume: 0.8,
