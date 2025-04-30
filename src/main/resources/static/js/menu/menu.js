@@ -84,9 +84,20 @@ function loadMenuItems(clearButtonName, rootItems, items, menuContainerID, selec
     }
 }*/
 
-/*async function soundListSize(contentType, tag) {
+export async function soundListSize(selectedItems = [], minDuration = 0, maxDuration = 0) {
     try {
-        const response = await fetch(`/database/filterSounds?tag=${tag}&contentType=${contentType}`);
+        const response = await fetch(`/database/filterSoundsSize`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                selectedTags: [...selectedItems].map(item => item.tag),
+                minDuration: minDuration,
+                maxDuration: maxDuration
+            })
+        })
+
         if (!response.ok) {
             console.error(`HTTP error! Status: ${response.status}`);
             return null;
@@ -104,7 +115,7 @@ function loadMenuItems(clearButtonName, rootItems, items, menuContainerID, selec
         console.error('Error:', error);
         throw error;
     }
-}*/
+}
 
 //region Duration
 
@@ -389,7 +400,7 @@ function menuSubmit(menuSubmitBtnID) {
     });
 }
 
-function filterSounds(page) {
+export function filterSounds(page) {
     let minDuration = null
     let maxDuration = null
     if (isDurationChanged) {
@@ -422,10 +433,13 @@ function filterSounds(page) {
         lucide.createIcons();
         window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
 
-        const totalPages = Math.floor((sounds.length + 20 - 1) / 20);
-        updatePagination("pagination", page, totalPages, (p) => {
-            filterSounds(p);
-        });
+        soundListSize(categorySelectedItems, minDuration, maxDuration).then(r => {
+                const totalPages = Math.floor((r + 10 - 1) / 10);
+                updatePagination("pagination", page, totalPages, (p) => {
+                    filterSounds(p);
+                });
+            }
+        )
     }).catch(error => {
         console.error("Error:", error);
     });

@@ -49,7 +49,7 @@ class SoundRepository(database: Database) {
         }
     }
 
-    suspend fun getSounds(pageSize: Int = 20, page: Int): List<Sound> = suspendTransaction {
+    suspend fun getSounds(pageSize: Int = 10, page: Int): List<Sound> = suspendTransaction {
         SoundTable.selectAll()
             .where { (SoundTable.status eq SoundStatus.ACTIVE.toString()) }
             .limit(n = pageSize, offset = ((page - 1) * pageSize).toLong())
@@ -78,7 +78,7 @@ class SoundRepository(database: Database) {
     }
 
     suspend fun getCategorySounds(
-        pageSize: Int = 20,
+        pageSize: Int = 10,
         page: Int,
         category: String?,
         minDuration: Int?,
@@ -105,7 +105,7 @@ class SoundRepository(database: Database) {
         }
 
     suspend fun filteredSounds(
-        pageSize: Int = 20,
+        pageSize: Int = 10,
         page: Int,
         selectedTags: List<String>,
         minDuration: Int?,
@@ -159,7 +159,7 @@ class SoundRepository(database: Database) {
     }
 
     suspend fun getFilteredSize(
-        pageSize: Int = 20,
+        pageSize: Int = 10,
         page: Int,
         category: String?,
         minDuration: Int?,

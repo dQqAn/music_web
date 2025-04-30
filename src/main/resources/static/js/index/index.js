@@ -1,5 +1,4 @@
-import {soundList} from "../soundList.js";
-import {updatePagination} from "../pagination.js";
+import {filterSounds} from "../menu/menu.js";
 
 export function toSlug(str) {
     const turkishToEnglish = {
@@ -24,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const div = document.getElementById('soundList')
     if (div) {
-        loadSounds(1, 'soundList')
+        filterSounds(1)
     }
 
     const input = document.getElementById("searchInput")
@@ -77,38 +76,3 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-
-function loadSounds(page, divID) {
-    if (!Number.isInteger(page)) {
-        throw new Error('page is not a number');
-    }
-    const url = `/database/sounds?page=${page}`
-    fetch(`${url}`, {
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                console.log(`HTTP error! Status: ${response.status}`);
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-
-            const sounds = Array.isArray(data) ? data : (data.sounds || []);
-            soundList(divID, sounds)
-
-            lucide.createIcons();
-            window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
-
-            const totalPages = Math.floor((sounds.length + 20 - 1) / 20);
-            updatePagination("pagination", page, totalPages, (p) => {
-                loadSounds(p);
-            });
-        })
-        .catch(error => {
-            console.error("Error:", error);
-        });
-}

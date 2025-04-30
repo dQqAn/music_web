@@ -157,12 +157,13 @@ fun Application.databaseApi() {
             call.respond(mapOf("sound" to sound))
         }
 
-        get("/database/sounds") {
+        /*get("/database/sounds") {
             val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            println(page)
             val sounds = soundRepository
-                .getSounds(pageSize = 20, page = page)
+                .getSounds(pageSize = 10, page = page)
             call.respond(mapOf("sounds" to sounds))
-        }
+        }*/
 
         get("/loadFavourites/{userID}") {
             val userID = call.parameters["userID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
@@ -268,6 +269,33 @@ fun Application.databaseApi() {
             val response = MetaDataMenuResponse(categoryList, moodsList, instrumentsList)
             val responseJson = Json.encodeToString(response)
             call.respondText(responseJson, contentType = ContentType.Application.Json)
+        }
+
+        post("/database/filterSounds") {
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val selectedFilters = call.receive<SelectedFilters>()
+            val sounds = soundRepository.filteredSounds(
+                pageSize = 10,
+                page = page,
+                selectedFilters.selectedTags,
+                selectedFilters.minDuration,
+                selectedFilters.maxDuration
+            )
+            call.respond(HttpStatusCode.OK, mapOf("sounds" to sounds))
+        }
+
+        post("/database/filterSoundsSize") {
+            val selectedFilters = call.receive<SelectedFilters>()
+            val minDuration = selectedFilters.minDuration?.takeIf { it != 0 }
+            val maxDuration = selectedFilters.maxDuration?.takeIf { it != 0 }
+            call.respond(
+                HttpStatusCode.OK,
+                soundRepository.filteredSoundsSize(
+                    selectedFilters.selectedTags,
+                    minDuration,
+                    maxDuration
+                )
+            )
         }
 
         authenticate("auth-session") {
@@ -388,25 +416,6 @@ fun Application.databaseApi() {
 
                 call.respond(HttpStatusCode.OK)
             }
-
-            post("/database/filterSounds") {
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val selectedFilters = call.receive<SelectedFilters>()
-                val sounds = soundRepository.filteredSounds(
-                    pageSize = 20,
-                    page = page,
-                    selectedFilters.selectedTags,
-                    selectedFilters.minDuration,
-                    selectedFilters.maxDuration
-                )
-                call.respond(HttpStatusCode.OK, mapOf("sounds" to sounds))
-            }
-
-            /*get("/database/filterSounds"){
-                val tag = call.request.queryParameters["tag"]
-                val contentType = call.request.queryParameters["contentType"]
-                call.respond(soundRepository.filteredSoundsSize(contentType, tag))
-            }*/
 
             post("/database/createPlaylist") {
                 val userSession = call.sessions.get<UserSession>() ?: return@post call.respond(HttpStatusCode.NotFound)
