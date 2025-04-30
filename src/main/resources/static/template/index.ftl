@@ -62,6 +62,8 @@
                 </div>
 
                 <div id="categoryMenuContainer" class="bg-white rounded shadow p-4"></div>
+
+                <div id="mainPagination" class="pointer pagination gap-2 mb-4"></div>
             </div>
 
             <div class="gap-4 w-full max-w-md mx-auto p-4">
@@ -77,7 +79,10 @@
                 <div id="durationOutput"></div>
             </div>
             <div id="menuSubmitDiv">
-                <button id="menuSubmitButton" class="show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4">Show Selected Tags</button>
+                <button id="menuSubmitButton"
+                        class="show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4">
+                    Show Selected Tags
+                </button>
             </div>
         </div>
 

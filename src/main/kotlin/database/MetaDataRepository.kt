@@ -65,6 +65,23 @@ class MetaDataRepository(database: Database) {
             }
     }
 
+    suspend fun getMetaDataMenuSize(
+        contentType: String?,
+        key: String?
+    ): Int = suspendTransaction {
+        val conditions = mutableListOf(Op.build { MetaDataTable.disabled eq false })
+        val tempContentType = contentType ?: "GENRE"
+        conditions += MetaDataTable.type eq tempContentType
+
+        if (key != null) {
+            conditions += MetaDataTable.tags like "%\"$key\"%"
+        }
+
+        MetaDataTable.selectAll().where {
+            conditions.reduce { acc, op -> acc and op }
+        }.count().toInt()
+    }
+
     suspend fun checkMetaDataSubCategory(key: String): Boolean = suspendTransaction {
         try {
             MetaDataTable.selectAll().where { //search in tag

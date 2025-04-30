@@ -133,6 +133,31 @@ class SoundRepository(database: Database) {
             .map { row -> row.toSound() }
     }
 
+    suspend fun filteredSoundsSize(
+        selectedTags: List<String>,
+        minDuration: Int?,
+        maxDuration: Int?
+    ): Int = suspendTransaction {
+        val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
+
+        if (selectedTags.isNotEmpty()) {
+            val categoryConditions = selectedTags.map { tag ->
+                SoundTable.categories.like("%$tag%")
+            }.compoundOr()
+            conditions += categoryConditions
+        }
+
+        if (minDuration != null && maxDuration != null) {
+            conditions += SoundTable.duration greaterEq minDuration
+            conditions += SoundTable.duration lessEq maxDuration
+        }
+
+        SoundTable.selectAll()
+            .where {
+                conditions.reduce { acc, op -> acc and op }
+            }.count().toInt()
+    }
+
     suspend fun getFilteredSize(
         pageSize: Int = 20,
         page: Int,

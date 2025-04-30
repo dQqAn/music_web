@@ -1,12 +1,14 @@
-export function updatePagination(divID, currentPage, totalPages, onPageClick) {
+export function updatePagination(divID, currentPage, totalPages, onPageClick, forControl = true) {
     const pagination = document.getElementById(divID);
     pagination.innerHTML = '';
 
     if (currentPage > 1) {
-        const firstLink = document.createElement('a');
-        firstLink.textContent = 'First';
-        firstLink.onclick = () => onPageClick(1);
-        pagination.appendChild(firstLink);
+        if (forControl) {
+            const firstLink = document.createElement('a');
+            firstLink.textContent = 'First';
+            firstLink.onclick = () => onPageClick(1);
+            pagination.appendChild(firstLink);
+        }
 
         const prevLink = document.createElement('a');
         prevLink.textContent = 'Before';
@@ -14,14 +16,16 @@ export function updatePagination(divID, currentPage, totalPages, onPageClick) {
         pagination.appendChild(prevLink);
     }
 
-    for (let i = 1; i <= totalPages; i++) {
-        const pageLink = document.createElement('a');
-        pageLink.textContent = i;
-        pageLink.onclick = () => onPageClick(i);
-        if (i === currentPage) {
-            pageLink.classList.add('active');
+    if (forControl) {
+        for (let i = 1; i <= totalPages; i++) {
+            const pageLink = document.createElement('a');
+            pageLink.textContent = i;
+            pageLink.onclick = () => onPageClick(i);
+            if (i === currentPage) {
+                pageLink.classList.add('active');
+            }
+            pagination.appendChild(pageLink);
         }
-        pagination.appendChild(pageLink);
     }
 
     if (currentPage < totalPages) {
@@ -30,9 +34,11 @@ export function updatePagination(divID, currentPage, totalPages, onPageClick) {
         nextLink.onclick = () => onPageClick(currentPage + 1);
         pagination.appendChild(nextLink);
 
-        const lastLink = document.createElement('a');
-        lastLink.textContent = 'Last';
-        lastLink.onclick = () => onPageClick(totalPages);
-        pagination.appendChild(lastLink);
+        if (forControl) {
+            const lastLink = document.createElement('a');
+            lastLink.textContent = 'Last';
+            lastLink.onclick = () => onPageClick(totalPages);
+            pagination.appendChild(lastLink);
+        }
     }
 }

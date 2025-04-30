@@ -13,35 +13,98 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         //region Tag Menu
         openCloseButtons('menuWrapper')
-
-        fetch('/allMetaData')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Menu loading error');
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById('categorySearchInput').addEventListener('input', (event) => {
-                    filterMenu('categorySearchInput', 'categoryMenuContainer')
-                });
-                document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
-                    clearAllSelections('selectedItemsContainer', categorySelectedItems, true)
-                });
-                const categoryDataName = 'categories'
-                categoryMenuData = data[categoryDataName];
-                categoryRootItems = data[categoryDataName];
-                renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
-                    categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
-
-                // instrumentsMenuData = data.instruments;
-                // instrumentsRootItems = data.instruments;
-            })
+        const categoryDataName = 'categories'
+        loadMenuItems('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
+            categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer', 1)
         //endregion
 
         menuSubmit('menuSubmitDiv')
     }
 });
+
+function loadMenuItems(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, page) {
+    fetch(`/allMetaData?page=${page}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Menu loading error');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('categorySearchInput').addEventListener('input', (event) => {
+                filterMenu('categorySearchInput', 'categoryMenuContainer')
+            });
+            document.getElementById('categoryClearSelection').addEventListener('click', (event) => {
+                clearAllSelections('selectedItemsContainer', categorySelectedItems, true)
+            });
+            items = data[dataName];
+            rootItems = data[dataName];
+
+            renderMenu(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, items, metaDataName, dataName, selectedItemsContainer, backButtonID)
+
+            /*const lastTag = navigationStack.at(-1)?.tag ?? "null"; // const lastTag = navigationStack.length > 0 ? data.at(-1).tag : "null";
+            let lastContentType = null
+            if (navigationStack.length < 1){
+                lastContentType = "GENRE"
+            }else{
+                lastContentType = "SUBGENRE"
+            }
+            console.log(items)
+            menuListSize(lastContentType, lastTag).then(r => {
+                const totalPages = Math.floor((r + 10 - 1) / 10);
+                updatePagination('mainPagination', page, totalPages, (p) => {
+                    loadMenuItems(clearButtonName, rootItems, items, menuContainerID, selectedItems, navigationStack, currentItems, metaDataName, dataName, selectedItemsContainer, backButtonID, p);
+                }, false)
+            })*/
+
+            // instrumentsMenuData = data.instruments;
+            // instrumentsRootItems = data.instruments;
+        })
+}
+
+/*async function menuListSize(contentType = null, tag = null) {
+    try {
+        const response = await fetch(`/allMetaDataSize?tag=${tag}&contentType=${contentType}`);
+        if (!response.ok) {
+            console.error(`HTTP error! Status: ${response.status}`);
+            return null;
+        }
+
+        const data = await response.text();
+        const integerValue = parseInt(data);
+
+        if (isNaN(integerValue)) {
+            console.error(`${integerValue} is not a number`);
+            return null;
+        }
+        return integerValue;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}*/
+
+/*async function soundListSize(contentType, tag) {
+    try {
+        const response = await fetch(`/database/filterSounds?tag=${tag}&contentType=${contentType}`);
+        if (!response.ok) {
+            console.error(`HTTP error! Status: ${response.status}`);
+            return null;
+        }
+
+        const data = await response.text();
+        const integerValue = parseInt(data);
+
+        if (isNaN(integerValue)) {
+            console.error(`${integerValue} is not a number`);
+            return null;
+        }
+        return integerValue;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}*/
 
 //region Duration
 
@@ -131,10 +194,7 @@ async function setupClearButton(clearButtonName, event, navigationStack, metaDat
     if (navigationStack.length > 0) {
         const previous = navigationStack.pop();
         if (previous && previous.tag && previous.length > 0) {
-            const response = await fetch(`/database/getMetaDataSubCategory/${previous.tag}/${metaDataName}`, {
-                headers: {'Accept': 'application/json'}
-            });
-            const data = await response.json();
+            const data = fetchSubCategories(previous.tag, metaDataName)
             currentItems = data[dataName];
         } else {
             currentItems = rootItems;
@@ -345,7 +405,7 @@ function filterSounds(page) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            selectedTags: Array.from(categorySelectedItems),
+            selectedTags: [...categorySelectedItems].map(item => item.tag),
             minDuration: minDuration,
             maxDuration: maxDuration
         })

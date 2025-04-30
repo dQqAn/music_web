@@ -136,7 +136,6 @@ fun Application.databaseApi() {
             }
         }
 
-
         get("/download/sound/{soundID}") {
             val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
             val soundPath = soundRepository.getSoundPath(soundID, SoundStatus.ACTIVE)
@@ -215,13 +214,23 @@ fun Application.databaseApi() {
         }
 
         get("/allMetaData") {
-            val categoryList = metaDataRepository.metaDataToMenu(10, 1, null, null)
-//            val moodsList = metaDataRepository.metaDataToMenu(10, 1, "null", null)
-            val instrumentsList = metaDataRepository.metaDataToMenu(10, 1, "INSTRUMENT", null)
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val categoryList = metaDataRepository.metaDataToMenu(10, page, null, null)
+//            val moodsList = metaDataRepository.metaDataToMenu(10, page, "null", null)
+            val instrumentsList = metaDataRepository.metaDataToMenu(10, page, "INSTRUMENT", null)
             val response = MetaDataMenuResponse(categoryList, emptyList(), instrumentsList)
             val responseJson = Json.encodeToString(response)
             call.respondText(responseJson, contentType = ContentType.Application.Json)
         }
+
+        /*get("/allMetaDataSize"){
+            val tag = call.request.queryParameters["tag"]?.takeIf { it != "null" }
+            val contentType = call.request.queryParameters["contentType"]?.takeIf { it != "null" }
+            println(tag)
+            println(contentType)
+            println(metaDataRepository.getMetaDataMenuSize(contentType, tag))
+            call.respond(metaDataRepository.getMetaDataMenuSize(contentType, tag))
+        }*/
 
         post("/database/checkMetaDataSubCategory") {
             val key = call.receiveParameters()["key"]?.trim() ?: return@post call.respond(
@@ -392,6 +401,12 @@ fun Application.databaseApi() {
                 )
                 call.respond(HttpStatusCode.OK, mapOf("sounds" to sounds))
             }
+
+            /*get("/database/filterSounds"){
+                val tag = call.request.queryParameters["tag"]
+                val contentType = call.request.queryParameters["contentType"]
+                call.respond(soundRepository.filteredSoundsSize(contentType, tag))
+            }*/
 
             post("/database/createPlaylist") {
                 val userSession = call.sessions.get<UserSession>() ?: return@post call.respond(HttpStatusCode.NotFound)
