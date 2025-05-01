@@ -50,13 +50,44 @@ export function soundList(containerID, sounds) {
 
         const playButton = document.createElement('button')
         playButton.className = "pointer"
-        playButton.innerHTML = `<i data-lucide="play" class="${'icon_' + item.soundID} w-6 h-6"></i>`;
+        playButton.innerHTML = `<i data-lucide='play' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
 
         listWaveSurfer.className = "waveSurfer_" + item.soundID
         listWaveSurfer.once('ready', () => {
             playButton.onclick = () => {
-                mainWaveSurfer.playPause()
-                mainWaveSurfer.className = "waveSurfer_" + item.soundID
+
+                if (listWaveSurfer.className !== mainWaveSurfer.className) {
+                    mainWaveSurfer.className = "waveSurfer_" + item.soundID
+                }
+
+                const icon = document.querySelector('.icon_' + item.soundID);
+                if (icon.getAttribute('data-lucide') === 'play') {
+                    icon.setAttribute('data-lucide', 'pause');
+                    lucide.createIcons();
+
+                    mainWaveSurfer.load(src)
+                    mainWaveSurfer.once('ready', () => {
+                        if (listWaveSurfer.className === mainWaveSurfer.className) {
+                            if (!mainWaveSurfer.isPlaying()) {
+
+                                mainWaveSurfer.play()
+
+                                /*const icons = document.querySelectorAll('[data-lucide]');
+                                icons.forEach(otherIcon => {
+                                    // console.log(otherIcon.getAttribute('data-lucide'));
+                                    if (otherIcon.getAttribute('data-lucide') === 'pause') {
+                                        console.log(otherIcon.getAttribute('data-lucide'));
+                                        otherIcon.setAttribute('data-lucide', 'play');
+                                    }
+                                });*/
+                            }
+                        }
+                    })
+                } else {
+                    icon.setAttribute('data-lucide', 'play');
+                    lucide.createIcons();
+                    mainWaveSurfer.pause()
+                }
             }
         })
 
@@ -108,9 +139,9 @@ export function soundList(containerID, sounds) {
                 const currentTime = listWaveSurfer.getCurrentTime();
                 mainWaveSurfer.seekTo(currentTime / listWaveSurfer.getDuration());
 
-                const icon = document.querySelector('.icon_' + item.soundID);
+                /*const icon = document.querySelector('.icon_' + item.soundID);
                 icon.setAttribute('data-lucide', 'pause');
-                lucide.createIcons();
+                lucide.createIcons();*/
 
                 currentTrack.soundID = item.soundID
                 localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
@@ -118,11 +149,11 @@ export function soundList(containerID, sounds) {
         })
 
         mainWaveSurfer.on('pause', () => {
-            if (listWaveSurfer.className === mainWaveSurfer.className) {
+            /*if (listWaveSurfer.className === mainWaveSurfer.className) {
                 const icon = document.querySelector('.icon_' + item.soundID);
                 icon.setAttribute('data-lucide', 'play');
                 lucide.createIcons();
-            }
+            }*/
         })
 
         const controllerDiv = document.createElement('div')
