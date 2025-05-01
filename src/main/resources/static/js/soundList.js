@@ -1,4 +1,5 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
+import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import {mainWaveSurfer} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/index/index.js'
 
@@ -43,6 +44,17 @@ export function soundList(containerID, sounds) {
             progressColor: 'rgb(100, 0, 100)',
             url: '',
             height: 75,
+            dragToSeek: true,
+            // minPxPerSec: 100,
+            plugins: [
+                HoverPlugin.create({
+                    lineColor: '#ff0000',
+                    lineWidth: 2,
+                    labelBackground: '#555',
+                    labelColor: '#fff',
+                    labelSize: '11px',
+                }),
+            ],
         })
 
         const src = `/stream/sound/${encodeURIComponent(item.soundID)}`;
@@ -119,7 +131,6 @@ export function soundList(containerID, sounds) {
                 }
             });
         })
-
 
         //todo: problem when change the list or sound many times
         /*mainWaveSurfer.on('audioprocess', () => {

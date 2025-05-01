@@ -10,15 +10,10 @@ export const mainWaveSurfer = WaveSurfer.create({
     progressColor: 'rgb(100, 0, 100)',
     url: '',
     height: 75,
-    plugins: [
-        HoverPlugin.create({
-            lineColor: '#ff0000',
-            lineWidth: 2,
-            labelBackground: '#555',
-            labelColor: '#fff',
-            labelSize: '11px',
-        }),
-    ],
+    dragToSeek: true, // minPxPerSec: 100,
+    plugins: [HoverPlugin.create({
+        lineColor: '#ff0000', lineWidth: 2, labelBackground: '#555', labelColor: '#fff', labelSize: '11px',
+    }),],
 })
 
 // const isMobile = top.matchMedia('(max-width: 900px)').matches
@@ -196,6 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <label>
                     0.5x <input id="mainRateInput" type="range" min="0.5" max="2" step="0.5" value="1" /> 2x
                 </label>
+                <label>
+                    Zoom: <input id="mainZoomInput" type="range" min="10" max="200" value="100" />
+                </label>
             `;
         mainWaveDiv.appendChild(soundRate);
 
@@ -208,6 +206,14 @@ document.addEventListener("DOMContentLoaded", () => {
             mainWaveSurfer.setPlaybackRate(speed);
             mainWaveSurfer.play();
         });
+
+        const slider = document.getElementById('mainZoomInput')
+        mainWaveSurfer.once('decode', () => {
+            slider.addEventListener('input', (e) => {
+                const minPxPerSec = e.target.valueAsNumber
+                mainWaveSurfer.zoom(minPxPerSec)
+            })
+        })
     }
     lucide.createIcons();
 });
