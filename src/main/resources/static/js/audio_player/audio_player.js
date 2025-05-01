@@ -3,11 +3,12 @@ import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js
 // import EnvelopePlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/envelope.esm.js'
 
 // Create an instance of WaveSurfer
-export const wavesurfer = WaveSurfer.create({
+export const mainWaveSurfer = WaveSurfer.create({
     container: '#music_box',
     waveColor: 'rgb(200, 0, 200)',
     progressColor: 'rgb(100, 0, 100)',
     url: '',
+    height: 75,
 })
 
 // const isMobile = top.matchMedia('(max-width: 900px)').matches
@@ -62,17 +63,17 @@ wavesurfer.on('ready', showVolume)*/
 // Play/pause button
 // const button = document.querySelector('#play')
 const musicBoxPlayPause = document.querySelector('#musicBoxPlayPause')
-wavesurfer.once('ready', () => {
+mainWaveSurfer.once('ready', () => {
     musicBoxPlayPause.onclick = () => {
-        wavesurfer.playPause()
+        mainWaveSurfer.playPause()
     }
 })
-wavesurfer.on('play', () => {
+mainWaveSurfer.on('play', () => {
     const icon = document.getElementById('playPauseIcon');
     icon.setAttribute('data-lucide', 'pause');
     lucide.createIcons();
 })
-wavesurfer.on('pause', () => {
+mainWaveSurfer.on('pause', () => {
     const icon = document.getElementById('playPauseIcon');
     icon.setAttribute('data-lucide', 'play');
     lucide.createIcons();
@@ -172,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedTrack) {
         let restoredTrack = JSON.parse(savedTrack);
         const src = `/stream/sound/${encodeURIComponent(restoredTrack.soundID)}`;
-        wavesurfer.load(src)
+        mainWaveSurfer.load(src)
     }
 
     lucide.createIcons();

@@ -1,5 +1,5 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
-import {wavesurfer} from '../js/audio_player/audio_player.js';
+import {mainWaveSurfer} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/index/index.js'
 
 let currentTrack = {
@@ -42,6 +42,7 @@ export function soundList(containerID, sounds) {
             waveColor: 'rgb(200, 0, 200)',
             progressColor: 'rgb(100, 0, 100)',
             url: '',
+            height: 75,
         })
 
         const src = `/stream/sound/${encodeURIComponent(item.soundID)}`;
@@ -51,26 +52,77 @@ export function soundList(containerID, sounds) {
         playButton.className = "pointer"
         playButton.innerHTML = `<i data-lucide="play" class="${'icon_' + item.soundID} w-6 h-6"></i>`;
 
+        listWaveSurfer.className = "waveSurfer_" + item.soundID
         listWaveSurfer.once('ready', () => {
             playButton.onclick = () => {
-                listWaveSurfer.playPause()
+                mainWaveSurfer.playPause()
+                mainWaveSurfer.className = "waveSurfer_" + item.soundID
             }
         })
 
-        listWaveSurfer.on('play', () => {
-            const icon = document.querySelector('.icon_' + item.soundID);
-            icon.setAttribute('data-lucide', 'pause');
-            lucide.createIcons();
+        waveSurferDiv.addEventListener('click', (e) => {
+            if (listWaveSurfer.className === mainWaveSurfer.className) {
+                const bbox = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - bbox.left;
+                const percent = x / bbox.width;
 
-            wavesurfer.load(src)
-            currentTrack.soundID = item.soundID
-            localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+                const duration = mainWaveSurfer.getDuration();
+                if (duration && !isNaN(percent)) {
+                    mainWaveSurfer.seekTo(percent);
+                }
+            }
+        });
+
+        listWaveSurfer.on('ready', () => {
+            let isDragging = false;
+            waveSurferDiv.addEventListener('mousedown', (e) => {
+                if (listWaveSurfer.className === mainWaveSurfer.className) {
+                    isDragging = true;
+                    seek(e, mainWaveSurfer, listWaveSurfer, waveSurferDiv);
+                }
+
+            });
+            window.addEventListener('mouseup', () => {
+                if (listWaveSurfer.className === mainWaveSurfer.className) {
+                    isDragging = false;
+                }
+
+            });
+            waveSurferDiv.addEventListener('mousemove', (e) => {
+                if (isDragging && listWaveSurfer.className === mainWaveSurfer.className) {
+                    seek(e, mainWaveSurfer, listWaveSurfer, waveSurferDiv);
+                }
+            });
         })
 
-        listWaveSurfer.on('pause', () => {
-            const icon = document.querySelector('.icon_' + item.soundID);
-            icon.setAttribute('data-lucide', 'play');
-            lucide.createIcons();
+        mainWaveSurfer.on('audioprocess', () => {
+            if (listWaveSurfer.className === mainWaveSurfer.className) {
+                if (!mainWaveSurfer.isPlaying()) return;
+                const currentTime = mainWaveSurfer.getCurrentTime();
+                listWaveSurfer.seekTo(currentTime / mainWaveSurfer.getDuration());
+            }
+        });
+
+        mainWaveSurfer.on('play', () => {
+            if (listWaveSurfer.className === mainWaveSurfer.className) {
+                const currentTime = listWaveSurfer.getCurrentTime();
+                mainWaveSurfer.seekTo(currentTime / listWaveSurfer.getDuration());
+
+                const icon = document.querySelector('.icon_' + item.soundID);
+                icon.setAttribute('data-lucide', 'pause');
+                lucide.createIcons();
+
+                currentTrack.soundID = item.soundID
+                localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+            }
+        })
+
+        mainWaveSurfer.on('pause', () => {
+            if (listWaveSurfer.className === mainWaveSurfer.className) {
+                const icon = document.querySelector('.icon_' + item.soundID);
+                icon.setAttribute('data-lucide', 'play');
+                lucide.createIcons();
+            }
         })
 
         const controllerDiv = document.createElement('div')
@@ -85,4 +137,13 @@ export function soundList(containerID, sounds) {
     paginationDiv.id = "pagination"
     paginationDiv.className = "pointer pagination"
     container.appendChild(paginationDiv)
+}
+
+function seek(e, mainWave, listItemWave, listItemContainer) {
+    const rect = listItemContainer.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percent = Math.max(0, Math.min(1, x / rect.width));
+
+    listItemWave.seekTo(percent);
+    mainWave.seekTo(percent);
 }
