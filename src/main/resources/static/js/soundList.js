@@ -1,6 +1,6 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
-import {mainWaveSurfer} from '../js/audio_player/audio_player.js';
+import {formatTime, mainWaveSurfer} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/index/index.js'
 
 let currentTrack = {
@@ -32,11 +32,30 @@ export function soundList(containerID, sounds) {
 
         const waveSurferDiv = document.createElement('div');
         waveSurferDiv.id = 'div_' + item.soundID
-        waveSurferDiv.className = "w-full content-center items-center justify-center"
+        waveSurferDiv.className = "w-full content-center items-center justify-center relative"
         waveSurferDiv.style.border = "1px solid #ddd";
 
         listItem.appendChild(waveSurferDiv);
         container.appendChild(listItem);
+
+        /*const soundListHoverDiv = document.createElement('div');
+        soundListHoverDiv.innerHTML = `
+                <div id="listSoundHover_${item.soundID}" style="position: absolute; left: 0; top: 0; z-index: 1010;
+                    pointer-events: none; height: 100%; width: 0; mix-blend-mode: overlay; opacity: 0;
+                    background: rgba(255, 255, 255, 0.5); transition: opacity 0.2s ease;">
+                </div>
+                `;
+        listItem.appendChild(soundListHoverDiv);
+        container.appendChild(listItem)
+        const hoverID = "listSoundHover_" + item.soundID
+        const soundListHover = document.getElementById(hoverID);
+        waveSurferDiv.addEventListener('mouseenter', () => {
+            soundListHover.style.opacity = '1';
+        });
+        waveSurferDiv.addEventListener('mouseleave', () => {
+            soundListHover.style.opacity = '0';
+        });
+        waveSurferDiv.addEventListener('pointermove', (e) => (soundListHover.style.width = `${e.offsetX}px`))*/
 
         const listWaveSurfer = WaveSurfer.create({
             container: waveSurferDiv,
@@ -44,7 +63,7 @@ export function soundList(containerID, sounds) {
             progressColor: 'rgb(100, 0, 100)',
             url: '',
             height: 75,
-            // dragToSeek: true, // minPxPerSec: 100,
+            dragToSeek: true, // minPxPerSec: 100,
             plugins: [
                 HoverPlugin.create({
                     lineColor: '#ff0000',
@@ -55,6 +74,20 @@ export function soundList(containerID, sounds) {
                 }),
             ],
         })
+
+        const durationInfos = document.createElement('div');
+        durationInfos.innerHTML = `
+                    <p id="time_${item.soundID}">0:00</p>
+                    <p id="duration_${item.soundID}">0:00</p>
+                `;
+        listItem.appendChild(durationInfos);
+        container.appendChild(listItem);
+        const timeID = 'time_' + item.soundID
+        const durationID = 'duration_' + item.soundID
+        const timeEl = document.getElementById(timeID)
+        const durationEl = document.getElementById(durationID)
+        listWaveSurfer.on('decode', (duration) => (durationEl.textContent = formatTime(duration)))
+        listWaveSurfer.on('timeupdate', (currentTime) => (timeEl.textContent = formatTime(currentTime)))
 
         const src = `/stream/sound/${encodeURIComponent(item.soundID)}`;
         listWaveSurfer.load(src)

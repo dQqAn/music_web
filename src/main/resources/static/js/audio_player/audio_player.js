@@ -183,13 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const mainWaveDiv = document.getElementById('music_box')
     if (mainWaveDiv) {
-        const formatTime = (seconds) => {
-            const minutes = Math.floor(seconds / 60)
-            const secondsRemainder = Math.round(seconds) % 60
-            const paddedSeconds = `0${secondsRemainder}`.slice(-2)
-            return `${minutes}:${paddedSeconds}`
-        }
-
         const soundRate = document.createElement('div');
         soundRate.innerHTML = `
                 <div class="flex space-x-2">
@@ -246,3 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     lucide.createIcons();
 });
+
+export const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60)
+    const secondsRemainder = Math.round(seconds) % 60
+    const paddedSeconds = `0${secondsRemainder}`.slice(-2)
+    return `${minutes}:${paddedSeconds}`
+}
