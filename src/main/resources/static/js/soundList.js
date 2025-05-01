@@ -66,6 +66,7 @@ export function soundList(containerID, sounds) {
                     icons.forEach(otherIcon => {
                         if (otherIcon.getAttribute('data-lucide') === 'pause') {
                             otherIcon.setAttribute('data-lucide', 'play');
+                            lucide.createIcons();
                         }
                     });
 
@@ -74,15 +75,9 @@ export function soundList(containerID, sounds) {
 
                     mainWaveSurfer.load(src)
                     mainWaveSurfer.once('ready', () => {
-                        if (listWaveSurfer.className === mainWaveSurfer.className) {
-                            if (!mainWaveSurfer.isPlaying()) {
-                                mainWaveSurfer.play()
-                            }
-                        }
+                        mainWaveSurfer.play()
                     })
                 } else {
-                    icon.setAttribute('data-lucide', 'play');
-                    lucide.createIcons();
                     mainWaveSurfer.pause()
                 }
             }
@@ -123,13 +118,15 @@ export function soundList(containerID, sounds) {
             });
         })
 
-        mainWaveSurfer.on('audioprocess', () => {
+
+        //todo: problem when change the list or sound many times
+        /*mainWaveSurfer.on('audioprocess', () => {
             if (listWaveSurfer.className === mainWaveSurfer.className) {
                 if (!mainWaveSurfer.isPlaying()) return;
                 const currentTime = mainWaveSurfer.getCurrentTime();
                 listWaveSurfer.seekTo(currentTime / mainWaveSurfer.getDuration());
             }
-        });
+        });*/
 
         mainWaveSurfer.on('play', () => {
             if (listWaveSurfer.className === mainWaveSurfer.className) {
@@ -139,10 +136,12 @@ export function soundList(containerID, sounds) {
                 const icon = document.querySelector('.icon_' + item.soundID);
                 icon.setAttribute('data-lucide', 'pause');
                 lucide.createIcons();
-
-                currentTrack.soundID = item.soundID
-                localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
             }
+
+            currentTrack.soundID = item.soundID
+            localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+
+            // mainWaveSurfer.className = "waveSurfer_" + item.soundID
         })
 
         mainWaveSurfer.on('pause', () => {
