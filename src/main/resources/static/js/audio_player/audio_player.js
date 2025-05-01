@@ -1,4 +1,5 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
+import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 // import Region from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
 // import EnvelopePlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/envelope.esm.js'
 
@@ -9,6 +10,15 @@ export const mainWaveSurfer = WaveSurfer.create({
     progressColor: 'rgb(100, 0, 100)',
     url: '',
     height: 75,
+    plugins: [
+        HoverPlugin.create({
+            lineColor: '#ff0000',
+            lineWidth: 2,
+            labelBackground: '#555',
+            labelColor: '#fff',
+            labelSize: '11px',
+        }),
+    ],
 })
 
 // const isMobile = top.matchMedia('(max-width: 900px)').matches
@@ -176,5 +186,28 @@ document.addEventListener("DOMContentLoaded", () => {
         mainWaveSurfer.load(src)
     }
 
+    const mainWaveDiv = document.getElementById('music_box')
+    if (mainWaveDiv) {
+        const soundRate = document.createElement('div');
+        soundRate.innerHTML = `
+                <label>
+                    Playback rate: <span id="mainRate">1.0</span>x
+                </label>
+                <label>
+                    0.5x <input id="mainRateInput" type="range" min="0.5" max="2" step="0.5" value="1" /> 2x
+                </label>
+            `;
+        mainWaveDiv.appendChild(soundRate);
+
+        const rateDisplay = document.getElementById('mainRate');
+        const rateInput = document.getElementById('mainRateInput');
+
+        rateInput.addEventListener('input', (e) => {
+            const speed = parseFloat(e.target.value);
+            rateDisplay.textContent = speed.toFixed(1);
+            mainWaveSurfer.setPlaybackRate(speed);
+            mainWaveSurfer.play();
+        });
+    }
     lucide.createIcons();
 });

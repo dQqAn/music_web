@@ -75,6 +75,8 @@ export function soundList(containerID, sounds) {
 
                     mainWaveSurfer.load(src)
                     mainWaveSurfer.once('ready', () => {
+                        const rateInput = document.getElementById('mainRateInput');
+                        mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
                         mainWaveSurfer.play()
                     })
                 } else {
