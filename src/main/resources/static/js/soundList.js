@@ -1,6 +1,6 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
-import {formatTime, mainWaveSurfer} from '../js/audio_player/audio_player.js';
+import {formatTime, mainWaveSurfer, regions} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/index/index.js'
 
 let currentTrack = {
@@ -72,6 +72,7 @@ export function soundList(containerID, sounds) {
                     labelColor: '#fff',
                     labelSize: '11px',
                 }),
+                regions
             ],
         })
 
