@@ -44,8 +44,7 @@ export function soundList(containerID, sounds) {
             progressColor: 'rgb(100, 0, 100)',
             url: '',
             height: 75,
-            dragToSeek: true,
-            // minPxPerSec: 100,
+            // dragToSeek: true, // minPxPerSec: 100,
             plugins: [
                 HoverPlugin.create({
                     lineColor: '#ff0000',
