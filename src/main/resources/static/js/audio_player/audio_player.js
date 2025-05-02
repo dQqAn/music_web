@@ -140,6 +140,24 @@ document.addEventListener("DOMContentLoaded", () => {
             region.play(true)
             region.setOptions({color: randomColor()})
         })
+        regions.on('region-created', (region) => {
+            const regionId = `region-${regionCount++}`
+
+            region.setOptions({id: regionId})
+
+            const wrapper = document.createElement('div')
+            wrapper.className = 'flex items-center gap-2 text-white text-xs'
+
+            const button = document.createElement('button')
+            button.textContent = 'X'
+            button.className = 'bg-red-600 text-white'
+            button.addEventListener('click', (e) => {
+                if (region) region.remove()
+            })
+
+            wrapper.appendChild(button)
+            region.element.appendChild(wrapper)
+        })
         // Reset the active region when the user clicks anywhere in the waveform
         mainWaveSurfer.on('interaction', () => {
             activeRegion = null
@@ -172,19 +190,18 @@ export const createRegion = (regionCount, regions, start, end, extraOptions = {}
         ...extraOptions,
     })
 
-    const wrapper = document.createElement('div')
+    /*const wrapper = document.createElement('div')
     wrapper.className = 'flex items-center gap-2 text-white text-xs'
 
     const button = document.createElement('button')
     button.textContent = `X`
     button.className = 'bg-red-600 text-white'
-    button.dataset.id = region.id
     button.addEventListener('click', (e) => {
         if (region) region.remove()
     })
-
     wrapper.appendChild(button)
-    region.element.appendChild(wrapper)
+    region.element.appendChild(wrapper)*/
+
     return region
 }
 
