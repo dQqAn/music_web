@@ -1,6 +1,7 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
-import {formatTime, mainWaveSurfer, regions} from '../js/audio_player/audio_player.js';
+import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
+import {formatTime, mainWaveSurfer, createRegion} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/index/index.js'
 
 let currentTrack = {
@@ -16,6 +17,8 @@ export function soundList(containerID, sounds) {
     container.innerHTML = '';
 
     sounds.forEach(item => {
+        const regions = RegionsPlugin.create()
+
         const listItem = document.createElement('div');
         listItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
 
@@ -63,7 +66,7 @@ export function soundList(containerID, sounds) {
             progressColor: 'rgb(100, 0, 100)',
             url: '',
             height: 75,
-            dragToSeek: true, // minPxPerSec: 100,
+            // dragToSeek: true, // minPxPerSec: 100,
             plugins: [
                 HoverPlugin.create({
                     lineColor: '#ff0000',

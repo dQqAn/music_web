@@ -2,7 +2,7 @@ import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
 
-export const regions = RegionsPlugin.create()
+const regions = RegionsPlugin.create()
 
 export const mainWaveSurfer = WaveSurfer.create({
     container: '#music_box',
@@ -61,6 +61,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     </label>
                     <p id="mainTime">0:00</p>
                     <p id="mainDuration">0:00</p>
+                    <label>
+                        <input id="mainLoopCheckbox" type="checkbox" checked="checked" />
+                        Loop regions
+                    </label>
+                    <button id="mainClearRegions">Clear Regions</button>
                 </div>
                 <div id="mainHover" style="position: absolute; left: 0; top: 0; z-index: 1010; 
                 pointer-events: none; height: 100%; width: 0; mix-blend-mode: overlay; opacity: 0;
@@ -87,19 +92,62 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         })
 
-        const hover = document.getElementById('mainHover')
+        /*const hover = document.getElementById('mainHover')
         mainWaveDiv.addEventListener('mouseenter', () => {
             hover.style.opacity = '1';
         });
         mainWaveDiv.addEventListener('mouseleave', () => {
             hover.style.opacity = '0';
         });
-        mainWaveDiv.addEventListener('pointermove', (e) => (hover.style.width = `${e.offsetX}px`))
+        mainWaveDiv.addEventListener('pointermove', (e) => (hover.style.width = `${e.offsetX}px`))*/
 
         const timeEl = document.getElementById('mainTime')
         const durationEl = document.getElementById('mainDuration')
         mainWaveSurfer.on('decode', (duration) => (durationEl.textContent = formatTime(duration)))
         mainWaveSurfer.on('timeupdate', (currentTime) => (timeEl.textContent = formatTime(currentTime)))
+
+        let regionCount = 1
+        mainWaveSurfer.on('decode', () => {
+            //todo fetch values
+            createRegion(regionCount, regions, 8, 20)
+            createRegion(regionCount, regions, 44, 80)
+        })
+
+        regions.enableDragSelection({
+            color: 'rgba(255,255,255,0.1)',
+        })
+        let loop = true
+        // Toggle looping with a checkbox
+        document.getElementById('mainLoopCheckbox').onclick = (e) => {
+            loop = e.target.checked
+        }
+        let activeRegion = null
+        regions.on('region-in', (region) => {
+            activeRegion = region
+        })
+        regions.on('region-out', (region) => {
+            if (activeRegion === region) {
+                if (loop) {
+                    region.play()
+                } else {
+                    activeRegion = null
+                }
+            }
+        })
+        regions.on('region-clicked', (region, e) => {
+            e.stopPropagation() // prevent triggering a click on the waveform
+            activeRegion = region
+            region.play(true)
+            region.setOptions({color: randomColor()})
+        })
+        // Reset the active region when the user clicks anywhere in the waveform
+        mainWaveSurfer.on('interaction', () => {
+            activeRegion = null
+        })
+        document.getElementById('mainClearRegions').addEventListener('click', () => {
+            Object.values(regions.regions).forEach(region => region.remove())
+        })
+
     }
     lucide.createIcons();
 });
@@ -110,3 +158,35 @@ export const formatTime = (seconds) => {
     const paddedSeconds = `0${secondsRemainder}`.slice(-2)
     return `${minutes}:${paddedSeconds}`
 }
+
+export const createRegion = (regionCount, regions, start, end, extraOptions = {}) => {
+    const regionId = regionCount++
+
+    const region = regions.addRegion({
+        id: `region-${regionId}`,
+        start,
+        end,
+        color: randomColor(),
+        drag: false,
+        resize: false,
+        ...extraOptions,
+    })
+
+    const wrapper = document.createElement('div')
+    wrapper.className = 'flex items-center gap-2 text-white text-xs'
+
+    const button = document.createElement('button')
+    button.textContent = `X`
+    button.className = 'bg-red-600 text-white'
+    button.dataset.id = region.id
+    button.addEventListener('click', (e) => {
+        if (region) region.remove()
+    })
+
+    wrapper.appendChild(button)
+    region.element.appendChild(wrapper)
+    return region
+}
+
+const random = (min, max) => Math.random() * (max - min) + min
+const randomColor = () => `rgba(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)}, 0.5)`
