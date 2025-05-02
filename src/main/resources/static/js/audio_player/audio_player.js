@@ -24,6 +24,70 @@ mainWaveSurfer.once('ready', () => {
     musicBoxPlayPause.onclick = () => {
         mainWaveSurfer.playPause()
     }
+
+    Object.values(regionsPlugin.regions).forEach(region => region.remove())
+
+    let savedTrack = localStorage.getItem("currentTrack");
+    let restoredTrack = JSON.parse(savedTrack);
+
+    let regionCount = 1
+    mainWaveSurfer.on('decode', () => {
+        console.log("Main: " + restoredTrack.soundID)
+        fetchAndCreateRegions(restoredTrack.soundID, regionCount, regionsPlugin)
+    })
+
+    regionsPlugin.enableDragSelection({
+        color: 'rgba(255,255,255,0.1)',
+    })
+    let loop = true
+    // Toggle looping with a checkbox
+    document.getElementById('mainLoopCheckbox').onclick = (e) => {
+        loop = e.target.checked
+    }
+    let activeRegion = null
+    regionsPlugin.on('region-in', (region) => {
+        activeRegion = region
+    })
+    regionsPlugin.on('region-out', (region) => {
+        if (activeRegion === region) {
+            if (loop) {
+                region.play()
+            } else {
+                activeRegion = null
+            }
+        }
+    })
+    regionsPlugin.on('region-clicked', (region, e) => {
+        e.stopPropagation() // prevent triggering a click on the waveform
+        activeRegion = region
+        region.play(true)
+        region.setOptions({color: randomColor()})
+    })
+    regionsPlugin.on('region-created', (region) => {
+        const regionId = `region-${regionCount++}`
+
+        region.setOptions({id: regionId})
+
+        const wrapper = document.createElement('div')
+        wrapper.className = 'flex items-center gap-2 text-white text-xs'
+
+        const button = document.createElement('button')
+        button.textContent = 'X'
+        button.className = 'bg-red-600 text-white'
+        button.addEventListener('click', (e) => {
+            if (region) region.remove()
+        })
+
+        wrapper.appendChild(button)
+        region.element.appendChild(wrapper)
+    })
+    // Reset the active region when the user clicks anywhere in the waveform
+    mainWaveSurfer.on('interaction', () => {
+        activeRegion = null
+    })
+    document.getElementById('mainClearRegions').addEventListener('click', () => {
+        Object.values(regionsPlugin.regions).forEach(region => region.remove())
+    })
 })
 mainWaveSurfer.on('play', () => {
     const icon = document.getElementById('playPauseIcon');
@@ -104,65 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const durationEl = document.getElementById('mainDuration')
             mainWaveSurfer.on('decode', (duration) => (durationEl.textContent = formatTime(duration)))
             mainWaveSurfer.on('timeupdate', (currentTime) => (timeEl.textContent = formatTime(currentTime)))
-
-            let regionCount = 1
-            mainWaveSurfer.on('decode', () => {
-                fetchAndCreateRegions(restoredTrack.soundID, regionCount, regionsPlugin)
-            })
-
-            regionsPlugin.enableDragSelection({
-                color: 'rgba(255,255,255,0.1)',
-            })
-            let loop = true
-            // Toggle looping with a checkbox
-            document.getElementById('mainLoopCheckbox').onclick = (e) => {
-                loop = e.target.checked
-            }
-            let activeRegion = null
-            regionsPlugin.on('region-in', (region) => {
-                activeRegion = region
-            })
-            regionsPlugin.on('region-out', (region) => {
-                if (activeRegion === region) {
-                    if (loop) {
-                        region.play()
-                    } else {
-                        activeRegion = null
-                    }
-                }
-            })
-            regionsPlugin.on('region-clicked', (region, e) => {
-                e.stopPropagation() // prevent triggering a click on the waveform
-                activeRegion = region
-                region.play(true)
-                region.setOptions({color: randomColor()})
-            })
-            regionsPlugin.on('region-created', (region) => {
-                const regionId = `region-${regionCount++}`
-
-                region.setOptions({id: regionId})
-
-                const wrapper = document.createElement('div')
-                wrapper.className = 'flex items-center gap-2 text-white text-xs'
-
-                const button = document.createElement('button')
-                button.textContent = 'X'
-                button.className = 'bg-red-600 text-white'
-                button.addEventListener('click', (e) => {
-                    if (region) region.remove()
-                })
-
-                wrapper.appendChild(button)
-                region.element.appendChild(wrapper)
-            })
-            // Reset the active region when the user clicks anywhere in the waveform
-            mainWaveSurfer.on('interaction', () => {
-                activeRegion = null
-            })
-            document.getElementById('mainClearRegions').addEventListener('click', () => {
-                Object.values(regionsPlugin.regions).forEach(region => region.remove())
-            })
-
         }
     }
 

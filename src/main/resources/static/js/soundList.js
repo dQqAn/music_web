@@ -187,6 +187,7 @@ export function soundList(containerID, sounds) {
                 lucide.createIcons();
             }
 
+            console.log("List Item: " + item.soundID)
             currentTrack.soundID = item.soundID
             localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
 

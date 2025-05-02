@@ -1,3 +1,4 @@
+import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import {clearAllSelections, filterMenu, renderMenu} from "../menu/menu.js";
 
 document.getElementById("uploadForm").addEventListener("submit", async (event) => {
@@ -22,6 +23,7 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
     formData.append("sound", soundInput.files[0]);
     formData.append("name", soundName.value);
     formData.append("category", JSON.stringify([...categorySelectedItems]));
+    formData.append("loops", JSON.stringify(loops))
     // formData.append("mood", JSON.stringify([...moodsSelectedTags]));
     // formData.append("instrument", JSON.stringify([...instrumentsSelectedTags]));
 
@@ -58,7 +60,76 @@ let categoryRootItems = [];
 let instrumentsMenuData = [];
 let instrumentsRootItems = [];
 
+let loops = []
+let loopsCounter = 0
+
+const waveSurfer = WaveSurfer.create({
+    container: '#artistSingleSoundBox',
+    waveColor: 'rgb(200, 0, 200)',
+    progressColor: 'rgb(100, 0, 100)',
+    url: '',
+    height: 75,
+})
+
 document.addEventListener('DOMContentLoaded', async () => {
+    const startingTime = document.getElementById('startingTime')
+    const endingTime = document.getElementById('endingTime')
+    const selectedLoops = document.getElementById('artistSelectedLoops')
+    // const soundBox = document.getElementById('artistSingleSoundBox')
+    const addLoop = document.getElementById('addLoop')
+
+    const soundInput = document.getElementById("soundInput");
+    soundInput.addEventListener('change', (event) => {
+        const file = event.target.files[0]
+        if (file) {
+            const fileName = file.name.toLowerCase()
+            const isValid = fileName.endsWith('.mp3') || fileName.endsWith('.wav')
+            if (isValid) {
+                waveSurfer.loadBlob(file)
+            }
+        } else {
+            waveSurfer.stop()
+            waveSurfer.empty()
+        }
+    })
+
+    addLoop.addEventListener('click', () => {
+        loopsCounter++
+        const startTime = parseFloat(startingTime.value)
+        const endTime = parseFloat(endingTime.value)
+        if (isNaN(startTime) || isNaN(endTime) || startTime < 0 || endTime < 1 || (endTime - startTime) < 1) return
+
+        const loopId = 'loop_' + loopsCounter
+        const loopItem = document.createElement('div')
+        loopItem.className = 'flex items-center gap-2 mb-1'
+        loopItem.id = loopId
+
+        const loopText = document.createElement('p')
+        loopText.textContent = `${startTime} - ${endTime}`
+
+        const loopRemoveButton = document.createElement('button')
+        loopRemoveButton.textContent = 'X'
+        loopRemoveButton.className = 'bg-red-600 text-white px-2 py-0.5 rounded text-xs'
+
+        loopRemoveButton.addEventListener('click', () => {
+            loops = loops.filter(item => item.id !== loopId)
+            loopItem.remove()
+        })
+
+        loopItem.appendChild(loopText)
+        loopItem.appendChild(loopRemoveButton)
+        selectedLoops.appendChild(loopItem)
+
+        loops.push({
+            id: loopId,
+            start: startTime,
+            end: endTime
+        })
+
+        startingTime.value = 0
+        endingTime.value = 0
+    })
+
     fetch('/allMetaData')
         .then(response => {
             if (!response.ok) {
