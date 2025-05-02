@@ -2,7 +2,7 @@ import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
 
-const regions = RegionsPlugin.create()
+const regionsPlugin = RegionsPlugin.create()
 
 export const mainWaveSurfer = WaveSurfer.create({
     container: '#music_box',
@@ -15,7 +15,7 @@ export const mainWaveSurfer = WaveSurfer.create({
         HoverPlugin.create({
             lineColor: '#ff0000', lineWidth: 2, labelBackground: '#555', labelColor: '#fff', labelSize: '11px',
         }),
-        regions
+        regionsPlugin
     ],
 })
 
@@ -43,12 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
         let restoredTrack = JSON.parse(savedTrack);
         const src = `/stream/sound/${encodeURIComponent(restoredTrack.soundID)}`;
         mainWaveSurfer.load(src)
-    }
 
-    const mainWaveDiv = document.getElementById('music_box')
-    if (mainWaveDiv) {
-        const soundRate = document.createElement('div');
-        soundRate.innerHTML = `
+        const mainWaveDiv = document.getElementById('music_box')
+        if (mainWaveDiv) {
+            const soundRate = document.createElement('div');
+            soundRate.innerHTML = `
                 <div class="flex space-x-2">
                     <label>
                         Playback rate: <span id="mainRate">1.0</span>x
@@ -72,101 +71,101 @@ document.addEventListener("DOMContentLoaded", () => {
                 background: rgba(255, 255, 255, 0.5); transition: opacity 0.2s ease;
                 "></div>
             `;
-        mainWaveDiv.appendChild(soundRate);
+            mainWaveDiv.appendChild(soundRate);
 
-        const rateDisplay = document.getElementById('mainRate');
-        const rateInput = document.getElementById('mainRateInput');
+            const rateDisplay = document.getElementById('mainRate');
+            const rateInput = document.getElementById('mainRateInput');
 
-        rateInput.addEventListener('input', (e) => {
-            const speed = parseFloat(e.target.value);
-            rateDisplay.textContent = speed.toFixed(1);
-            mainWaveSurfer.setPlaybackRate(speed);
-            mainWaveSurfer.play();
-        });
+            rateInput.addEventListener('input', (e) => {
+                const speed = parseFloat(e.target.value);
+                rateDisplay.textContent = speed.toFixed(1);
+                mainWaveSurfer.setPlaybackRate(speed);
+                mainWaveSurfer.play();
+            });
 
-        const slider = document.getElementById('mainZoomInput')
-        mainWaveSurfer.once('decode', () => {
-            slider.addEventListener('input', (e) => {
-                const minPxPerSec = e.target.valueAsNumber
-                mainWaveSurfer.zoom(minPxPerSec)
+            const slider = document.getElementById('mainZoomInput')
+            mainWaveSurfer.once('decode', () => {
+                slider.addEventListener('input', (e) => {
+                    const minPxPerSec = e.target.valueAsNumber
+                    mainWaveSurfer.zoom(minPxPerSec)
+                })
             })
-        })
 
-        /*const hover = document.getElementById('mainHover')
-        mainWaveDiv.addEventListener('mouseenter', () => {
-            hover.style.opacity = '1';
-        });
-        mainWaveDiv.addEventListener('mouseleave', () => {
-            hover.style.opacity = '0';
-        });
-        mainWaveDiv.addEventListener('pointermove', (e) => (hover.style.width = `${e.offsetX}px`))*/
+            /*const hover = document.getElementById('mainHover')
+            mainWaveDiv.addEventListener('mouseenter', () => {
+                hover.style.opacity = '1';
+            });
+            mainWaveDiv.addEventListener('mouseleave', () => {
+                hover.style.opacity = '0';
+            });
+            mainWaveDiv.addEventListener('pointermove', (e) => (hover.style.width = `${e.offsetX}px`))*/
 
-        const timeEl = document.getElementById('mainTime')
-        const durationEl = document.getElementById('mainDuration')
-        mainWaveSurfer.on('decode', (duration) => (durationEl.textContent = formatTime(duration)))
-        mainWaveSurfer.on('timeupdate', (currentTime) => (timeEl.textContent = formatTime(currentTime)))
+            const timeEl = document.getElementById('mainTime')
+            const durationEl = document.getElementById('mainDuration')
+            mainWaveSurfer.on('decode', (duration) => (durationEl.textContent = formatTime(duration)))
+            mainWaveSurfer.on('timeupdate', (currentTime) => (timeEl.textContent = formatTime(currentTime)))
 
-        let regionCount = 1
-        mainWaveSurfer.on('decode', () => {
-            //todo fetch values
-            createRegion(regionCount, regions, 8, 20)
-            createRegion(regionCount, regions, 44, 80)
-        })
+            let regionCount = 1
+            mainWaveSurfer.on('decode', () => {
+                fetchAndCreateRegions(restoredTrack.soundID, regionCount, regionsPlugin)
+            })
 
-        regions.enableDragSelection({
-            color: 'rgba(255,255,255,0.1)',
-        })
-        let loop = true
-        // Toggle looping with a checkbox
-        document.getElementById('mainLoopCheckbox').onclick = (e) => {
-            loop = e.target.checked
-        }
-        let activeRegion = null
-        regions.on('region-in', (region) => {
-            activeRegion = region
-        })
-        regions.on('region-out', (region) => {
-            if (activeRegion === region) {
-                if (loop) {
-                    region.play()
-                } else {
-                    activeRegion = null
-                }
+            regionsPlugin.enableDragSelection({
+                color: 'rgba(255,255,255,0.1)',
+            })
+            let loop = true
+            // Toggle looping with a checkbox
+            document.getElementById('mainLoopCheckbox').onclick = (e) => {
+                loop = e.target.checked
             }
-        })
-        regions.on('region-clicked', (region, e) => {
-            e.stopPropagation() // prevent triggering a click on the waveform
-            activeRegion = region
-            region.play(true)
-            region.setOptions({color: randomColor()})
-        })
-        regions.on('region-created', (region) => {
-            const regionId = `region-${regionCount++}`
+            let activeRegion = null
+            regionsPlugin.on('region-in', (region) => {
+                activeRegion = region
+            })
+            regionsPlugin.on('region-out', (region) => {
+                if (activeRegion === region) {
+                    if (loop) {
+                        region.play()
+                    } else {
+                        activeRegion = null
+                    }
+                }
+            })
+            regionsPlugin.on('region-clicked', (region, e) => {
+                e.stopPropagation() // prevent triggering a click on the waveform
+                activeRegion = region
+                region.play(true)
+                region.setOptions({color: randomColor()})
+            })
+            regionsPlugin.on('region-created', (region) => {
+                const regionId = `region-${regionCount++}`
 
-            region.setOptions({id: regionId})
+                region.setOptions({id: regionId})
 
-            const wrapper = document.createElement('div')
-            wrapper.className = 'flex items-center gap-2 text-white text-xs'
+                const wrapper = document.createElement('div')
+                wrapper.className = 'flex items-center gap-2 text-white text-xs'
 
-            const button = document.createElement('button')
-            button.textContent = 'X'
-            button.className = 'bg-red-600 text-white'
-            button.addEventListener('click', (e) => {
-                if (region) region.remove()
+                const button = document.createElement('button')
+                button.textContent = 'X'
+                button.className = 'bg-red-600 text-white'
+                button.addEventListener('click', (e) => {
+                    if (region) region.remove()
+                })
+
+                wrapper.appendChild(button)
+                region.element.appendChild(wrapper)
+            })
+            // Reset the active region when the user clicks anywhere in the waveform
+            mainWaveSurfer.on('interaction', () => {
+                activeRegion = null
+            })
+            document.getElementById('mainClearRegions').addEventListener('click', () => {
+                Object.values(regionsPlugin.regions).forEach(region => region.remove())
             })
 
-            wrapper.appendChild(button)
-            region.element.appendChild(wrapper)
-        })
-        // Reset the active region when the user clicks anywhere in the waveform
-        mainWaveSurfer.on('interaction', () => {
-            activeRegion = null
-        })
-        document.getElementById('mainClearRegions').addEventListener('click', () => {
-            Object.values(regions.regions).forEach(region => region.remove())
-        })
-
+        }
     }
+
     lucide.createIcons();
 });
 
@@ -177,7 +176,7 @@ export const formatTime = (seconds) => {
     return `${minutes}:${paddedSeconds}`
 }
 
-export const createRegion = (regionCount, regions, start, end, extraOptions = {}) => {
+const createRegion = (regionCount, regions, start, end, extraOptions = {}) => {
     const regionId = regionCount++
 
     const region = regions.addRegion({
@@ -207,3 +206,15 @@ export const createRegion = (regionCount, regions, start, end, extraOptions = {}
 
 const random = (min, max) => Math.random() * (max - min) + min
 const randomColor = () => `rgba(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)}, 0.5)`
+
+export function fetchAndCreateRegions(soundID, regionCount, regionsPlugin) {
+    fetch(`/database/regions/${soundID}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.regions?.length > 0) {
+                data.regions.forEach(([start, end]) => {
+                    createRegion(regionCount, regionsPlugin, start, end)
+                });
+            }
+        });
+}
