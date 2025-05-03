@@ -45,6 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let savedTrack = localStorage.getItem("currentTrack");
 
     if (savedTrack) {
+        currentTrack = JSON.parse(savedTrack);
+
         // let restoredTrack = JSON.parse(savedTrack);
         const {soundID, playlistID, currentTime, volume} = JSON.parse(savedTrack);
 
