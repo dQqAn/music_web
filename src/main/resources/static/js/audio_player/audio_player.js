@@ -21,7 +21,6 @@ export const mainWaveSurfer = WaveSurfer.create({
 })
 
 const musicBoxPlayPause = document.querySelector('#musicBoxPlayPause')
-let savedTrack = localStorage.getItem("currentTrack");
 let currentTrack = {
     soundID: "",
     playlistID: "",
@@ -40,14 +39,30 @@ let currentTrack = {
 
 let mainWaveReady = false;
 
+const volumeInput = document.getElementById("mainVolume");
+
 document.addEventListener("DOMContentLoaded", () => {
     let savedTrack = localStorage.getItem("currentTrack");
 
     if (savedTrack) {
-        let restoredTrack = JSON.parse(savedTrack);
-        const src = `/stream/sound/${encodeURIComponent(restoredTrack.soundID)}`;
+        // let restoredTrack = JSON.parse(savedTrack);
+        const {soundID, playlistID, currentTime, volume} = JSON.parse(savedTrack);
+
+        const src = `/stream/sound/${encodeURIComponent(soundID)}`;
         mainWaveSurfer.load(src)
-        mainWaveSurfer.className = "main_waveSurfer_" + restoredTrack.soundID
+        mainWaveSurfer.className = "main_waveSurfer_" + soundID
+
+        mainWaveSurfer.on('ready', () => {
+            if (typeof volume === 'number') {
+                mainWaveSurfer.setVolume(volume);
+                volumeInput.value = volume.toFixed(2);
+            }
+            if (typeof currentTime === 'number') {
+                const duration = mainWaveSurfer.getDuration();
+                const percent = currentTime / duration;
+                mainWaveSurfer.seekTo(percent);
+            }
+        })
     }
 
     const mainWaveDiv = document.getElementById('music_box')
@@ -67,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <p id="mainTime">0:00</p>
                     <p id="mainDuration">0:00</p>
                     <label>
-                        <input id="mainLoopCheckbox" type="checkbox" checked="checked" />
+                        <input id="mainLoopCheckbox" type="checkbox"/>
                         Loop regions
                     </label>
                     <button id="mainClearRegions">Clear Regions</button>
@@ -92,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     regionsPlugin.enableDragSelection({
         color: 'rgba(255,255,255,0.1)',
     })
-    let loop = true
+    let loop = false
     document.getElementById('mainLoopCheckbox').onclick = (e) => {
         loop = e.target.checked
     }
@@ -297,3 +312,24 @@ export function fetchAndCreateRegions(soundID, regionCount, regionsPlugin) {
             }
         });
 }
+
+volumeInput.addEventListener("input", () => {
+    const vol = parseFloat(volumeInput.value);
+    mainWaveSurfer.setVolume(vol);
+
+    currentTrack.volume = vol;
+    localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+});
+
+setInterval(() => {
+    currentTrack.currentTime = mainWaveSurfer.getCurrentTime()
+    localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+}, 5000);
+
+//region Stems
+/*const showStems = document.getElementById('mainShowStems')
+showStems.addEventListener('click', ()=>{
+
+
+})*/
+//endregion
