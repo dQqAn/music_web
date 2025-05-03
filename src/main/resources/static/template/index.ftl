@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <div id="menuContainer" class="gap-4 w-full max-w-md mx-auto p-4 overflow-y-auto">
+            <div id="menuContainer" class="gap-4 w-full max-w-md mx-auto p-4 overflow-y-auto max-h-80">
                 <div id="selectedItemsContainer" class="flex flex-wrap gap-2 mb-4"></div>
 
                 <div id="categoryBackButtonContainer" class="mb-2 hidden">

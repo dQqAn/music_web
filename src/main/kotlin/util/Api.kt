@@ -2,10 +2,7 @@ package com.example.util
 
 import com.example.auth.Role
 import com.example.auth.UserSession
-import com.example.database.FavouriteRepository
-import com.example.database.MetaDataRepository
-import com.example.database.PlaylistRepository
-import com.example.database.SoundRepository
+import com.example.database.*
 import com.example.model.MetaDataMenuResponse
 import com.example.model.MetaDataToMenu
 import com.example.model.Playlist
@@ -28,6 +25,7 @@ fun Application.databaseApi() {
     val favouriteRepository by inject<FavouriteRepository>()
     val playlistRepository by inject<PlaylistRepository>()
     val metaDataRepository by inject<MetaDataRepository>()
+    val regionsRepository by inject<RegionsRepository>()
 
     routing {
         get("/check_auth") {
@@ -176,7 +174,7 @@ fun Application.databaseApi() {
             call.respond(soundRepository.getSoundsCount())
         }*/
 
-        get("/database/category/{category}/{counter}/{minDuration}/{maxDuration}") {
+        /*get("/database/category/{category}/{counter}/{minDuration}/{maxDuration}") {
             val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
             val minDuration = call.parameters["minDuration"]?.toIntOrNull()
             val maxDuration = call.parameters["maxDuration"]?.toIntOrNull()
@@ -185,7 +183,7 @@ fun Application.databaseApi() {
             val sounds = soundRepository.getCategorySounds(pageSize = 20, page, category, minDuration, maxDuration)
                 .map { mapOf("name" to it.name, "image1Path" to it.image1Path, "soundID" to it.soundID) }
             call.respond(mapOf("sounds" to sounds))
-        }
+        }*/
 
         /*get("/database/category_size/{category}/{counter}/{minDuration}/{maxDuration}") {
             val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
@@ -295,6 +293,15 @@ fun Application.databaseApi() {
                     minDuration,
                     maxDuration
                 )
+            )
+        }
+
+        get("/database/regions/{soundID}") {
+            val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest, "BadRequest")
+            val regions = regionsRepository.getRegions(soundID)
+            call.respond(
+                HttpStatusCode.OK,
+                mapOf("regions" to regions?.regions)
             )
         }
 

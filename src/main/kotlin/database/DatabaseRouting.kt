@@ -53,6 +53,7 @@ fun Application.databaseRouting() {
     val encryptionSystem by inject<EncryptionSystem>()
     val hashingSystem by inject<HashingSystem>()
     val metaDataRepository by inject<MetaDataRepository>()
+    val regionRepository by inject<RegionsRepository>()
 
     auth(userRepository, encryptionSystem, hashingSystem)
 
@@ -68,7 +69,7 @@ fun Application.databaseRouting() {
             metaDataRepository
         )
         moderatorRoute()
-        artistRoute(soundRepository, userRepository)
+        artistRoute(soundRepository, userRepository, regionRepository)
         userRoute()
         commonRoute(soundRepository, userRepository)
     }
@@ -198,7 +199,11 @@ private fun Routing.moderatorRoute() {
     }
 }
 
-private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository: UserRepository) {
+private fun Routing.artistRoute(
+    soundRepository: SoundRepository,
+    userRepository: UserRepository,
+    regionsRepository: RegionsRepository
+) {
     route("/artist") {
         authenticate("auth-session") {
             get("/single_sound") {
@@ -234,6 +239,7 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                     var moodList = listOf<String>()
                     var instrumentList = listOf<String>()
                     val artistName = userRepository.userName(userID)
+                    var loops: List<LoopDurations> = emptyList()
 
                     multipart.forEachPart { part ->
                         when (part) {
@@ -246,6 +252,10 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                                     "category" -> {
                                         val fullCategoryList = Json.decodeFromString<List<MenuGenre>>(part.value)
                                         categoryList = fullCategoryList.map { it.tag }
+                                    }
+
+                                    "loops" -> {
+                                        loops = Json.decodeFromString(part.value)
                                     }
 
                                     /*"mood" -> {
@@ -337,6 +347,7 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                             getAudioDurationInSeconds(soundFile)
                         }
                         if (duration != -1) {
+                            val soundID = generateUniqueId()
                             val checkSound = soundRepository.addSound(
                                 Sound(
                                     name = normalizeSpaces(soundName),
@@ -348,10 +359,17 @@ private fun Routing.artistRoute(soundRepository: SoundRepository, userRepository
                                     soundPath = soundFile.path,
                                     image1Path = imageFile.path,
                                     duration = duration,
-                                    soundID = generateUniqueId()
+                                    soundID = soundID
                                 )
                             )
                             if (checkSound != -1) {
+                                regionsRepository.addRegions(
+                                    Regions(
+                                        soundID = soundID,
+                                        regions = loops.map { listOf(it.start.toString(), it.end.toString()) }
+                                    )
+                                )
+
                                 call.respond(HttpStatusCode.OK, mapOf("fileName" to "ok"))
                             } else {
                                 call.respond(HttpStatusCode.Conflict, mapOf("message" to "Error database"))
@@ -499,4 +517,11 @@ fun getMp3DurationInSeconds(file: File): Int {
 data class MenuGenre(
     val tag: String,
     val name: String
+)
+
+@Serializable
+data class LoopDurations(
+    val id: String,
+    val start: Double,
+    val end: Double
 )

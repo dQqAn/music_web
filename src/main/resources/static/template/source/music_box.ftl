@@ -24,7 +24,7 @@
             </div>
             <div id="timeTextMusicBox" style="font-family: monospace; margin-top: 5px;">0:00 / 0:00</div>-->
 
-            <div id="music_box" class="w-full" style="border: 1px solid #ddd;"></div>
+            <div id="music_box" class="container" style="border: 1px solid #ddd; position: relative;"></div>
             <#--<audio controls id="music_box">
                 <source src="">
             </audio>-->

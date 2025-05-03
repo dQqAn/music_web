@@ -26,40 +26,54 @@
 
     <div class="main_box">
         <form id="uploadForm" enctype="multipart/form-data">
-            <input required type="file" id="imageInput" name="imageFile" accept=".png, .jpg"/>
-            <input required type="file" id="soundInput" name="soundFile" accept=".mp3, .wav"/>
+            <input required class="border rounded" type="file" id="imageInput" name="imageFile" accept=".png, .jpg"/>
+            <input required class="border rounded" type="file" id="soundInput" name="soundFile" accept=".mp3, .wav"/>
 
             <label for="soundName">Sound Name:</label>
-            <input id="soundName" name="soundName" required type="text">
+            <input class="border rounded" id="soundName" name="soundName" required type="text">
 
-            <button type="submit">Upload Sound</button>
+            <button class="border rounded" type="submit">Upload Sound</button>
         </form>
 
-        <div id="fileInfo" style="display: none;">
+        <div class="border rounded" id="fileInfo" style="display: none; color: black;">
             <p>File name: <span id="fileName"></span></p>
         </div>
 
-        <div id="errorInfo" style="display: none; color: red;">
+        <div class="border rounded" id="errorInfo" style="display: none; color: red;">
             <p id="errorMessage"></p>
         </div>
     </div>
 
-    <div class="mb-4">
-        <input id="categorySearchInput" type="text" placeholder="Search..." class="w-full p-2 border rounded">
+    <div>
+        <div class="flex p-10">
+            <label for="startingTime">Starting Time:</label>
+            <input class="border rounded" id="startingTime" name="startingTime" type="number">
+            <label for="endingTime">Ending Time:</label>
+            <input class="border rounded" id="endingTime" name="endingTime" type="number">
+            <button class="border rounded" id="addLoop">Add</button>
+        </div>
+        <div class="border rounded p-10" id="artistSelectedLoops">Selected Loops</div>
+        <div id="artistSingleSoundBox" class="container rounded max-h-50" style="position: relative;"></div>
     </div>
 
-    <div class="flex justify-between items-center mb-2">
-        <h2 class="text-lg font-semibold">Selected Items</h2>
-        <button id="categoryClearSelection" class="text-red-600 text-sm">Clear</button>
+    <div class="m-10">
+        <div class="mb-4">
+            <input id="categorySearchInput" type="text" placeholder="Search..." class="w-full p-2 border rounded">
+        </div>
+
+        <div class="flex justify-between items-center mb-2">
+            <h2 class="text-lg font-semibold">Selected Items</h2>
+            <button id="categoryClearSelection" class="text-red-600 text-sm">Clear</button>
+        </div>
+
+        <div id="selectedItemsContainer" class="flex flex-wrap gap-2 mb-4"></div>
+
+        <div id="categoryBackButtonContainer" class="mb-2 hidden">
+            <button id="categoryBackButton" class="text-blue-600 text-sm">← Back</button>
+        </div>
+
+        <div id="categoryMenuContainer" class="bg-white rounded shadow p-4 overflow-y-auto max-h-128 pb-20"></div>
     </div>
-
-    <div id="selectedItemsContainer" class="flex flex-wrap gap-2 mb-4"></div>
-
-    <div id="categoryBackButtonContainer" class="mb-2 hidden">
-        <button id="categoryBackButton" class="text-blue-600 text-sm">← Back</button>
-    </div>
-
-    <div id="categoryMenuContainer" class="bg-white rounded shadow p-4 overflow-y-auto max-h-128 pb-20"></div>
 
     <#--<div id="categoryMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
         <div id="categoryMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
