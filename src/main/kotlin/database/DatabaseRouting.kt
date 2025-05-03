@@ -54,6 +54,7 @@ fun Application.databaseRouting() {
     val hashingSystem by inject<HashingSystem>()
     val metaDataRepository by inject<MetaDataRepository>()
     val regionRepository by inject<RegionsRepository>()
+    val stemsRepository by inject<StemsRepository>()
 
     auth(userRepository, encryptionSystem, hashingSystem)
 
@@ -69,7 +70,7 @@ fun Application.databaseRouting() {
             metaDataRepository
         )
         moderatorRoute()
-        artistRoute(soundRepository, userRepository, regionRepository)
+        artistRoute(soundRepository, userRepository, regionRepository, stemsRepository)
         userRoute()
         commonRoute(soundRepository, userRepository)
     }
@@ -202,7 +203,8 @@ private fun Routing.moderatorRoute() {
 private fun Routing.artistRoute(
     soundRepository: SoundRepository,
     userRepository: UserRepository,
-    regionsRepository: RegionsRepository
+    regionsRepository: RegionsRepository,
+    stemsRepository: StemsRepository
 ) {
     route("/artist") {
         authenticate("auth-session") {
@@ -241,6 +243,12 @@ private fun Routing.artistRoute(
                     val artistName = userRepository.userName(userID)
                     var loops: List<LoopDurations> = emptyList()
 
+                    val soundID = generateUniqueId()
+
+                    val customStemDir = File(baseUploadDir, "stem/$soundID").apply { mkdirs() }
+                    val stemNames = mutableListOf<String>()
+                    val stemFiles = mutableListOf<File>()
+
                     multipart.forEachPart { part ->
                         when (part) {
                             is PartData.FormItem -> {
@@ -256,6 +264,10 @@ private fun Routing.artistRoute(
 
                                     "loops" -> {
                                         loops = Json.decodeFromString(part.value)
+                                    }
+
+                                    "stemNames[]" -> {
+                                        stemNames.add(part.value)
                                     }
 
                                     /*"mood" -> {
@@ -280,6 +292,54 @@ private fun Routing.artistRoute(
                                             imageFile = File(customImageDir, uniqueFileName)
                                             saveFile(imageFile, bufferedStream)
                                         }
+                                    }
+
+                                    "stemFiles[]" -> {
+                                        if (part.contentType?.match("audio/*") == true) {
+                                            val ext = File(fileName).extension.lowercase()
+                                            val baseName = fileName.substringBeforeLast(".")
+                                            val uuid = UUID.randomUUID()
+
+                                            when (ext) {
+                                                "wav" -> {
+                                                    val uniqueFileName = "${uuid}_${baseName}.wav"
+                                                    val targetFile = File(customStemDir, uniqueFileName)
+                                                    saveFile(targetFile, bufferedStream)
+
+                                                    val isWav = try {
+                                                        AudioSystem.getAudioFileFormat(targetFile).type == AudioFileFormat.Type.WAVE
+                                                    } catch (e: Exception) {
+                                                        false
+                                                    }
+
+                                                    if (isWav) {
+                                                        stemFiles.add(targetFile)
+                                                    } else {
+                                                        targetFile.delete()
+                                                    }
+                                                }
+
+                                                "mp3" -> {
+                                                    val uniqueFileName = "${uuid}_${baseName}.mp3"
+                                                    val targetFile = File(customStemDir, uniqueFileName)
+                                                    saveFile(targetFile, bufferedStream)
+
+                                                    val isMp3 = try {
+                                                        Mp3File(targetFile)
+                                                        true
+                                                    } catch (e: Exception) {
+                                                        false
+                                                    }
+
+                                                    if (isMp3) {
+                                                        stemFiles.add(targetFile)
+                                                    } else {
+                                                        targetFile.delete()
+                                                    }
+                                                }
+                                            }
+                                        }
+
                                     }
 
                                     "sound" -> {
@@ -347,7 +407,6 @@ private fun Routing.artistRoute(
                             getAudioDurationInSeconds(soundFile)
                         }
                         if (duration != -1) {
-                            val soundID = generateUniqueId()
                             val checkSound = soundRepository.addSound(
                                 Sound(
                                     name = normalizeSpaces(soundName),
@@ -369,6 +428,20 @@ private fun Routing.artistRoute(
                                         regions = loops.map { listOf(it.start.toString(), it.end.toString()) }
                                     )
                                 )
+
+                                if (stemNames.size == stemFiles.size) {
+                                    stemNames.zip(stemFiles).forEach { (name, file) ->
+                                        val uuidPart = file.name.substringBefore("_")
+                                        stemsRepository.addStem(
+                                            Stem(
+                                                soundID = soundID,
+                                                name = name,
+                                                stemID = uuidPart,
+                                                stemPath = file.path,
+                                            )
+                                        )
+                                    }
+                                }
 
                                 call.respond(HttpStatusCode.OK, mapOf("fileName" to "ok"))
                             } else {
