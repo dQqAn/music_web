@@ -20,27 +20,76 @@ export const mainWaveSurfer = WaveSurfer.create({
 })
 
 const musicBoxPlayPause = document.querySelector('#musicBoxPlayPause')
-mainWaveSurfer.once('ready', () => {
-    musicBoxPlayPause.onclick = () => {
-        mainWaveSurfer.playPause()
+let savedTrack = localStorage.getItem("currentTrack");
+let currentTrack = {
+    soundID: "",
+    playlistID: "",
+    currentTime: 0.0,     // second
+    volume: 1.0         // 0.0 - 1.0
+};
+
+/*const hover = document.getElementById('mainHover')
+            mainWaveDiv.addEventListener('mouseenter', () => {
+                hover.style.opacity = '1';
+            });
+            mainWaveDiv.addEventListener('mouseleave', () => {
+                hover.style.opacity = '0';
+            });
+            mainWaveDiv.addEventListener('pointermove', (e) => (hover.style.width = `${e.offsetX}px`))*/
+
+document.addEventListener("DOMContentLoaded", () => {
+    let savedTrack = localStorage.getItem("currentTrack");
+
+    if (savedTrack) {
+        let restoredTrack = JSON.parse(savedTrack);
+        const src = `/stream/sound/${encodeURIComponent(restoredTrack.soundID)}`;
+        mainWaveSurfer.load(src)
+        mainWaveSurfer.className = "main_waveSurfer_" + restoredTrack.soundID
     }
 
-    Object.values(regionsPlugin.regions).forEach(region => region.remove())
+    const mainWaveDiv = document.getElementById('music_box')
+    if (mainWaveDiv) {
+        const playerExtensions = document.createElement('div');
+        playerExtensions.innerHTML = `
+                <div class="flex space-x-2">
+                    <label>
+                        Playback rate: <span id="mainRate">1.0</span>x
+                    </label>
+                    <label>
+                        0.5x <input id="mainRateInput" type="range" min="0.5" max="2" step="0.5" value="1" /> 2x
+                    </label>
+                    <label>
+                        Zoom: <input id="mainZoomInput" type="range" min="10" max="200" value="100" />
+                    </label>
+                    <p id="mainTime">0:00</p>
+                    <p id="mainDuration">0:00</p>
+                    <label>
+                        <input id="mainLoopCheckbox" type="checkbox" checked="checked" />
+                        Loop regions
+                    </label>
+                    <button id="mainClearRegions">Clear Regions</button>
+                </div>
+                <div id="mainHover" style="position: absolute; left: 0; top: 0; z-index: 1010; 
+                pointer-events: none; height: 100%; width: 0; mix-blend-mode: overlay; opacity: 0;
+                background: rgba(255, 255, 255, 0.5); transition: opacity 0.2s ease;
+                "></div>
+            `;
+        mainWaveDiv.appendChild(playerExtensions);
+    }
 
-    let savedTrack = localStorage.getItem("currentTrack");
-    let restoredTrack = JSON.parse(savedTrack);
+    //region MainWaveSurfer
+    const rateInput = document.getElementById('mainRateInput');
+    const timeEl = document.getElementById('mainTime')
+    const durationEl = document.getElementById('mainDuration')
+    const rateDisplay = document.getElementById('mainRate');
+    const slider = document.getElementById('mainZoomInput')
 
+    //region Regions
     let regionCount = 1
-    mainWaveSurfer.on('decode', () => {
-        console.log("Main: " + restoredTrack.soundID)
-        fetchAndCreateRegions(restoredTrack.soundID, regionCount, regionsPlugin)
-    })
-
     regionsPlugin.enableDragSelection({
         color: 'rgba(255,255,255,0.1)',
     })
     let loop = true
-    // Toggle looping with a checkbox
     document.getElementById('mainLoopCheckbox').onclick = (e) => {
         loop = e.target.checked
     }
@@ -81,95 +130,83 @@ mainWaveSurfer.once('ready', () => {
         wrapper.appendChild(button)
         region.element.appendChild(wrapper)
     })
-    // Reset the active region when the user clicks anywhere in the waveform
+    document.getElementById('mainClearRegions').addEventListener('click', () => {
+        regionsPlugin.regions.forEach(region => region.remove())
+    })
+    //endregion
+
+    //region Listeners
+    mainWaveSurfer.once('ready', () => {
+        musicBoxPlayPause.onclick = () => {
+            mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
+            mainWaveSurfer.playPause()
+        }
+    })
+    mainWaveSurfer.on('decode', (duration) => {
+        currentTrack.soundID = mainWaveSurfer.className.split("_").pop()
+        localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+
+        regionsPlugin.regions.forEach(region => region.remove())
+        regionCount = 1
+        fetchAndCreateRegions(currentTrack.soundID, regionCount, regionsPlugin)
+
+        durationEl.textContent = formatTime(duration)
+
+        slider.addEventListener('input', (e) => {
+            const minPxPerSec = e.target.valueAsNumber
+            mainWaveSurfer.zoom(minPxPerSec)
+        })
+    })
     mainWaveSurfer.on('interaction', () => {
         activeRegion = null
     })
-    document.getElementById('mainClearRegions').addEventListener('click', () => {
-        Object.values(regionsPlugin.regions).forEach(region => region.remove())
-    })
-})
-mainWaveSurfer.on('play', () => {
-    const icon = document.getElementById('playPauseIcon');
-    icon.setAttribute('data-lucide', 'pause');
-    lucide.createIcons();
-})
-mainWaveSurfer.on('pause', () => {
-    const icon = document.getElementById('playPauseIcon');
-    icon.setAttribute('data-lucide', 'play');
-    lucide.createIcons();
-})
-
-document.addEventListener("DOMContentLoaded", () => {
-    let savedTrack = localStorage.getItem("currentTrack");
-
-    if (savedTrack) {
-        let restoredTrack = JSON.parse(savedTrack);
-        const src = `/stream/sound/${encodeURIComponent(restoredTrack.soundID)}`;
-        mainWaveSurfer.load(src)
-
-        const mainWaveDiv = document.getElementById('music_box')
-        if (mainWaveDiv) {
-            const soundRate = document.createElement('div');
-            soundRate.innerHTML = `
-                <div class="flex space-x-2">
-                    <label>
-                        Playback rate: <span id="mainRate">1.0</span>x
-                    </label>
-                    <label>
-                        0.5x <input id="mainRateInput" type="range" min="0.5" max="2" step="0.5" value="1" /> 2x
-                    </label>
-                    <label>
-                        Zoom: <input id="mainZoomInput" type="range" min="10" max="200" value="100" />
-                    </label>
-                    <p id="mainTime">0:00</p>
-                    <p id="mainDuration">0:00</p>
-                    <label>
-                        <input id="mainLoopCheckbox" type="checkbox" checked="checked" />
-                        Loop regions
-                    </label>
-                    <button id="mainClearRegions">Clear Regions</button>
-                </div>
-                <div id="mainHover" style="position: absolute; left: 0; top: 0; z-index: 1010; 
-                pointer-events: none; height: 100%; width: 0; mix-blend-mode: overlay; opacity: 0;
-                background: rgba(255, 255, 255, 0.5); transition: opacity 0.2s ease;
-                "></div>
-            `;
-            mainWaveDiv.appendChild(soundRate);
-
-            const rateDisplay = document.getElementById('mainRate');
-            const rateInput = document.getElementById('mainRateInput');
-
-            rateInput.addEventListener('input', (e) => {
-                const speed = parseFloat(e.target.value);
-                rateDisplay.textContent = speed.toFixed(1);
-                mainWaveSurfer.setPlaybackRate(speed);
-                mainWaveSurfer.play();
-            });
-
-            const slider = document.getElementById('mainZoomInput')
-            mainWaveSurfer.once('decode', () => {
-                slider.addEventListener('input', (e) => {
-                    const minPxPerSec = e.target.valueAsNumber
-                    mainWaveSurfer.zoom(minPxPerSec)
-                })
-            })
-
-            /*const hover = document.getElementById('mainHover')
-            mainWaveDiv.addEventListener('mouseenter', () => {
-                hover.style.opacity = '1';
-            });
-            mainWaveDiv.addEventListener('mouseleave', () => {
-                hover.style.opacity = '0';
-            });
-            mainWaveDiv.addEventListener('pointermove', (e) => (hover.style.width = `${e.offsetX}px`))*/
-
-            const timeEl = document.getElementById('mainTime')
-            const durationEl = document.getElementById('mainDuration')
-            mainWaveSurfer.on('decode', (duration) => (durationEl.textContent = formatTime(duration)))
-            mainWaveSurfer.on('timeupdate', (currentTime) => (timeEl.textContent = formatTime(currentTime)))
+    mainWaveSurfer.on('play', () => {
+        const soundID = mainWaveSurfer.className.split("_").pop();
+        const listIcon = document.querySelector('.icon_' + soundID);
+        if (listIcon.getAttribute('data-lucide') === 'play') {
+            listIcon.setAttribute('data-lucide', 'pause');
         }
-    }
+
+        const icon = document.getElementById('playPauseIcon');
+        icon.setAttribute('data-lucide', 'pause');
+        lucide.createIcons();
+    })
+    mainWaveSurfer.on('pause', () => {
+        const soundID = mainWaveSurfer.className.split("_").pop();
+        const listIcon = document.querySelector('.icon_' + soundID);
+        if (listIcon.getAttribute('data-lucide') === 'pause') {
+            listIcon.setAttribute('data-lucide', 'play');
+        }
+
+        const icon = document.getElementById('playPauseIcon');
+        icon.setAttribute('data-lucide', 'play');
+        lucide.createIcons();
+    })
+    mainWaveSurfer.on('timeupdate', (currentTime) => {
+        timeEl.textContent = formatTime(currentTime)
+    })
+
+    rateInput.addEventListener('input', (e) => {
+        const speed = parseFloat(e.target.value);
+        rateDisplay.textContent = speed.toFixed(1);
+        mainWaveSurfer.setPlaybackRate(speed);
+        mainWaveSurfer.play();
+    });
+
+//todo: (test) problem when change the list or sound many times
+    /*mainWaveSurfer.on('audioprocess', () => {
+        const soundID = mainWaveSurfer.className.split("_").pop();
+        const otherPlayer = document.querySelector('.waveSurfer_' + soundID)
+
+        if (otherPlayer.className === mainWaveSurfer.className) {
+            if (!mainWaveSurfer.isPlaying()) return;
+            const currentTime = mainWaveSurfer.getCurrentTime();
+            otherPlayer.seekTo(currentTime / mainWaveSurfer.getDuration());
+        }
+    });*/
+    //endregion
+
+    //endregion
 
     lucide.createIcons();
 });

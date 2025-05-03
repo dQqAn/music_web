@@ -4,13 +4,6 @@ import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/region
 import {formatTime, mainWaveSurfer} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/index/index.js'
 
-let currentTrack = {
-    soundID: "",
-    playlistID: "",
-    currentTime: 0.0,     // second
-    volume: 1.0         // 0.0 - 1.0
-};
-
 export function soundList(containerID, sounds) {
     const container = document.getElementById(containerID)
     if (!container) return;
@@ -95,46 +88,53 @@ export function soundList(containerID, sounds) {
 
         const src = `/stream/sound/${encodeURIComponent(item.soundID)}`;
         listWaveSurfer.load(src)
+        listWaveSurfer.className = "waveSurfer_" + item.soundID
+        // listWaveSurfer.id = "waveSurfer_" + item.soundID
 
         const playButton = document.createElement('button')
         playButton.className = "pointer"
         playButton.innerHTML = `<i data-lucide='play' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
 
-        listWaveSurfer.className = "waveSurfer_" + item.soundID
         listWaveSurfer.once('ready', () => {
             playButton.onclick = () => {
-
-                if (listWaveSurfer.className !== mainWaveSurfer.className) {
-                    mainWaveSurfer.className = "waveSurfer_" + item.soundID
-                }
-
                 const icon = document.querySelector('.icon_' + item.soundID);
                 if (icon.getAttribute('data-lucide') === 'play') {
                     const icons = document.querySelectorAll('[data-lucide]');
                     icons.forEach(otherIcon => {
                         if (otherIcon.getAttribute('data-lucide') === 'pause') {
                             otherIcon.setAttribute('data-lucide', 'play');
-                            lucide.createIcons();
                         }
                     });
 
-                    icon.setAttribute('data-lucide', 'pause');
-                    lucide.createIcons();
-
                     mainWaveSurfer.load(src)
+                    mainWaveSurfer.className = "main_waveSurfer_" + item.soundID
+
+                    // const currentTime = listWaveSurfer.getCurrentTime();
+                    // mainWaveSurfer.seekTo(currentTime / listWaveSurfer.getDuration());
+
+                    const listIcon = document.querySelector('.icon_' + item.soundID);
+                    listIcon.setAttribute('data-lucide', 'pause');
+
                     mainWaveSurfer.once('ready', () => {
                         const rateInput = document.getElementById('mainRateInput');
-                        mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
+                        if (rateInput) {
+                            mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
+                        }
                         mainWaveSurfer.play()
                     })
                 } else {
                     mainWaveSurfer.pause()
+                    const listIcon = document.querySelector('.icon_' + item.soundID);
+                    listIcon.setAttribute('data-lucide', 'play');
                 }
+                lucide.createIcons();
             }
         })
 
         waveSurferDiv.addEventListener('click', (e) => {
-            if (listWaveSurfer.className === mainWaveSurfer.className) {
+            const soundID = mainWaveSurfer.className.split("_").pop();
+            const className = 'waveSurfer_' + soundID
+            if (listWaveSurfer.className === className) {
                 const bbox = e.currentTarget.getBoundingClientRect();
                 const x = e.clientX - bbox.left;
                 const percent = x / bbox.width;
@@ -146,7 +146,7 @@ export function soundList(containerID, sounds) {
             }
         });
 
-        listWaveSurfer.on('ready', () => {
+        /*listWaveSurfer.on('ready', () => {
             let isDragging = false;
             waveSurferDiv.addEventListener('mousedown', (e) => {
                 if (listWaveSurfer.className === mainWaveSurfer.className) {
@@ -166,41 +166,7 @@ export function soundList(containerID, sounds) {
                     seek(e, mainWaveSurfer, listWaveSurfer, waveSurferDiv);
                 }
             });
-        })
-
-        //todo: problem when change the list or sound many times
-        /*mainWaveSurfer.on('audioprocess', () => {
-            if (listWaveSurfer.className === mainWaveSurfer.className) {
-                if (!mainWaveSurfer.isPlaying()) return;
-                const currentTime = mainWaveSurfer.getCurrentTime();
-                listWaveSurfer.seekTo(currentTime / mainWaveSurfer.getDuration());
-            }
-        });*/
-
-        mainWaveSurfer.on('play', () => {
-            if (listWaveSurfer.className === mainWaveSurfer.className) {
-                const currentTime = listWaveSurfer.getCurrentTime();
-                mainWaveSurfer.seekTo(currentTime / listWaveSurfer.getDuration());
-
-                const icon = document.querySelector('.icon_' + item.soundID);
-                icon.setAttribute('data-lucide', 'pause');
-                lucide.createIcons();
-            }
-
-            console.log("List Item: " + item.soundID)
-            currentTrack.soundID = item.soundID
-            localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
-
-            // mainWaveSurfer.className = "waveSurfer_" + item.soundID
-        })
-
-        mainWaveSurfer.on('pause', () => {
-            if (listWaveSurfer.className === mainWaveSurfer.className) {
-                const icon = document.querySelector('.icon_' + item.soundID);
-                icon.setAttribute('data-lucide', 'play');
-                lucide.createIcons();
-            }
-        })
+        })*/
 
         const controllerDiv = document.createElement('div')
         controllerDiv.className = "content-center items-center justify-end m-2"
