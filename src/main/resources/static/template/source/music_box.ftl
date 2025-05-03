@@ -13,7 +13,7 @@
             <div class="ml-4">
                 <p>Fav</p>
                 <p>Playlist</p>
-                <button id="mainShowStems">Stems</button>
+                <button id="openStemsOverlay">Stems</button>
             </div>
         </div>
 

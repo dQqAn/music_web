@@ -15,6 +15,12 @@ class StemsRepository(database: Database) {
         }
     }
 
+    suspend fun getStemPath(stemID: String): String? = suspendTransaction {
+        StemsTable.selectAll().where {
+            (StemsTable.stemID eq stemID)
+        }.map { it[StemsTable.stemPath] }.singleOrNull()
+    }
+
     suspend fun getStems(soundID: String): List<Stem> = suspendTransaction {
         StemsTable.selectAll().where {
             (StemsTable.soundID eq soundID)

@@ -44,8 +44,6 @@ async function changeSoundFavouriteStatus(soundID) {
     }
 }
 
-const playlistDiv = document.getElementById("playlistResult");
-
 function setupPlaylistInputListener() {
     const input = document.getElementById("playlistInput");
     if (!input) return;
@@ -63,6 +61,7 @@ async function handlePlaylistInput(event) {
     basicUnSelected = [];
     const params = new URLSearchParams(window.location.search);
     const soundID = params.get('soundID');
+    const playlistDiv = document.getElementById("playlistResult");
     try {
         const response = await fetch(`/database/search_user_playlist?query=${encodeURIComponent(query)}&soundID=${soundID}`);
         if (!response.ok) {
@@ -110,6 +109,7 @@ async function showPlaylists() {
     unSelected = [];
     const params = new URLSearchParams(window.location.search);
     const soundID = params.get('soundID');
+    const playlistDiv = document.getElementById("playlistResult");
     try {
         const response = await fetch(`/database/user_playlist?soundID=${soundID}`);
         if (!response.ok) {

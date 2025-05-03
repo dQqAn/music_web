@@ -40,6 +40,7 @@ let currentTrack = {
 let mainWaveReady = false;
 
 const volumeInput = document.getElementById("mainVolume");
+const stemsOverlayContent = document.getElementById('stemsOverlayContent')
 
 document.addEventListener("DOMContentLoaded", () => {
     let savedTrack = localStorage.getItem("currentTrack");
@@ -54,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mainWaveSurfer.load(src)
         mainWaveSurfer.className = "main_waveSurfer_" + soundID
 
-        mainWaveSurfer.on('ready', () => {
+        mainWaveSurfer.once('ready', () => {
             if (typeof volume === 'number') {
                 mainWaveSurfer.setVolume(volume);
                 volumeInput.value = volume.toFixed(2);
@@ -158,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //region Listeners
     mainWaveSurfer.on('ready', () => {
         mainWaveReady = true;
+        stemsOverlayContent.setAttribute('sound-id', currentTrack.soundID)
     });
     mainWaveSurfer.once('ready', () => {
         musicBoxPlayPause.onclick = () => {
@@ -262,8 +264,219 @@ document.addEventListener("DOMContentLoaded", () => {
 
     //endregion
 
+    //region Stems
+    const stemsOverlay = document.getElementById('stemsOverlay')
+    const openStems = document.getElementById('openStemsOverlay')
+    const closeStems = document.getElementById('closeStemsOverlay')
+    openStems.addEventListener('click', () => {
+        stemsOverlay.classList.remove("hidden");
+
+        const soundID = stemsOverlayContent.getAttribute('sound-id')
+
+        fetch(`/database/soundStems/${soundID}`, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(res => {
+            if (!res.ok) {
+                console.log(`HTTP error! Status: ${res.status}`);
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            return res.json();
+        }).then(stems => {
+            if (stems.length > 0) {
+                createStemsContent(stemsOverlayContent, stems, soundID)
+            }
+        })
+    })
+    closeStems.addEventListener('click', () => {
+        stemsOverlayContent.innerHTML = ""
+        for (const key in stemsListWaveSurfers) {
+            delete stemsListWaveSurfers[key];
+        }
+        for (const key in muteStemsListWaveSurfers) {
+            delete muteStemsListWaveSurfers[key];
+        }
+        for (const key in singleStemsListWaveSurfers) {
+            delete singleStemsListWaveSurfers[key];
+        }
+        stemsOverlay.classList.add("hidden");
+    })
+    stemsOverlay.addEventListener("click", (e) => {
+        if (e.target === stemsOverlay) {
+            stemsOverlayContent.innerHTML = ""
+            for (const key in stemsListWaveSurfers) {
+                delete stemsListWaveSurfers[key];
+            }
+            for (const key in muteStemsListWaveSurfers) {
+                delete muteStemsListWaveSurfers[key];
+            }
+            for (const key in singleStemsListWaveSurfers) {
+                delete singleStemsListWaveSurfers[key];
+            }
+            stemsOverlay.classList.add("hidden");
+        }
+    });
+
+    //endregion
+
     lucide.createIcons();
 });
+
+const stemsListWaveSurfers = {}
+const muteStemsListWaveSurfers = {}
+const singleStemsListWaveSurfers = {}
+
+function createStemsContent(stemsOverlayContent, stems, soundID) {
+    const mainStemItem = document.createElement('div');
+    mainStemItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
+
+    const mainInfos = document.createElement('div')
+    mainInfos.className = "content-center items-center justify-start m-2"
+    mainInfos.innerHTML = `
+                <p>${soundID}</p>
+            `;
+
+    mainStemItem.appendChild(mainInfos)
+    stemsOverlayContent.appendChild(mainStemItem)
+
+    const mainStemWaveSurferDiv = document.createElement('div');
+    mainStemWaveSurferDiv.className = "w-full content-center items-center justify-center relative"
+    mainStemWaveSurferDiv.style.border = "1px solid #ddd";
+
+    mainStemItem.appendChild(mainStemWaveSurferDiv)
+    stemsOverlayContent.appendChild(mainStemItem)
+
+    const mainStemWaveSurfer = WaveSurfer.create({
+        container: mainStemWaveSurferDiv,
+        waveColor: 'rgb(200, 0, 200)',
+        progressColor: 'rgb(100, 0, 100)',
+        url: '',
+        height: 50,
+    })
+    stemsListWaveSurfers[soundID] = mainStemWaveSurfer
+
+    const src = `/stream/sound/${encodeURIComponent(soundID)}`;
+    mainStemWaveSurfer.load(src)
+    mainStemWaveSurfer.className = "main_waveSurfer_" + soundID
+
+    const mainStemPlayButton = document.createElement('button')
+    mainStemPlayButton.textContent = "Play"
+    mainStemPlayButton.className = "pointer border"
+
+    const mainControllerDiv = document.createElement('div')
+    mainControllerDiv.className = "flex flex-col items-center justify-center m-2"
+
+    mainControllerDiv.appendChild(mainStemPlayButton)
+
+    mainStemItem.appendChild(mainControllerDiv)
+    stemsOverlayContent.appendChild(mainStemItem)
+
+    mainStemWaveSurfer.once('ready', () => {
+        mainStemPlayButton.onclick = () => {
+            const mainStemItem = stemsListWaveSurfers[soundID];
+            const hasSingleSelected = Object.keys(singleStemsListWaveSurfers).length > 0;
+
+            for (const key in stemsListWaveSurfers) {
+                const stemItem = stemsListWaveSurfers[key];
+
+                if (stemItem === mainStemItem) continue;
+
+                if (hasSingleSelected) {
+                    if (singleStemsListWaveSurfers[key]) {
+                        stemItem.play();
+                    }
+                } else {
+                    if (!muteStemsListWaveSurfers[key]) {
+                        stemItem.play();
+                    }
+                }
+            }
+        }
+    })
+
+    stems.forEach(stem => {
+        const listItem = document.createElement('div');
+        listItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
+
+        const infos = document.createElement('div')
+        infos.className = "content-center items-center justify-start m-2"
+        infos.innerHTML = `
+                <p>${stem.name}</p>
+            `;
+        listItem.appendChild(infos)
+        stemsOverlayContent.appendChild(listItem)
+
+        const waveSurferDiv = document.createElement('div');
+        waveSurferDiv.id = 'div_' + stem.stemID
+        waveSurferDiv.className = "w-full content-center items-center justify-center relative"
+        waveSurferDiv.style.border = "1px solid #ddd";
+
+        listItem.appendChild(waveSurferDiv)
+        stemsOverlayContent.appendChild(listItem)
+
+        const stemWaveSurfer = WaveSurfer.create({
+            container: waveSurferDiv,
+            waveColor: 'rgb(200, 0, 200)',
+            progressColor: 'rgb(100, 0, 100)',
+            url: '',
+            height: 50,
+        })
+        stemsListWaveSurfers[stem.stemID] = stemWaveSurfer
+
+        const src = `/stream/sound/${encodeURIComponent(soundID)}?stems=true&stemPath=${stem.stemPath}`;
+        stemWaveSurfer.load(src)
+        stemWaveSurfer.className = "stem_waveSurfer_" + soundID
+
+        const downloadButton = document.createElement('button')
+        downloadButton.textContent = "D"
+        downloadButton.className = "pointer border"
+        downloadButton.onclick = function () {
+            downloadSound(soundID, true, stem.stemPath);
+        };
+
+        const singleCheckbox = document.createElement('input');
+        singleCheckbox.type = 'checkbox';
+        singleCheckbox.className = 'pointer';
+        const singleLabel = document.createElement('label');
+        singleLabel.textContent = 'S';
+        singleLabel.appendChild(singleCheckbox);
+        singleCheckbox.addEventListener('change', function () {
+            if (singleCheckbox.checked) {
+                muteCheckbox.checked = false
+
+                singleStemsListWaveSurfers[stem.stemID] = stemWaveSurfer
+            } else {
+                delete singleStemsListWaveSurfers[stem.stemID]
+            }
+        });
+
+        const muteCheckbox = document.createElement('input');
+        muteCheckbox.type = 'checkbox';
+        muteCheckbox.className = 'pointer';
+        const muteLabel = document.createElement('label');
+        muteLabel.textContent = 'M';
+        muteLabel.appendChild(muteCheckbox);
+        muteCheckbox.addEventListener('change', function () {
+            if (muteCheckbox.checked) {
+                singleCheckbox.checked = false
+
+                muteStemsListWaveSurfers[stem.stemID] = stemWaveSurfer
+            } else {
+                delete muteStemsListWaveSurfers[stem.stemID]
+            }
+        });
+
+        const controllerDiv = document.createElement('div')
+        controllerDiv.className = "flex flex-col items-center justify-center m-2"
+        controllerDiv.appendChild(downloadButton)
+        controllerDiv.appendChild(muteLabel)
+        controllerDiv.appendChild(singleLabel)
+
+        listItem.appendChild(controllerDiv)
+        stemsOverlayContent.appendChild(listItem)
+    })
+}
 
 export const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60)
@@ -328,10 +541,13 @@ setInterval(() => {
     localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
 }, 5000);
 
-//region Stems
-/*const showStems = document.getElementById('mainShowStems')
-showStems.addEventListener('click', ()=>{
+function downloadSound(soundID, stems = false, stemPath = "") {
+    const url = `/download/sound/${encodeURIComponent(soundID)}?stems=${stems}&stemPath=${stemPath}`;
 
-
-})*/
-//endregion
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}

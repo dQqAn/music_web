@@ -94,6 +94,8 @@
 
             <div class="pointer pagination" id="pagination"></div>
         </div>
+
+        <#include "source/stems.ftl">
     </div>
 </main>
 
