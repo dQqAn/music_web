@@ -4,6 +4,8 @@ import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/region
 import {formatTime, mainWaveSurfer} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/index/index.js'
 
+export const soundListWaveSurfers = {}
+
 export function soundList(containerID, sounds) {
     const container = document.getElementById(containerID)
     if (!container) return;
@@ -71,6 +73,8 @@ export function soundList(containerID, sounds) {
                 regions
             ],
         })
+
+        soundListWaveSurfers[item.soundID] = listWaveSurfer
 
         const durationInfos = document.createElement('div');
         durationInfos.innerHTML = `

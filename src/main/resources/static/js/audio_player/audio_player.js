@@ -1,6 +1,7 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
+import {soundListWaveSurfers} from '../soundList.js'
 
 const regionsPlugin = RegionsPlugin.create()
 
@@ -36,6 +37,8 @@ let currentTrack = {
                 hover.style.opacity = '0';
             });
             mainWaveDiv.addEventListener('pointermove', (e) => (hover.style.width = `${e.offsetX}px`))*/
+
+let mainWaveReady = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     let savedTrack = localStorage.getItem("currentTrack");
@@ -136,6 +139,9 @@ document.addEventListener("DOMContentLoaded", () => {
     //endregion
 
     //region Listeners
+    mainWaveSurfer.on('ready', () => {
+        mainWaveReady = true;
+    });
     mainWaveSurfer.once('ready', () => {
         musicBoxPlayPause.onclick = () => {
             mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
@@ -143,7 +149,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })
     mainWaveSurfer.on('decode', (duration) => {
-        currentTrack.soundID = mainWaveSurfer.className.split("_").pop()
+        mainWaveReady = false;
+
+        const soundID = mainWaveSurfer.className.split("_").pop();
+        const otherPlayer = soundListWaveSurfers[soundID];
+
+        if (otherPlayer) {
+            const currentTime = otherPlayer.getCurrentTime();
+            const otherDuration = otherPlayer.getDuration();
+
+            if (Number.isFinite(currentTime) && Number.isFinite(otherDuration) && otherDuration > 0) {
+                const targetSeek = currentTime / otherDuration;
+                if (Number.isFinite(targetSeek)) {
+                    mainWaveSurfer.seekTo(targetSeek);
+                }
+            } else {
+                console.log(`[decode] player is not ready: ${soundID}`, {currentTime, otherDuration});
+            }
+        }
+
+        currentTrack.soundID = soundID
         localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
 
         regionsPlugin.regions.forEach(region => region.remove())
@@ -161,6 +186,8 @@ document.addEventListener("DOMContentLoaded", () => {
         activeRegion = null
     })
     mainWaveSurfer.on('play', () => {
+        mainWaveReady = true;
+
         const soundID = mainWaveSurfer.className.split("_").pop();
         const listIcon = document.querySelector('.icon_' + soundID);
         if (listIcon.getAttribute('data-lucide') === 'play') {
@@ -172,6 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
         lucide.createIcons();
     })
     mainWaveSurfer.on('pause', () => {
+        mainWaveReady = false;
+
         const soundID = mainWaveSurfer.className.split("_").pop();
         const listIcon = document.querySelector('.icon_' + soundID);
         if (listIcon.getAttribute('data-lucide') === 'pause') {
@@ -193,17 +222,25 @@ document.addEventListener("DOMContentLoaded", () => {
         mainWaveSurfer.play();
     });
 
-//todo: (test) problem when change the list or sound many times
-    /*mainWaveSurfer.on('audioprocess', () => {
-        const soundID = mainWaveSurfer.className.split("_").pop();
-        const otherPlayer = document.querySelector('.waveSurfer_' + soundID)
+    mainWaveSurfer.on('audioprocess', () => {
+        if (!mainWaveReady || !mainWaveSurfer.isPlaying()) return;
 
-        if (otherPlayer.className === mainWaveSurfer.className) {
-            if (!mainWaveSurfer.isPlaying()) return;
-            const currentTime = mainWaveSurfer.getCurrentTime();
-            otherPlayer.seekTo(currentTime / mainWaveSurfer.getDuration());
+        const soundID = mainWaveSurfer.className.split("_").pop();
+        const otherPlayer = soundListWaveSurfers[soundID];
+
+        if (!otherPlayer) return;
+
+        const mainTime = mainWaveSurfer.getCurrentTime();
+        const mainDuration = mainWaveSurfer.getDuration();
+
+        if (!Number.isFinite(mainTime) || !Number.isFinite(mainDuration) || mainDuration <= 0) return;
+
+        const seekTo = mainTime / mainDuration;
+        if (Number.isFinite(seekTo)) {
+            otherPlayer.seekTo(seekTo);
         }
-    });*/
+    });
+
     //endregion
 
     //endregion
