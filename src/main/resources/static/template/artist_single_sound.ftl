@@ -33,18 +33,18 @@
             <input class="border rounded" id="soundName" name="soundName" required type="text">
 
             <button class="border rounded" type="submit">Upload Sound</button>
-
-            <div id="artistSingleSoundStems">
-                <label for="stemName">Stem Name:</label>
-                <input class="border rounded" id="stemName" name="stemName" type="text">
-
-                <input class="border rounded" type="file" id="stemInput" name="stemFile" accept=".mp3, .wav"/>
-
-                <button id="addStem" class="border rounded">Add Stem</button>
-
-                <div id="selectedStems"></div>
-            </div>
         </form>
+
+        <div id="artistSingleSoundStems">
+            <label for="stemName">Stem Name:</label>
+            <input class="border rounded" id="stemName" name="stemName" type="text">
+
+            <input class="border rounded" type="file" id="stemInput" name="stemFile" accept=".mp3, .wav"/>
+
+            <button id="addStem" class="border rounded">Add Stem</button>
+
+            <div id="selectedStems"></div>
+        </div>
 
         <div class="border rounded" id="fileInfo" style="display: none; color: black;">
             <p>File name: <span id="fileName"></span></p>

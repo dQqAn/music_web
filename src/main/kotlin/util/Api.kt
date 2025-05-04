@@ -165,7 +165,7 @@ fun Application.databaseApi() {
         }
 
         get("/database/sound/{soundID}") {
-            val soundID = call.parameters["soundID"] ?: "none"
+            val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
             val sound = soundRepository.getSound(soundID, SoundStatus.ACTIVE)
             call.respond(mapOf("sound" to sound))
         }

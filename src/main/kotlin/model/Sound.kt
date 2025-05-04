@@ -1,5 +1,6 @@
 package com.example.model
 
+import com.example.database.ArtistInfos
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.ResultRow
@@ -9,7 +10,7 @@ import org.jetbrains.exposed.sql.statements.InsertStatement
 @Serializable
 data class Sound(
     val name: String,
-    val artistIDs: List<Int>,
+    val artistInfos: List<ArtistInfos>,
     var status: String,
     var categories: List<String>,
     var moods: List<String>,
@@ -24,7 +25,7 @@ data class Sound(
 @Serializable
 data class SoundBasic(
     val name: String,
-    val artistIDs: List<Int>,
+    val artistInfos: List<ArtistInfos>,
     val category1: String,
     val image1Path: String,
     val soundID: String,
@@ -37,7 +38,7 @@ enum class SoundStatus {
 
 object SoundTable : Table("sound") {
     val name = varchar("name", 50)
-    val artistIDs = largeText("artistIDs")
+    val artistInfos = largeText("artistIDs")
     var status = varchar("status", 50)
     var categories = largeText("categories")
     var moods = largeText("moods")
@@ -52,7 +53,7 @@ object SoundTable : Table("sound") {
 
 fun ResultRow.toSound(): Sound = Sound(
     name = this[SoundTable.name],
-    artistIDs = Json.decodeFromString(this[SoundTable.artistIDs]),
+    artistInfos = Json.decodeFromString(this[SoundTable.artistInfos]),
     status = this[SoundTable.status],
     categories = Json.decodeFromString(this[SoundTable.categories]),
     moods = Json.decodeFromString(this[SoundTable.moods]),
@@ -66,7 +67,7 @@ fun ResultRow.toSound(): Sound = Sound(
 
 fun InsertStatement<Number>.fromSound(sound: Sound) {
     this[SoundTable.name] = sound.name
-    this[SoundTable.artistIDs] = Json.encodeToString(sound.artistIDs)
+    this[SoundTable.artistInfos] = Json.encodeToString(sound.artistInfos)
     this[SoundTable.status] = sound.status
     this[SoundTable.categories] = Json.encodeToString(sound.categories)
     this[SoundTable.moods] = Json.encodeToString(sound.moods)

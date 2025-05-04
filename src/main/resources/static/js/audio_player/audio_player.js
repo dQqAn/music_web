@@ -1,7 +1,10 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
-import {soundListWaveSurfers} from '../soundList.js'
+import {downloadSound, getSound, soundListWaveSurfers} from '../soundList.js'
+import {setupPlaylistDiv} from '../playlist.js'
+import {createFavDiv} from '../favourite.js'
+import {setSoundInfos} from '../sound/sound.js'
 
 const regionsPlugin = RegionsPlugin.create()
 
@@ -39,10 +42,25 @@ let currentTrack = {
 
 let mainWaveReady = false;
 
-const volumeInput = document.getElementById("mainVolume");
-const stemsOverlayContent = document.getElementById('stemsOverlayContent')
+document.addEventListener("DOMContentLoaded", async () => {
+    const volumeInput = document.getElementById("mainVolume");
+    const stemsOverlayContent = document.getElementById('stemsOverlayContent')
 
-document.addEventListener("DOMContentLoaded", () => {
+    if (volumeInput) {
+        volumeInput.addEventListener("input", () => {
+            const vol = parseFloat(volumeInput.value);
+            mainWaveSurfer.setVolume(vol);
+
+            currentTrack.volume = vol;
+            localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+        });
+    }
+
+    setInterval(() => {
+        currentTrack.currentTime = mainWaveSurfer.getCurrentTime()
+        localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+    }, 5000);
+
     let savedTrack = localStorage.getItem("currentTrack");
 
     if (savedTrack) {
@@ -66,36 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 mainWaveSurfer.seekTo(percent);
             }
         })
-    }
-
-    const mainWaveDiv = document.getElementById('music_box')
-    if (mainWaveDiv) {
-        const playerExtensions = document.createElement('div');
-        playerExtensions.innerHTML = `
-                <div class="flex space-x-2">
-                    <label>
-                        Playback rate: <span id="mainRate">1.0</span>x
-                    </label>
-                    <label>
-                        0.5x <input id="mainRateInput" type="range" min="0.5" max="2" step="0.5" value="1" /> 2x
-                    </label>
-                    <label>
-                        Zoom: <input id="mainZoomInput" type="range" min="10" max="200" value="100" />
-                    </label>
-                    <p id="mainTime">0:00</p>
-                    <p id="mainDuration">0:00</p>
-                    <label>
-                        <input id="mainLoopCheckbox" type="checkbox"/>
-                        Loop regions
-                    </label>
-                    <button id="mainClearRegions">Clear Regions</button>
-                </div>
-                <div id="mainHover" style="position: absolute; left: 0; top: 0; z-index: 1010; 
-                pointer-events: none; height: 100%; width: 0; mix-blend-mode: overlay; opacity: 0;
-                background: rgba(255, 255, 255, 0.5); transition: opacity 0.2s ease;
-                "></div>
-            `;
-        mainWaveDiv.appendChild(playerExtensions);
     }
 
     //region MainWaveSurfer
@@ -157,9 +145,26 @@ document.addEventListener("DOMContentLoaded", () => {
     //endregion
 
     //region Listeners
-    mainWaveSurfer.on('ready', () => {
+    mainWaveSurfer.on('ready', async () => {
         mainWaveReady = true;
-        stemsOverlayContent.setAttribute('sound-id', currentTrack.soundID)
+        if (stemsOverlayContent) {
+            stemsOverlayContent.setAttribute('sound-id', currentTrack.soundID)
+        }
+
+        //region Music Infos
+        const mainPlaylistDiv = document.getElementById('mainPlaylistDiv')
+        if (mainPlaylistDiv) {
+            const sound = await getSound(currentTrack.soundID);
+            if (sound) {
+                setSoundInfos(sound, 'mainSoundImage', 'mainSoundName', 'mainArtistsName')
+                await createFavDiv('mainFavDiv', sound.soundID)
+                setupPlaylistDiv(sound, 'mainPlaylistDiv', 'mainPlaylistBtn',
+                    'mainAddToPlaylistBtn', 'mainCreatePlaylist',
+                    'mainPlaylistContainer', 'mainPlaylistCloseBtn',
+                    'mainPlaylistResult', 'mainPlaylistInput')
+            }
+        }
+        //endregion
     });
     mainWaveSurfer.once('ready', () => {
         musicBoxPlayPause.onclick = () => {
@@ -268,55 +273,61 @@ document.addEventListener("DOMContentLoaded", () => {
     const stemsOverlay = document.getElementById('stemsOverlay')
     const openStems = document.getElementById('openStemsOverlay')
     const closeStems = document.getElementById('closeStemsOverlay')
-    openStems.addEventListener('click', () => {
-        stemsOverlay.classList.remove("hidden");
+    if (stemsOverlay) {
+        stemsOverlay.addEventListener("click", (e) => {
+            if (e.target === stemsOverlay) {
+                stemsOverlayContent.innerHTML = ""
+                for (const key in stemsListWaveSurfers) {
+                    delete stemsListWaveSurfers[key];
+                }
+                for (const key in muteStemsListWaveSurfers) {
+                    delete muteStemsListWaveSurfers[key];
+                }
+                for (const key in singleStemsListWaveSurfers) {
+                    delete singleStemsListWaveSurfers[key];
+                }
+                stemsOverlay.classList.add("hidden");
+            }
+        });
+        if (openStems) {
+            openStems.addEventListener('click', () => {
+                stemsOverlay.classList.remove("hidden");
 
-        const soundID = stemsOverlayContent.getAttribute('sound-id')
+                const soundID = stemsOverlayContent.getAttribute('sound-id')
 
-        fetch(`/database/soundStems/${soundID}`, {
-            headers: {
-                'Accept': 'application/json'
-            }
-        }).then(res => {
-            if (!res.ok) {
-                console.log(`HTTP error! Status: ${res.status}`);
-                throw new Error(`HTTP error! Status: ${res.status}`);
-            }
-            return res.json();
-        }).then(stems => {
-            if (stems.length > 0) {
-                createStemsContent(stemsOverlayContent, stems, soundID)
-            }
-        })
-    })
-    closeStems.addEventListener('click', () => {
-        stemsOverlayContent.innerHTML = ""
-        for (const key in stemsListWaveSurfers) {
-            delete stemsListWaveSurfers[key];
+                fetch(`/database/soundStems/${soundID}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).then(res => {
+                    if (!res.ok) {
+                        console.log(`HTTP error! Status: ${res.status}`);
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                }).then(stems => {
+                    if (stems.length > 0) {
+                        createStemsContent(stemsOverlayContent, stems, soundID)
+                    }
+                })
+            })
         }
-        for (const key in muteStemsListWaveSurfers) {
-            delete muteStemsListWaveSurfers[key];
+        if (closeStems) {
+            closeStems.addEventListener('click', () => {
+                stemsOverlayContent.innerHTML = ""
+                for (const key in stemsListWaveSurfers) {
+                    delete stemsListWaveSurfers[key];
+                }
+                for (const key in muteStemsListWaveSurfers) {
+                    delete muteStemsListWaveSurfers[key];
+                }
+                for (const key in singleStemsListWaveSurfers) {
+                    delete singleStemsListWaveSurfers[key];
+                }
+                stemsOverlay.classList.add("hidden");
+            })
         }
-        for (const key in singleStemsListWaveSurfers) {
-            delete singleStemsListWaveSurfers[key];
-        }
-        stemsOverlay.classList.add("hidden");
-    })
-    stemsOverlay.addEventListener("click", (e) => {
-        if (e.target === stemsOverlay) {
-            stemsOverlayContent.innerHTML = ""
-            for (const key in stemsListWaveSurfers) {
-                delete stemsListWaveSurfers[key];
-            }
-            for (const key in muteStemsListWaveSurfers) {
-                delete muteStemsListWaveSurfers[key];
-            }
-            for (const key in singleStemsListWaveSurfers) {
-                delete singleStemsListWaveSurfers[key];
-            }
-            stemsOverlay.classList.add("hidden");
-        }
-    });
+    }
 
     //endregion
 
@@ -589,28 +600,4 @@ export function fetchAndCreateRegions(soundID, regionCount, regionsPlugin) {
                 });
             }
         });
-}
-
-volumeInput.addEventListener("input", () => {
-    const vol = parseFloat(volumeInput.value);
-    mainWaveSurfer.setVolume(vol);
-
-    currentTrack.volume = vol;
-    localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
-});
-
-setInterval(() => {
-    currentTrack.currentTime = mainWaveSurfer.getCurrentTime()
-    localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
-}, 5000);
-
-function downloadSound(soundID, stems = false, stemPath = "") {
-    const url = `/download/sound/${encodeURIComponent(soundID)}?stems=${stems}&stemPath=${stemPath}`;
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 }

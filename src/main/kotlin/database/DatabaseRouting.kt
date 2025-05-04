@@ -240,7 +240,10 @@ private fun Routing.artistRoute(
                     var categoryList = listOf<String>()
                     var moodList = listOf<String>()
                     var instrumentList = listOf<String>()
-                    val artistName = userRepository.userName(userID)
+
+                    val artistInfos: MutableList<ArtistInfos> = mutableListOf()
+                    artistInfos.add(ArtistInfos(userID.toString(), userRepository.userName(userID) ?: ""))
+
                     var loops: List<LoopDurations> = emptyList()
 
                     val soundID = generateUniqueId()
@@ -398,9 +401,7 @@ private fun Routing.artistRoute(
                         part.dispose()
                     }
 
-                    if (soundFile != null && imageFile != null && soundName != null
-                        && artistName != null
-                    ) {
+                    if (soundFile != null && imageFile != null && soundName != null) {
                         val duration = if (soundFile.extension == "mp3") {
                             getMp3DurationInSeconds(soundFile)
                         } else {
@@ -410,7 +411,7 @@ private fun Routing.artistRoute(
                             val checkSound = soundRepository.addSound(
                                 Sound(
                                     name = normalizeSpaces(soundName),
-                                    artistIDs = listOf(userID),
+                                    artistInfos = artistInfos.toList(),
                                     status = SoundStatus.UNDER_CONTROL.toString(),
                                     categories = categoryList,
                                     moods = moodList,
@@ -597,4 +598,10 @@ data class LoopDurations(
     val id: String,
     val start: Double,
     val end: Double
+)
+
+@Serializable
+data class ArtistInfos(
+    val id: String,
+    val name: String
 )
