@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const sound = await getSound(currentTrack.soundID);
             if (sound) {
                 setSoundInfos(sound, 'mainSoundImage', 'mainSoundName', 'mainArtistsName')
-                await createFavDiv('mainFavDiv', sound.soundID)
+                await createFavDiv('mainFavDiv', sound.soundID, true)
                 setupPlaylistDiv(sound, 'mainPlaylistDiv', 'mainPlaylistBtn',
                     'mainAddToPlaylistBtn', 'mainCreatePlaylist',
                     'mainPlaylistContainer', 'mainPlaylistCloseBtn',
