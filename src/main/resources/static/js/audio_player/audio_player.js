@@ -328,6 +328,8 @@ const muteStemsListWaveSurfers = {}
 const singleStemsListWaveSurfers = {}
 
 function createStemsContent(stemsOverlayContent, stems, soundID) {
+    let mainStemWaveReady = false;
+
     const mainStemItem = document.createElement('div');
     mainStemItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
 
@@ -372,13 +374,22 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
     mainStemItem.appendChild(mainControllerDiv)
     stemsOverlayContent.appendChild(mainStemItem)
 
+    mainStemWaveSurfer.on('decode', (duration) => {
+        mainStemWaveReady = false
+    })
+
     mainStemWaveSurfer.once('ready', () => {
+        mainStemWaveReady = true
         mainStemPlayButton.onclick = () => {
             const mainStemItem = stemsListWaveSurfers[soundID];
             const hasSingleSelected = Object.keys(singleStemsListWaveSurfers).length > 0;
 
             for (const key in stemsListWaveSurfers) {
                 const stemItem = stemsListWaveSurfers[key];
+
+                if (stemItem.isPlaying()) {
+                    stemItem.pause();
+                }
 
                 if (stemItem === mainStemItem) continue;
 
@@ -395,7 +406,24 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
         }
     })
 
+    mainStemWaveSurferDiv.addEventListener('click', (e) => {
+        const bbox = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - bbox.left;
+        const percent = x / bbox.width;
+
+        const duration = mainStemWaveSurfer.getDuration();
+        if (duration && !isNaN(percent)) {
+            for (const key in stemsListWaveSurfers) {
+                if (stemsListWaveSurfers[soundID] !== stemsListWaveSurfers[key]) {
+                    stemsListWaveSurfers[key].seekTo(percent);
+                }
+            }
+        }
+    });
+
     stems.forEach(stem => {
+        let listStemWaveReady = false;
+
         const listItem = document.createElement('div');
         listItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
 
@@ -423,6 +451,50 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
             height: 50,
         })
         stemsListWaveSurfers[stem.stemID] = stemWaveSurfer
+
+        stemWaveSurfer.on('decode', (duration) => {
+            listStemWaveReady = false
+        })
+        stemWaveSurfer.once('ready', () => {
+            listStemWaveReady = true
+        })
+
+        //todo: main wavesurfer audioprocess
+        /*stemWaveSurfer.on('audioprocess', ()=>{
+            if (!mainStemWaveReady || !listStemWaveReady) return;
+
+            const time = stemWaveSurfer.getCurrentTime();
+            const duration = stemWaveSurfer.getDuration();
+
+            if (!Number.isFinite(time) || !Number.isFinite(duration) || duration <= 0) return;
+
+            const seekTo = time / duration;
+
+            if (Number.isFinite(seekTo)) {
+                for (const key in stemsListWaveSurfers) {
+                    const stemItem = stemsListWaveSurfers[key];
+                    if (stemsListWaveSurfers[stem.stemID] !== stemItem){
+                        stemItem.pause()
+                        stemItem.seekTo(seekTo);
+                    }
+                }
+            }
+        })*/
+
+        waveSurferDiv.addEventListener('click', (e) => {
+            const bbox = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - bbox.left;
+            const percent = x / bbox.width;
+
+            const duration = mainStemWaveSurfer.getDuration();
+            if (duration && !isNaN(percent)) {
+                for (const key in stemsListWaveSurfers) {
+                    if (stemsListWaveSurfers[stem.stemID] !== stemsListWaveSurfers[key]) {
+                        stemsListWaveSurfers[key].seekTo(percent);
+                    }
+                }
+            }
+        });
 
         const src = `/stream/sound/${encodeURIComponent(soundID)}?stems=true&stemPath=${stem.stemPath}`;
         stemWaveSurfer.load(src)
