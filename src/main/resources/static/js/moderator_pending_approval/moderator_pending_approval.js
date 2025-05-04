@@ -27,8 +27,16 @@ function getSounds(page) {
             row.innerHTML = `
                 <td><input type="checkbox" class="sound-checkbox" data-sound-id="${soundItem.soundID}"></td>
                 <td>${soundItem.name}</td>
-                <td>${soundItem.artist}</td>   
-                <td>${soundItem.category1}</td>
+                <td>${soundItem.artistInfos.map(artist => `
+                        <p>
+                          <a href="/artistProfile/${artist.id}">${artist.name}</a>
+                        </p>
+                        `).join("")}  </td>   
+                <td>${soundItem.categories.map(item => `
+                        <p>
+                          <a href="/category/${encodeURIComponent(item)}">${item}</a>
+                        </p>
+                        `).join("")}</td>
             `;
             tbody.appendChild(row);
         });
@@ -75,7 +83,6 @@ function getSelectedSoundIds() {
 
 document.getElementById('submitButton').addEventListener('click', async () => {
     const selectedSoundIds = getSelectedSoundIds();
-    console.log('IDs:', selectedSoundIds);
 
     if (selectedSoundIds.length === 0) {
         alert('Please select min one item!');

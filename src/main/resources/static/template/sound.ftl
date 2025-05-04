@@ -48,7 +48,7 @@
 
         <div id="soundFavDiv"></div>
 
-        <div class="flex flex-col space-y-2">
+        <div class="flex flex-col items-center space-y-2">
             <button id="soundDownload">Download</button>
 
             <button id="soundPlay">Play</button>

@@ -24,15 +24,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             setCategories(sound, 'soundCategories')
 
-            //todo
-            document.getElementById('soundPlay').onclick = () => {
+            const playButton = document.getElementById('soundPlay')
+            playButton.innerHTML = `<i data-lucide='play' class="${'icon_' + soundID} w-6 h-6"></i>`;
+            playButton.onclick = () => {
                 const src = `/stream/sound/${encodeURIComponent(soundID)}`;
-                mainWaveSurfer.load(src)
-                mainWaveSurfer.className = "main_waveSurfer_" + soundID
+                if (mainWaveSurfer.isPlaying()) {
+                    mainWaveSurfer.pause();
+                    return;
+                }
+                if (mainWaveSurfer.currentSrc === src) {
+                    mainWaveSurfer.play();
+                    return;
+                }
+
+                mainWaveSurfer.load(src);
                 mainWaveSurfer.once('ready', () => {
-                    mainWaveSurfer.play()
-                })
-            }
+                    mainWaveSurfer.play();
+                    mainWaveSurfer.currentSrc = src;
+                });
+            };
+            lucide.createIcons();
         }
     }
 })
