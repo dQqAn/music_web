@@ -3,12 +3,12 @@
 
         <div class="flex content-center items-center justify-start m-2">
             <div class="w-12 h-12 bg-gray-700 rounded overflow-hidden">
-                <img src=""
+                <img id="mainSoundImage" src=""
                      class="w-full h-full object-cover" alt="">
             </div>
             <div class="ml-4">
-                <p class="text-sm font-semibold">Sound Name</p>
-                <p class="text-xs text-gray-400">Artist Name</p>
+                <p class="text-sm font-semibold" id="mainSoundName">Sound Name</p>
+                <div class="text-xs text-gray-400" id="mainArtistsName">Artist Name</div>
             </div>
             <div class="ml-4">
                 <p>Fav</p>

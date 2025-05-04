@@ -55,6 +55,34 @@ document.addEventListener("DOMContentLoaded", () => {
         mainWaveSurfer.load(src)
         mainWaveSurfer.className = "main_waveSurfer_" + soundID
 
+        fetch(`/database/sound/${soundID}`, {
+            headers: {
+                'Accept': 'application/json'
+            },
+        }).then(response => {
+            if (!response.ok) {
+                console.log(`HTTP error! Status: ${response.status}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        }).then(data => {
+            const image = document.getElementById('mainSoundImage')
+            const name = document.getElementById('mainSoundName')
+            const artists = document.getElementById('mainArtistsName')
+            const sound = data.sound
+            if (image && name && artists) {
+                image.src = sound.image1Path
+                name.textContent = sound.name
+                artists.innerHTML = `
+                    ${sound.artistInfos.map(artist => `
+                        <p>
+                          <a href="/artistProfile/${artist.id}">${artist.name}</a>
+                        </p>
+                        `).join("")}  
+                    `;
+            }
+        })
+
         mainWaveSurfer.once('ready', () => {
             if (typeof volume === 'number') {
                 mainWaveSurfer.setVolume(volume);
