@@ -95,10 +95,9 @@
         </div>
 
         <#--        <div id="soundCategories"></div>-->
-
-
     </div>
 
+    <#include "source/stems.ftl">
 </main>
 
 <footer>
