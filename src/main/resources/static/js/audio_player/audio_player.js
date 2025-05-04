@@ -356,6 +356,7 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
         url: '',
         height: 50,
     })
+    mainStemWaveSurfer.setMuted(true);
     stemsListWaveSurfers[soundID] = mainStemWaveSurfer
 
     const src = `/stream/sound/${encodeURIComponent(soundID)}`;
@@ -382,26 +383,28 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
         mainStemWaveReady = true
         mainStemPlayButton.onclick = () => {
             const mainStemItem = stemsListWaveSurfers[soundID];
+            mainStemItem.playPause()
+
             const hasSingleSelected = Object.keys(singleStemsListWaveSurfers).length > 0;
 
             for (const key in stemsListWaveSurfers) {
                 const stemItem = stemsListWaveSurfers[key];
 
-                if (stemItem.isPlaying()) {
-                    stemItem.pause();
-                }
-
                 if (stemItem === mainStemItem) continue;
+
+                stemItem.setMuted(true)
 
                 if (hasSingleSelected) {
                     if (singleStemsListWaveSurfers[key]) {
-                        stemItem.play();
+                        stemItem.setMuted(false);
                     }
                 } else {
                     if (!muteStemsListWaveSurfers[key]) {
-                        stemItem.play();
+                        stemItem.setMuted(false);
                     }
                 }
+
+                stemItem.playPause();
             }
         }
     })
@@ -459,28 +462,6 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
             listStemWaveReady = true
         })
 
-        //todo: main wavesurfer audioprocess
-        /*stemWaveSurfer.on('audioprocess', ()=>{
-            if (!mainStemWaveReady || !listStemWaveReady) return;
-
-            const time = stemWaveSurfer.getCurrentTime();
-            const duration = stemWaveSurfer.getDuration();
-
-            if (!Number.isFinite(time) || !Number.isFinite(duration) || duration <= 0) return;
-
-            const seekTo = time / duration;
-
-            if (Number.isFinite(seekTo)) {
-                for (const key in stemsListWaveSurfers) {
-                    const stemItem = stemsListWaveSurfers[key];
-                    if (stemsListWaveSurfers[stem.stemID] !== stemItem){
-                        stemItem.pause()
-                        stemItem.seekTo(seekTo);
-                    }
-                }
-            }
-        })*/
-
         waveSurferDiv.addEventListener('click', (e) => {
             const bbox = e.currentTarget.getBoundingClientRect();
             const x = e.clientX - bbox.left;
@@ -518,8 +499,13 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
                 muteCheckbox.checked = false
 
                 singleStemsListWaveSurfers[stem.stemID] = stemWaveSurfer
+                singleStemsListWaveSurfers[stem.stemID].setMuted(false);
             } else {
                 delete singleStemsListWaveSurfers[stem.stemID]
+
+                if (muteStemsListWaveSurfers[stem.stemID]) {
+                    muteStemsListWaveSurfers[stem.stemID].setMuted(true);
+                }
             }
         });
 
@@ -534,8 +520,13 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
                 singleCheckbox.checked = false
 
                 muteStemsListWaveSurfers[stem.stemID] = stemWaveSurfer
+                muteStemsListWaveSurfers[stem.stemID].setMuted(true);
             } else {
                 delete muteStemsListWaveSurfers[stem.stemID]
+
+                if (singleStemsListWaveSurfers[stem.stemID]) {
+                    singleStemsListWaveSurfers[stem.stemID].setMuted(false);
+                }
             }
         });
 

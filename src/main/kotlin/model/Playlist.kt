@@ -10,8 +10,8 @@ data class Playlist(
     val soundID: String?,
     val userID: Int,
     val playlistID: String,
-    override val id: Int
-) : UserInterface
+    val id: Int = -1
+)
 
 object PlaylistTable : Table("playlist") {
     val name = varchar("name", 255)
