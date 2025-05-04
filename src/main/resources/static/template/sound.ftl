@@ -121,9 +121,9 @@
                         id="fav-btn-${sound.soundID}"
                         onclick="changeSoundFavouriteStatus('${sound.soundID}')">
                     <#if sound.favouriteStatus>
-                        Unfavourite
+                        Unfav
                     <#else>
-                        Favourite
+                        Fav
                     </#if>
                 </button>
             </div>

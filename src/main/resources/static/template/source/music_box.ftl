@@ -11,8 +11,46 @@
                 <div class="text-xs text-gray-400" id="mainArtistsName">Artist Name</div>
             </div>
             <div class="ml-4">
-                <p>Fav</p>
-                <p>Playlist</p>
+                <div id="mainFavDiv"></div>
+                <div id="mainPlaylistDiv">
+                    <button id="mainAddPlaylist">Add Playlist</button>
+
+                    <div class="text-black" id="mainPlaylistContainer" style="
+                        display: none;
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background-color: white;
+                        border: 1px solid #ccc;
+                        z-index: 1000;
+                        padding: 20px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                        max-width: 90%;
+                        max-height: 80%;
+                        overflow-y: auto;
+                    ">
+                        <button id="mainPlaylistCloseBtn" style="
+                                position: absolute;
+                                top: 10px;
+                                right: 10px;
+                                background: none;
+                                border: none;
+                                font-size: 20px;
+                                cursor: pointer;
+                            ">×
+                        </button>
+
+                        <div>
+                            <label for="mainPlaylistInput">Search</label>
+                            <input type="text" id="mainPlaylistInput" placeholder="Search">
+                            <button id="mainCreatePlaylist">Create Playlist</button>
+                        </div>
+
+                        <div id="mainPlaylistResult" class="h-60" style="display: none;"></div>
+                        <button id="mainAddToPlaylistBtn">Submit</button>
+                    </div>
+                </div>
                 <button id="openStemsOverlay">Stems</button>
             </div>
         </div>

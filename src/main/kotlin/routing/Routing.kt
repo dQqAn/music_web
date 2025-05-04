@@ -46,6 +46,17 @@ fun Application.basicRouting() {
             call.respond(FreeMarkerContent("index.ftl", model))
         }
 
+        get("/sound/checkFav/{soundID}") {
+            val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val userSession = call.sessions.get<UserSession>()
+            if (userSession != null) {
+                val favouriteStatus = favouriteRepository.checkFavourite(soundID, userSession.id)
+                call.respond(mapOf("favouriteStatus" to favouriteStatus))
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
+        }
+
         get("/sound/") {
             val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
             val lang = call.request.cookies["lang"] ?: "tr"
