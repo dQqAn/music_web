@@ -209,3 +209,18 @@ export function downloadSound(soundID, stems = false, stemPath = "") {
     link.click();
     document.body.removeChild(link);
 }
+
+export async function getSound(soundID) {
+    const response = await fetch(`/database/sound/${soundID}`, {
+        headers: {
+            'Accept': 'application/json'
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.sound;
+}

@@ -367,6 +367,10 @@
         height: calc(var(--spacing) * 60);
     }
 
+    .h-100 {
+        height: calc(var(--spacing) * 100);
+    }
+
     .h-full {
         height: 100%;
     }
@@ -417,6 +421,10 @@
 
     .w-96 {
         width: calc(var(--spacing) * 96);
+    }
+
+    .w-100 {
+        width: calc(var(--spacing) * 100);
     }
 
     .w-full {

@@ -4,8 +4,6 @@ import com.example.auth.UserSession
 import com.example.database.FavouriteRepository
 import com.example.database.PlaylistRepository
 import com.example.database.SoundRepository
-import com.example.model.SoundBasic
-import com.example.model.SoundStatus
 import freemarker.cache.ClassTemplateLoader
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -63,33 +61,9 @@ fun Application.basicRouting() {
             val supportedLang = if (lang in listOf("en", "tr")) lang else "tr"
             val words = loadWords(supportedLang)
 
-            val sound = soundRepository.getSound(soundID, SoundStatus.ACTIVE)
-                ?: return@get call.respond(HttpStatusCode.NotFound)
-
-            val name = sound.name
-            val artistIDs = sound.artistInfos
-            val category1 = sound.categories.getOrNull(0) ?: ""
-            val image1Path = sound.image1Path
-
-            val userSession = call.sessions.get<UserSession>()
-            var favouriteStatus = false
-            if (userSession != null) {
-                favouriteStatus = favouriteRepository.checkFavourite(soundID, userSession.id)
-            }
-
-            val basicSound = SoundBasic(
-                name = name,
-                artistInfos = artistIDs,
-                category1 = category1,
-                image1Path = image1Path,
-                soundID = soundID,
-                favouriteStatus = favouriteStatus
-            )
-
             val model = mapOf(
                 "words" to words,
-                "lang" to supportedLang,
-                "sound" to basicSound
+                "lang" to supportedLang
             )
             call.respond(FreeMarkerContent("sound.ftl", model))
         }
@@ -140,7 +114,6 @@ fun loadWords(lang: String): Properties {
 }
 
 /*fun RoutingContext.basicContentLoader(model: Map<String, Serializable>, pageName: String) {
-    //todo
     val lang = call.request.cookies["lang"] ?: "tr"
     val supportedLang = if (lang in listOf("en", "tr")) lang else "tr"
     val words = loadWords(supportedLang)

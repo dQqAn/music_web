@@ -4,12 +4,12 @@ async function getFavStatus(soundID) {
     return data.favouriteStatus;
 }
 
-export async function createFavDiv(favDiv, soundID, main = false) {
+export async function createFavDiv(favDivID, soundID, main = false) {
     const isFav = await getFavStatus(soundID);
     const favText = isFav ? "Unfav" : "Fav";
 
     const favID = main ? "main-fav-btn-" + soundID : "fav-btn-" + soundID
-    favDiv.innerHTML = `
+    document.getElementById(favDivID).innerHTML = `
                     <button id=${favID} >
                          ${favText}
                      </button>

@@ -1,9 +1,10 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
-import {downloadSound, soundListWaveSurfers} from '../soundList.js'
-import {addSound, createPlaylist, togglePlaylist} from '../playlist.js'
+import {downloadSound, getSound, soundListWaveSurfers} from '../soundList.js'
+import {setupPlaylistDiv} from '../playlist.js'
 import {createFavDiv} from '../favourite.js'
+import {setSoundInfos} from '../sound/sound.js'
 
 const regionsPlugin = RegionsPlugin.create()
 
@@ -41,10 +42,25 @@ let currentTrack = {
 
 let mainWaveReady = false;
 
-const volumeInput = document.getElementById("mainVolume");
-const stemsOverlayContent = document.getElementById('stemsOverlayContent')
+document.addEventListener("DOMContentLoaded", async () => {
+    const volumeInput = document.getElementById("mainVolume");
+    const stemsOverlayContent = document.getElementById('stemsOverlayContent')
 
-document.addEventListener("DOMContentLoaded", () => {
+    if (volumeInput) {
+        volumeInput.addEventListener("input", () => {
+            const vol = parseFloat(volumeInput.value);
+            mainWaveSurfer.setVolume(vol);
+
+            currentTrack.volume = vol;
+            localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+        });
+    }
+
+    setInterval(() => {
+        currentTrack.currentTime = mainWaveSurfer.getCurrentTime()
+        localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
+    }, 5000);
+
     let savedTrack = localStorage.getItem("currentTrack");
 
     if (savedTrack) {
@@ -57,63 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
         mainWaveSurfer.load(src)
         mainWaveSurfer.className = "main_waveSurfer_" + soundID
 
-        fetch(`/database/sound/${soundID}`, {
-            headers: {
-                'Accept': 'application/json'
-            },
-        }).then(response => {
-            if (!response.ok) {
-                console.log(`HTTP error! Status: ${response.status}`);
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        }).then(async data => {
-            const image = document.getElementById('mainSoundImage')
-            const name = document.getElementById('mainSoundName')
-            const artists = document.getElementById('mainArtistsName')
-            const mainFavDiv = document.getElementById('mainFavDiv')
-            const mainPlaylistDiv = document.getElementById('mainPlaylistDiv')
-
-            const sound = data.sound
-            if (image && name && artists && mainFavDiv && mainPlaylistDiv) {
-                image.src = sound.image1Path
-                name.textContent = sound.name
-                artists.innerHTML = `
-                    ${sound.artistInfos.map(artist => `
-                        <p>
-                          <a href="/artistProfile/${artist.id}">${artist.name}</a>
-                        </p>
-                        `).join("")}  
-                    `;
-
-                await createFavDiv(mainFavDiv, sound.soundID)
-
-                const mainAddPlaylist = document.getElementById('mainAddPlaylist')
-                const mainAddToPlaylistBtn = document.getElementById('mainAddToPlaylistBtn')
-                const mainCreatePlaylist = document.getElementById('mainCreatePlaylist')
-                mainAddPlaylist.onclick = () => {
-                    togglePlaylist('mainPlaylistContainer', 'mainPlaylistResult', sound.soundID, 'mainPlaylistInput')
-                }
-                mainCreatePlaylist.onclick = () => {
-                    createPlaylist('mainPlaylistInput', 'mainPlaylistResult', sound.soundID)
-                }
-                mainAddToPlaylistBtn.onclick = () => {
-                    addSound([sound.soundID], 'mainPlaylistResult', sound.soundID)
-                }
-
-                const modal = document.getElementById("mainPlaylistContainer");
-                const closeBtn = document.getElementById("mainPlaylistCloseBtn");
-                closeBtn.onclick = () => {
-                    modal.style.display = "none";
-                };
-                window.addEventListener("click", function (e) {
-                    if (modal.style.display === "block" && !modal.contains(e.target) && e.target !== mainAddPlaylist) {
-                        modal.style.display = "none";
-                    }
-                });
-            }
-        })
-
         mainWaveSurfer.once('ready', () => {
             if (typeof volume === 'number') {
                 mainWaveSurfer.setVolume(volume);
@@ -125,6 +84,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 mainWaveSurfer.seekTo(percent);
             }
         })
+
+        //region Music Infos
+        const mainPlaylistDiv = document.getElementById('mainPlaylistDiv')
+        if (mainPlaylistDiv) {
+            const sound = await getSound(soundID);
+            setSoundInfos(sound, 'mainSoundImage', 'mainSoundName', 'mainArtistsName')
+            await createFavDiv('mainFavDiv', sound.soundID)
+            setupPlaylistDiv(sound, 'mainPlaylistDiv', 'mainPlaylistBtn',
+                'mainAddToPlaylistBtn', 'mainCreatePlaylist',
+                'mainPlaylistContainer', 'mainPlaylistCloseBtn',
+                'mainPlaylistResult', 'mainPlaylistInput')
+        }
+        //endregion
     }
 
     //region MainWaveSurfer
@@ -188,7 +160,9 @@ document.addEventListener("DOMContentLoaded", () => {
     //region Listeners
     mainWaveSurfer.on('ready', () => {
         mainWaveReady = true;
-        stemsOverlayContent.setAttribute('sound-id', currentTrack.soundID)
+        if (stemsOverlayContent) {
+            stemsOverlayContent.setAttribute('sound-id', currentTrack.soundID)
+        }
     });
     mainWaveSurfer.once('ready', () => {
         musicBoxPlayPause.onclick = () => {
@@ -625,16 +599,3 @@ export function fetchAndCreateRegions(soundID, regionCount, regionsPlugin) {
             }
         });
 }
-
-volumeInput.addEventListener("input", () => {
-    const vol = parseFloat(volumeInput.value);
-    mainWaveSurfer.setVolume(vol);
-
-    currentTrack.volume = vol;
-    localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
-});
-
-setInterval(() => {
-    currentTrack.currentTime = mainWaveSurfer.getCurrentTime()
-    localStorage.setItem("currentTrack", JSON.stringify(currentTrack));
-}, 5000);

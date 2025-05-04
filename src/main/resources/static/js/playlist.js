@@ -1,4 +1,4 @@
-export function togglePlaylist(playlistContainer, playlistResult, id, playlistInput) {
+function togglePlaylist(playlistContainer, playlistResult, id, playlistInput) {
     const container = document.getElementById(playlistContainer);
     container.style.display = container.style.display === 'block' ? 'none' : 'block';
     if (container.style.display === 'block') {
@@ -140,7 +140,7 @@ async function handlePlaylistInput(event, id = "", playlistResult) {
     }
 }
 
-export async function addSound(soundIDs, playlistResult, id = "") {
+async function addSound(soundIDs, playlistResult, id = "") {
     const newSelected = selected.filter(id => !basicSelected.includes(id));
     const newUnselected = unSelected.filter(id => !basicUnSelected.includes(id));
 
@@ -185,7 +185,7 @@ async function handleCheckboxes(event) {
     }
 }
 
-export async function createPlaylist(playlistInput, playlistResult, id = "") {
+async function createPlaylist(playlistInput, playlistResult, id = "") {
     const value = document.getElementById(playlistInput).value;
 
     const response = await fetch('/database/createPlaylist', {
@@ -199,5 +199,39 @@ export async function createPlaylist(playlistInput, playlistResult, id = "") {
     const statusCode = response.status;
     if (statusCode === 200) {
         await showPlaylists(playlistResult, id)
+    }
+}
+
+export function setupPlaylistDiv(
+    sound, playlistDivID, playlistBtnID, addToPlaylistBtnID, createPlaylistBtnID,
+    playlistContainerID, playlistCloseBtnID, playlistResultID, playlistInputID
+) {
+    const playlistDiv = document.getElementById(playlistDivID)
+    const playlistBtn = document.getElementById(playlistBtnID)
+    const addToPlaylist = document.getElementById(addToPlaylistBtnID)
+    const createPlaylistBtn = document.getElementById(createPlaylistBtnID)
+    const container = document.getElementById(playlistContainerID);
+    const closeBtn = document.getElementById(playlistCloseBtnID);
+
+    if (playlistDiv) {
+        playlistBtn.onclick = () => {
+            togglePlaylist(playlistContainerID, playlistResultID, sound.soundID, playlistInputID)
+        }
+        createPlaylistBtn.onclick = () => {
+            createPlaylist(playlistInputID, playlistResultID, sound.soundID).then(r => {
+            })
+        }
+        addToPlaylist.onclick = () => {
+            addSound([sound.soundID], playlistResultID, sound.soundID).then(r => {
+            })
+        }
+        closeBtn.onclick = () => {
+            container.style.display = "none";
+        };
+        window.addEventListener("click", function (e) {
+            if (container.style.display === "block" && !container.contains(e.target) && e.target !== playlistBtn) {
+                container.style.display = "none";
+            }
+        });
     }
 }

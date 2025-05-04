@@ -13,7 +13,7 @@
             <div class="ml-4">
                 <div id="mainFavDiv"></div>
                 <div id="mainPlaylistDiv">
-                    <button id="mainAddPlaylist">Add Playlist</button>
+                    <button id="mainPlaylistBtn">Add Playlist</button>
 
                     <div class="text-black" id="mainPlaylistContainer" style="
                         display: none;
