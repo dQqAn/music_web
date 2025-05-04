@@ -1,9 +1,11 @@
-tailwinds: https://tailwindcss.com/docs/installation/tailwind-cli
+tailwind: https://tailwindcss.com/docs/installation/tailwind-cli
 
 (npx @tailwindcss/cli -i ./src/main/resources/static/tailwind/input.css -o
 ./src/main/resources/static/tailwind/output.css --watch)
 
 wavesurfer: https://wavesurfer.xyz/docs/
+
+lucide: https://lucide.dev/icons/
 
 # music_web
 

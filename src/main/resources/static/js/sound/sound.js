@@ -1,6 +1,7 @@
 import {downloadSound, getSound} from '../soundList.js'
 import {setupPlaylistDiv} from '../playlist.js'
 import {createFavDiv} from '../favourite.js'
+import {mainWaveSurfer} from "../audio_player/audio_player.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
@@ -22,6 +23,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             setCategories(sound, 'soundCategories')
+
+            //todo
+            document.getElementById('soundPlay').onclick = () => {
+                const src = `/stream/sound/${encodeURIComponent(soundID)}`;
+                mainWaveSurfer.load(src)
+                mainWaveSurfer.className = "main_waveSurfer_" + soundID
+                mainWaveSurfer.once('ready', () => {
+                    mainWaveSurfer.play()
+                })
+            }
         }
     }
 })

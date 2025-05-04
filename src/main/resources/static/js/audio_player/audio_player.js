@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const soundID = mainWaveSurfer.className.split("_").pop();
         const listIcon = document.querySelector('.icon_' + soundID);
-        if (listIcon.getAttribute('data-lucide') === 'play') {
+        if (listIcon && listIcon.getAttribute('data-lucide') === 'play') {
             listIcon.setAttribute('data-lucide', 'pause');
         }
 
@@ -227,7 +227,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const soundID = mainWaveSurfer.className.split("_").pop();
         const listIcon = document.querySelector('.icon_' + soundID);
-        if (listIcon.getAttribute('data-lucide') === 'pause') {
+        if (listIcon && listIcon.getAttribute('data-lucide') === 'pause') {
             listIcon.setAttribute('data-lucide', 'play');
         }
 
@@ -338,7 +338,9 @@ const stemsListWaveSurfers = {}
 const muteStemsListWaveSurfers = {}
 const singleStemsListWaveSurfers = {}
 
-function createStemsContent(stemsOverlayContent, stems, soundID) {
+async function createStemsContent(stemsOverlayContent, stems, soundID) {
+    const sound = await getSound(soundID);
+
     let mainStemWaveReady = false;
 
     const mainStemItem = document.createElement('div');
@@ -347,11 +349,30 @@ function createStemsContent(stemsOverlayContent, stems, soundID) {
     const mainInfos = document.createElement('div')
     mainInfos.className = "content-center items-center justify-start m-2"
     mainInfos.innerHTML = `
-                <p>${soundID}</p>
-            `;
+                <div class="flex items-center justify-center">
+                    <div class="w-12 h-12 bg-gray-700 rounded overflow-hidden">
+                        <img id="stemSoundImage" src=""
+                             class="w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center w-full">
+                    <h5>Name: </h5>
+                    <div id="stemSoundName"></div>
+                </div>
+
+                <div class="flex items-center justify-center w-full">
+                    <h5>Artists: </h5>
+                    <div id="stemSoundArtistNames"></div>
+                </div>
+                `;
 
     mainStemItem.appendChild(mainInfos)
     stemsOverlayContent.appendChild(mainStemItem)
+
+    if (sound) {
+        setSoundInfos(sound, 'stemSoundImage', 'stemSoundName', 'stemSoundArtistNames')
+    }
 
     const mainStemWaveSurferDiv = document.createElement('div');
     mainStemWaveSurferDiv.className = "w-full content-center items-center justify-center relative"
