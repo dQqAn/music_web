@@ -23,7 +23,11 @@ export function soundList(containerID, sounds) {
                 <a href="/sound/?${toSlug(item.name)}&soundID=${item.soundID}">
                     <p>${item.name}</p>      
                 </a>
-                <p>${item.artistIDs}</p>
+                ${item.artistInfos.map(artist => `
+                    <p>
+                      <a href="/artistProfile/${artist.id}">${artist.name}</a>
+                    </p>
+                `).join("")}
             `;
         listItem.appendChild(infos)
         container.appendChild(listItem)

@@ -268,55 +268,61 @@ document.addEventListener("DOMContentLoaded", () => {
     const stemsOverlay = document.getElementById('stemsOverlay')
     const openStems = document.getElementById('openStemsOverlay')
     const closeStems = document.getElementById('closeStemsOverlay')
-    openStems.addEventListener('click', () => {
-        stemsOverlay.classList.remove("hidden");
+    if (stemsOverlay) {
+        stemsOverlay.addEventListener("click", (e) => {
+            if (e.target === stemsOverlay) {
+                stemsOverlayContent.innerHTML = ""
+                for (const key in stemsListWaveSurfers) {
+                    delete stemsListWaveSurfers[key];
+                }
+                for (const key in muteStemsListWaveSurfers) {
+                    delete muteStemsListWaveSurfers[key];
+                }
+                for (const key in singleStemsListWaveSurfers) {
+                    delete singleStemsListWaveSurfers[key];
+                }
+                stemsOverlay.classList.add("hidden");
+            }
+        });
+        if (openStems) {
+            openStems.addEventListener('click', () => {
+                stemsOverlay.classList.remove("hidden");
 
-        const soundID = stemsOverlayContent.getAttribute('sound-id')
+                const soundID = stemsOverlayContent.getAttribute('sound-id')
 
-        fetch(`/database/soundStems/${soundID}`, {
-            headers: {
-                'Accept': 'application/json'
-            }
-        }).then(res => {
-            if (!res.ok) {
-                console.log(`HTTP error! Status: ${res.status}`);
-                throw new Error(`HTTP error! Status: ${res.status}`);
-            }
-            return res.json();
-        }).then(stems => {
-            if (stems.length > 0) {
-                createStemsContent(stemsOverlayContent, stems, soundID)
-            }
-        })
-    })
-    closeStems.addEventListener('click', () => {
-        stemsOverlayContent.innerHTML = ""
-        for (const key in stemsListWaveSurfers) {
-            delete stemsListWaveSurfers[key];
+                fetch(`/database/soundStems/${soundID}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).then(res => {
+                    if (!res.ok) {
+                        console.log(`HTTP error! Status: ${res.status}`);
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                }).then(stems => {
+                    if (stems.length > 0) {
+                        createStemsContent(stemsOverlayContent, stems, soundID)
+                    }
+                })
+            })
         }
-        for (const key in muteStemsListWaveSurfers) {
-            delete muteStemsListWaveSurfers[key];
+        if (closeStems) {
+            closeStems.addEventListener('click', () => {
+                stemsOverlayContent.innerHTML = ""
+                for (const key in stemsListWaveSurfers) {
+                    delete stemsListWaveSurfers[key];
+                }
+                for (const key in muteStemsListWaveSurfers) {
+                    delete muteStemsListWaveSurfers[key];
+                }
+                for (const key in singleStemsListWaveSurfers) {
+                    delete singleStemsListWaveSurfers[key];
+                }
+                stemsOverlay.classList.add("hidden");
+            })
         }
-        for (const key in singleStemsListWaveSurfers) {
-            delete singleStemsListWaveSurfers[key];
-        }
-        stemsOverlay.classList.add("hidden");
-    })
-    stemsOverlay.addEventListener("click", (e) => {
-        if (e.target === stemsOverlay) {
-            stemsOverlayContent.innerHTML = ""
-            for (const key in stemsListWaveSurfers) {
-                delete stemsListWaveSurfers[key];
-            }
-            for (const key in muteStemsListWaveSurfers) {
-                delete muteStemsListWaveSurfers[key];
-            }
-            for (const key in singleStemsListWaveSurfers) {
-                delete singleStemsListWaveSurfers[key];
-            }
-            stemsOverlay.classList.add("hidden");
-        }
-    });
+    }
 
     //endregion
 
