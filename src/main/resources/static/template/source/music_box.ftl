@@ -65,9 +65,32 @@
 
             <div id="music_box" class="container" style="border: 1px solid #ddd; position: relative;">
                 <div class="flex items-center space-y-2">
-                    <label for="mainVolume" class="text-sm">Volume:</label>
-                    <input id="mainVolume" type="range" min="0" max="1" step="0.01" value="1"
-                           class="w-32 h-2">
+                    <div class="flex space-x-2">
+                        <label for="mainVolume" class="text-sm">Volume:</label>
+                        <input id="mainVolume" type="range" min="0" max="1" step="0.01" value="1"
+                               class="w-32 h-2">
+
+                        <label>
+                            Playback rate: <span id="mainRate">1.0</span>x
+                        </label>
+                        <label>
+                            0.5x <input id="mainRateInput" type="range" min="0.5" max="2" step="0.5" value="1"/> 2x
+                        </label>
+                        <label>
+                            Zoom: <input id="mainZoomInput" type="range" min="10" max="200" value="100"/>
+                        </label>
+                        <p id="mainTime">0:00</p>
+                        <p id="mainDuration">0:00</p>
+                        <label>
+                            <input id="mainLoopCheckbox" type="checkbox"/>
+                            Loop regions
+                        </label>
+                        <button id="mainClearRegions">Clear Regions</button>
+                    </div>
+                    <div id="mainHover" style="position: absolute; left: 0; top: 0; z-index: 1010;
+                            pointer-events: none; height: 100%; width: 0; mix-blend-mode: overlay; opacity: 0;
+                            background: rgba(255, 255, 255, 0.5); transition: opacity 0.2s ease;
+                    "></div>
                 </div>
             </div>
             <#--<audio controls id="music_box">

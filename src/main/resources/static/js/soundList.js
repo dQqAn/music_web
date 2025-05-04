@@ -190,11 +190,22 @@ export function soundList(containerID, sounds) {
     container.appendChild(paginationDiv)
 }
 
-function seek(e, mainWave, listItemWave, listItemContainer) {
+/*function seek(e, mainWave, listItemWave, listItemContainer) {
     const rect = listItemContainer.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const percent = Math.max(0, Math.min(1, x / rect.width));
 
     listItemWave.seekTo(percent);
     mainWave.seekTo(percent);
+}*/
+
+export function downloadSound(soundID, stems = false, stemPath = "") {
+    const url = `/download/sound/${encodeURIComponent(soundID)}?stems=${stems}&stemPath=${stemPath}`;
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
