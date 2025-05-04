@@ -42,6 +42,8 @@
             <div id="soundArtistNames"></div>
         </div>
 
+        <div id="soundCategories"></div>
+
         <div id="soundFavStatus"></div>
 
         <div id="soundFavDiv"></div>

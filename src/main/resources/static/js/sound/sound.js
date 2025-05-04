@@ -9,15 +9,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const soundPlaylistDiv = document.getElementById('soundPlaylistDiv')
     if (soundPlaylistDiv) {
         const sound = await getSound(soundID);
-        setSoundInfos(sound, 'soundImage', 'soundName', 'soundArtistNames')
-        await createFavDiv('soundFavDiv', sound.soundID)
-        setupPlaylistDiv(sound, 'soundPlaylistDiv', 'soundPlaylistBtn',
-            'soundAddToPlaylistBtn', 'soundCreatePlaylist',
-            'soundPlaylistContainer', 'soundPlaylistCloseBtn',
-            'soundPlaylistResult', 'soundPlaylistInput')
+        if (sound) {
+            setSoundInfos(sound, 'soundImage', 'soundName', 'soundArtistNames')
+            await createFavDiv('soundFavDiv', sound.soundID)
+            setupPlaylistDiv(sound, 'soundPlaylistDiv', 'soundPlaylistBtn',
+                'soundAddToPlaylistBtn', 'soundCreatePlaylist',
+                'soundPlaylistContainer', 'soundPlaylistCloseBtn',
+                'soundPlaylistResult', 'soundPlaylistInput')
 
-        document.getElementById('soundDownload').onclick = () => {
-            downloadSound(sound.soundID)
+            document.getElementById('soundDownload').onclick = () => {
+                downloadSound(sound.soundID)
+            }
+
+            setCategories(sound, 'soundCategories')
         }
     }
 })
@@ -37,3 +41,17 @@ export function setSoundInfos(sound, soundImageDivID, soundNameDivID, artistsNam
                         `).join("")}  
                     `;
 }
+
+export function setCategories(sound, categoryDivID) {
+    const categoriesDiv = document.getElementById(categoryDivID)
+    categoriesDiv.innerHTML = ''
+    if (!sound.categories || sound.categories.length === 0) return;
+
+    sound.categories.forEach(category => {
+        const span = document.createElement('span')
+        span.className = 'inline-block bg-blue-600 text-white text-sm px-2 py-1 rounded mr-2 mb-2'
+        span.textContent = category
+        categoriesDiv.appendChild(span)
+    })
+}
+

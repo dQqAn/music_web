@@ -84,19 +84,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 mainWaveSurfer.seekTo(percent);
             }
         })
-
-        //region Music Infos
-        const mainPlaylistDiv = document.getElementById('mainPlaylistDiv')
-        if (mainPlaylistDiv) {
-            const sound = await getSound(soundID);
-            setSoundInfos(sound, 'mainSoundImage', 'mainSoundName', 'mainArtistsName')
-            await createFavDiv('mainFavDiv', sound.soundID)
-            setupPlaylistDiv(sound, 'mainPlaylistDiv', 'mainPlaylistBtn',
-                'mainAddToPlaylistBtn', 'mainCreatePlaylist',
-                'mainPlaylistContainer', 'mainPlaylistCloseBtn',
-                'mainPlaylistResult', 'mainPlaylistInput')
-        }
-        //endregion
     }
 
     //region MainWaveSurfer
@@ -158,11 +145,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     //endregion
 
     //region Listeners
-    mainWaveSurfer.on('ready', () => {
+    mainWaveSurfer.on('ready', async () => {
         mainWaveReady = true;
         if (stemsOverlayContent) {
             stemsOverlayContent.setAttribute('sound-id', currentTrack.soundID)
         }
+
+        //region Music Infos
+        const mainPlaylistDiv = document.getElementById('mainPlaylistDiv')
+        if (mainPlaylistDiv) {
+            const sound = await getSound(currentTrack.soundID);
+            if (sound) {
+                setSoundInfos(sound, 'mainSoundImage', 'mainSoundName', 'mainArtistsName')
+                await createFavDiv('mainFavDiv', sound.soundID)
+                setupPlaylistDiv(sound, 'mainPlaylistDiv', 'mainPlaylistBtn',
+                    'mainAddToPlaylistBtn', 'mainCreatePlaylist',
+                    'mainPlaylistContainer', 'mainPlaylistCloseBtn',
+                    'mainPlaylistResult', 'mainPlaylistInput')
+            }
+        }
+        //endregion
     });
     mainWaveSurfer.once('ready', () => {
         musicBoxPlayPause.onclick = () => {
