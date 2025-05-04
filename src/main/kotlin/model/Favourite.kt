@@ -7,8 +7,8 @@ import org.jetbrains.exposed.sql.Table
 data class Favourite(
     val soundID: String,
     val userID: String,
-    override val id: Int
-) : UserInterface
+    val id: Int = -1
+)
 
 object FavouriteTable : Table("favourite") {
     val soundID = varchar("soundID", 50)

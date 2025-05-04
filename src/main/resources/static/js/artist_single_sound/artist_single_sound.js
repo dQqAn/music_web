@@ -24,6 +24,12 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
     formData.append("name", soundName.value);
     formData.append("category", JSON.stringify([...categorySelectedItems]));
     formData.append("loops", JSON.stringify(loops))
+
+    stemEntries.forEach(entry => {
+        formData.append("stemNames[]", entry.name);
+        formData.append("stemFiles[]", entry.files[0]);
+    });
+
     // formData.append("mood", JSON.stringify([...moodsSelectedTags]));
     // formData.append("instrument", JSON.stringify([...instrumentsSelectedTags]));
 
@@ -71,12 +77,34 @@ const waveSurfer = WaveSurfer.create({
     height: 75,
 })
 
+/** @type {{ name: string, files: File[] }[]} */
+let stemEntries = [];
+const stemNameInput = document.getElementById("stemName");
+const stemFileInput = document.getElementById("stemInput");
+const selectedStemsDiv = document.getElementById("selectedStems");
+const addStemButton = document.getElementById("addStem");
+
 document.addEventListener('DOMContentLoaded', async () => {
     const startingTime = document.getElementById('startingTime')
     const endingTime = document.getElementById('endingTime')
     const selectedLoops = document.getElementById('artistSelectedLoops')
     // const soundBox = document.getElementById('artistSingleSoundBox')
     const addLoop = document.getElementById('addLoop')
+
+    addStemButton.addEventListener("click", () => {
+        const name = stemNameInput.value.trim();
+        const files = [...stemFileInput.files];
+
+        if (!name || files.length === 0) {
+            alert("Stem or file is missing");
+            return;
+        }
+
+        stemEntries.push({name, files});
+        stemNameInput.value = "";
+        stemFileInput.value = "";
+        renderStems();
+    });
 
     const soundInput = document.getElementById("soundInput");
     soundInput.addEventListener('change', (event) => {
@@ -154,6 +182,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             // instrumentsRootItems = data.instruments;
         })
 })
+
+function renderStems() {
+    selectedStemsDiv.innerHTML = "";
+
+    stemEntries.forEach((entry, index) => {
+        const div = document.createElement("div");
+        div.className = "border p-2 flex justify-between items-center";
+
+        const info = document.createElement("span");
+        info.textContent = `${entry.name}: ${entry.files[0].name}`;
+
+        const remove = document.createElement("button");
+        remove.textContent = "❌";
+        remove.className = "text-red-500";
+        remove.onclick = () => {
+            stemEntries.splice(index, 1);
+            renderStems();
+        };
+
+        div.appendChild(info);
+        div.appendChild(remove);
+        selectedStemsDiv.appendChild(div);
+    });
+}
 
 /*function updateIcons(soundID, isPlaying) {
     const icon = document.querySelector('.icon_' + soundID);

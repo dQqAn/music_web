@@ -13,6 +13,7 @@
             <div class="ml-4">
                 <p>Fav</p>
                 <p>Playlist</p>
+                <button id="openStemsOverlay">Stems</button>
             </div>
         </div>
 
@@ -24,7 +25,13 @@
             </div>
             <div id="timeTextMusicBox" style="font-family: monospace; margin-top: 5px;">0:00 / 0:00</div>-->
 
-            <div id="music_box" class="container" style="border: 1px solid #ddd; position: relative;"></div>
+            <div id="music_box" class="container" style="border: 1px solid #ddd; position: relative;">
+                <div class="flex items-center space-y-2">
+                    <label for="mainVolume" class="text-sm">Volume:</label>
+                    <input id="mainVolume" type="range" min="0" max="1" step="0.01" value="1"
+                           class="w-32 h-2">
+                </div>
+            </div>
             <#--<audio controls id="music_box">
                 <source src="">
             </audio>-->

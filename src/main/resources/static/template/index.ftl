@@ -38,6 +38,7 @@
                 type="text"
                 id="searchInput"
                 placeholder="Search..."
+                class="border"
         />
         <div id="searchResults" class="search-dropdown" style="display: none;"></div>
     </div>
@@ -93,6 +94,8 @@
 
             <div class="pointer pagination" id="pagination"></div>
         </div>
+
+        <#include "source/stems.ftl">
     </div>
 </main>
 

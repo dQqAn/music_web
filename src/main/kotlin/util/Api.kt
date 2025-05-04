@@ -26,6 +26,7 @@ fun Application.databaseApi() {
     val playlistRepository by inject<PlaylistRepository>()
     val metaDataRepository by inject<MetaDataRepository>()
     val regionsRepository by inject<RegionsRepository>()
+    val stemsRepository by inject<StemsRepository>()
 
     routing {
         get("/check_auth") {
@@ -48,10 +49,39 @@ fun Application.databaseApi() {
             call.respond(results)
         }
 
+        get("/database/soundStems/{soundID}") {
+            val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val stems = stemsRepository.getStems(soundID)
+            call.respond(HttpStatusCode.OK, stems)
+        }
+
+        get("/download/sound/{soundID}") {
+            val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val soundPath = if (call.request.queryParameters["stems"] == "true") {
+                call.request.queryParameters["stemPath"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            } else {
+                soundRepository.getSoundPath(soundID, SoundStatus.ACTIVE)
+                    ?: return@get call.respond(HttpStatusCode.NotFound, "Sound not found")
+            }
+
+            val file = File(soundPath)
+            if (file.exists()) {
+                val encodedName = URLEncoder.encode(file.name, "UTF-8").replace("+", "%20")
+                call.response.header(HttpHeaders.ContentDisposition, "attachment; filename=\"$encodedName\"")
+                call.respondFile(file)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "Sound not found")
+            }
+        }
+
         get("/stream/sound/{soundID}") {
             val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val soundPath = soundRepository.getSoundPath(soundID, SoundStatus.ACTIVE)
-                ?: return@get call.respond(HttpStatusCode.NotFound, "Sound not found")
+            val soundPath = if (call.request.queryParameters["stems"] == "true") {
+                call.request.queryParameters["stemPath"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            } else {
+                soundRepository.getSoundPath(soundID, SoundStatus.ACTIVE)
+                    ?: return@get call.respond(HttpStatusCode.NotFound, "Sound not found")
+            }
 
             val file = File(soundPath)
             if (!file.exists()) return@get call.respond(HttpStatusCode.NotFound, "File not found")
@@ -131,21 +161,6 @@ fun Application.databaseApi() {
                 }
             } else {
                 call.respondFile(file)
-            }
-        }
-
-        get("/download/sound/{soundID}") {
-            val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val soundPath = soundRepository.getSoundPath(soundID, SoundStatus.ACTIVE)
-                ?: return@get call.respond(HttpStatusCode.NotFound, "Sound not found")
-
-            val file = File(soundPath)
-            if (file.exists()) {
-                val encodedName = URLEncoder.encode(file.name, "UTF-8").replace("+", "%20")
-                call.response.header(HttpHeaders.ContentDisposition, "attachment; filename=\"$encodedName\"")
-                call.respondFile(file)
-            } else {
-                call.respond(HttpStatusCode.NotFound, "Sound not found")
             }
         }
 
