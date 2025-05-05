@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     //endregion
 
     //region Listeners
-    let isRepeatEnabled = true;
+    let isRepeatEnabled = false;
     const repeatButton = document.getElementById('musicBoxRepeat')
     repeatButton.addEventListener('click', () => {
         isRepeatEnabled = !isRepeatEnabled;
@@ -381,7 +381,7 @@ const singleStemsListWaveSurfers = {}
 async function createPlaylistContent(playlistOverlayContent, soundIDs) {
     playlistOverlayContent.innerHTML = "";
 
-    for (const soundID of soundIDs) {
+    for (const [index, soundID] of soundIDs.entries()) {
         const listItem = document.createElement('div');
         listItem.className = "w-full flex flex-col items-start mt-2 mb-2 p-2 border-b border-gray-300";
 
@@ -414,8 +414,58 @@ async function createPlaylistContent(playlistOverlayContent, soundIDs) {
         const sound = await getSound(soundID);
         setSoundInfos(sound, img.id, nameP.id, artistDiv.id);
 
-        //todo
+        const playButton = document.createElement('button')
+        playButton.innerHTML = `<i data-lucide='play' class="${'playlist_icon_' + soundID} w-6 h-6"></i>`;
+
+        listItem.appendChild(playButton);
+        playlistOverlayContent.appendChild(listItem);
+
+        playButton.onclick = () => {
+            const icons = document.querySelectorAll('[data-lucide]');
+            icons.forEach(otherIcon => {
+                if (otherIcon.getAttribute('data-lucide') === 'pause') {
+                    otherIcon.setAttribute('data-lucide', 'play');
+                }
+            });
+
+            const src = `/stream/sound/${encodeURIComponent(soundID)}`;
+            if (mainWaveSurfer.currentSrc === src) {
+                if (mainWaveSurfer.isPlaying()) {
+                    const icon = document.querySelector('.playlist_icon_' + soundID);
+                    icon.setAttribute('data-lucide', 'play');
+                    mainWaveSurfer.pause();
+                    return;
+                }
+                if (mainWaveSurfer.currentSrc === src) {
+                    const icon = document.querySelector('.playlist_icon_' + soundID);
+                    icon.setAttribute('data-lucide', 'pause');
+                    mainWaveSurfer.play();
+                    return;
+                }
+
+                mainWaveSurfer.load(src);
+                mainWaveSurfer.className = "main_waveSurfer_" + soundID
+                mainWaveSurfer.once('ready', () => {
+                    mainWaveSurfer.stop();
+                    const icon = document.querySelector('.playlist_icon_' + soundID);
+                    icon.setAttribute('data-lucide', 'pause');
+                    mainWaveSurfer.play();
+                    mainWaveSurfer.currentSrc = src;
+                });
+            } else {
+                mainWaveSurfer.load(src);
+                mainWaveSurfer.className = "main_waveSurfer_" + soundID
+                mainWaveSurfer.once('ready', () => {
+                    mainWaveSurfer.stop();
+                    const icon = document.querySelector('.playlist_icon_' + soundID);
+                    icon.setAttribute('data-lucide', 'pause');
+                    mainWaveSurfer.play();
+                    mainWaveSurfer.currentSrc = src;
+                });
+            }
+        };
     }
+    lucide.createIcons();
 }
 
 async function createStemsContent(stemsOverlayContent, stems, soundID) {

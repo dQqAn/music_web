@@ -38,7 +38,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 mainWaveSurfer.load(src);
+                mainWaveSurfer.className = "main_waveSurfer_" + soundID
                 mainWaveSurfer.once('ready', () => {
+                    mainWaveSurfer.stop();
                     mainWaveSurfer.play();
                     mainWaveSurfer.currentSrc = src;
                 });
