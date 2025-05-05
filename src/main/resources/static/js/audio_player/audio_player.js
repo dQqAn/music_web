@@ -171,25 +171,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             const localSoundID = getStoredSoundIDs()[0]
-            const src = `/stream/sound/${encodeURIComponent(localSoundID)}`;
-            mainWaveSurfer.load(src)
-            mainWaveSurfer.className = "main_waveSurfer_" + localSoundID
+            if (localSoundID) {
+                const src = `/stream/sound/${encodeURIComponent(localSoundID)}`;
+                mainWaveSurfer.load(src)
+                mainWaveSurfer.className = "main_waveSurfer_" + localSoundID
 
-            const listIcon = document.querySelector('.icon_' + localSoundID);
-            if (listIcon) {
-                listIcon.setAttribute('data-lucide', 'pause');
-                lucide.createIcons();
-            }
-
-            mainWaveSurfer.once('ready', () => {
-                const rateInput = document.getElementById('mainRateInput');
-                if (rateInput) {
-                    mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
+                const listIcon = document.querySelector('.icon_' + localSoundID);
+                if (listIcon) {
+                    listIcon.setAttribute('data-lucide', 'pause');
+                    lucide.createIcons();
                 }
-                mainWaveSurfer.play()
-            })
-        }
 
+                mainWaveSurfer.once('ready', () => {
+                    const rateInput = document.getElementById('mainRateInput');
+                    if (rateInput) {
+                        mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
+                    }
+                    mainWaveSurfer.play()
+                })
+            }
+        }
     });
     mainWaveSurfer.on('ready', async () => {
         mainWaveReady = true;
