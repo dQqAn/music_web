@@ -71,8 +71,17 @@ function isTempSoundIDStored(id) {
 }
 
 //endregion
-function replaceSoundIDsWith() {
-    localStorage.setItem(SOUND_IDS_KEY, JSON.stringify(getTempStoredSoundIDs()));
+function replaceSoundIDsWith(soundID) {
+    const tempIDs = getTempStoredSoundIDs();
+    const index = tempIDs.indexOf(soundID);
+
+    if (index === -1) {
+        console.warn(`Sound ID "${soundID}" not found in temp list.`);
+        return;
+    }
+
+    const sliced = tempIDs.slice(index);
+    localStorage.setItem(SOUND_IDS_KEY, JSON.stringify(sliced));
 }
 
 //endregion
@@ -183,7 +192,7 @@ export function soundList(containerID, sounds) {
                 const icon = document.querySelector('.icon_' + item.soundID);
                 if (icon.getAttribute('data-lucide') === 'play') {
 
-                    replaceSoundIDsWith()
+                    replaceSoundIDsWith(item.soundID)
 
                     const icons = document.querySelectorAll('[data-lucide]');
                     icons.forEach(otherIcon => {
