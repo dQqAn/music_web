@@ -265,6 +265,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             listIcon.setAttribute('data-lucide', 'pause');
         }
 
+        const playlistBoxIcon = document.querySelector('.playlist_icon_' + soundID);
+        if (playlistBoxIcon && playlistBoxIcon.getAttribute('data-lucide') === 'play') {
+            playlistBoxIcon.setAttribute('data-lucide', 'pause');
+        }
+
         const icon = document.getElementById('playPauseIcon');
         icon.setAttribute('data-lucide', 'pause');
         lucide.createIcons();
@@ -276,6 +281,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         const listIcon = document.querySelector('.icon_' + soundID);
         if (listIcon && listIcon.getAttribute('data-lucide') === 'pause') {
             listIcon.setAttribute('data-lucide', 'play');
+        }
+
+        const playlistBoxIcon = document.querySelector('.playlist_icon_' + soundID);
+        if (playlistBoxIcon && playlistBoxIcon.getAttribute('data-lucide') === 'pause') {
+            playlistBoxIcon.setAttribute('data-lucide', 'play');
         }
 
         const icon = document.getElementById('playPauseIcon');
@@ -450,7 +460,12 @@ async function createPlaylistContent(playlistOverlayContent, soundIDs) {
         setSoundInfos(sound, img.id, nameP.id, artistDiv.id);
 
         const playButton = document.createElement('button')
-        playButton.innerHTML = `<i data-lucide='play' class="${'playlist_icon_' + soundID} w-6 h-6"></i>`;
+        const mainSoundID = mainWaveSurfer.className.split("_").pop();
+        if ((mainSoundID === soundID) && mainWaveSurfer.isPlaying()) {
+            playButton.innerHTML = `<i data-lucide='pause' class="${'playlist_icon_' + soundID} w-6 h-6"></i>`;
+        } else {
+            playButton.innerHTML = `<i data-lucide='play' class="${'playlist_icon_' + soundID} w-6 h-6"></i>`;
+        }
 
         listItem.appendChild(playButton);
         playlistOverlayContent.appendChild(listItem);
