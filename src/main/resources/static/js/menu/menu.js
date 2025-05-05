@@ -161,7 +161,7 @@ function updateDisplay(durationChanges) {
         isDurationChanged = durationChanges === true
 
         if (isDurationChanged) {
-            updateSelected()
+            updateSelected('duration', output.textContent)
         }
     }
 }
@@ -174,13 +174,28 @@ function resetDuration() {
     }
 }
 
-function updateSelected() {
+function updateSelected(tag, name) {
     if (isDurationChanged) {
-        categorySelectedItems.add('duration');
+        const exists = [...categorySelectedItems].some(item => item.tag === tag);
+        if (!exists) {
+            categorySelectedItems.add({tag: tag, name: name});
+        } else {
+            deleteItemByTag(tag, categorySelectedItems)
+            categorySelectedItems.add({tag: tag, name: name});
+        }
     } else {
-        categorySelectedItems.delete('duration');
+        deleteItemByTag(tag, categorySelectedItems)
     }
     updateSelectedItems('selectedItemsContainer', categorySelectedItems)
+}
+
+function deleteItemByTag(tag, selectedItems) {
+    for (const item of selectedItems) {
+        if (item.tag === tag) {
+            selectedItems.delete(item);
+            break;
+        }
+    }
 }
 
 //endregion
@@ -308,7 +323,7 @@ function updateSelectedItems(selectedItemsContainer, selectedItems) {
         removeBtn.className = 'text-red-600 font-bold';
         removeBtn.addEventListener('click', () => {
             selectedItems.delete(selected);
-            uncheckCheckbox(selected.tag);
+            uncheckCheckbox(selectedTag);
             updateSelectedItems(selectedItemsContainer, selectedItems);
         });
 
