@@ -113,8 +113,9 @@
 
             <button class="" id="musicBoxRepeat"><i data-lucide="repeat" class="w-6 h-6"></i>
             </button>
-            <#--            <button class="hover:text-pink-400"><i data-lucide="repeat" class="w-6 h-6"></i></button>-->
-            <#--            <button class="hover:text-pink-400"><i data-lucide="repeat-1" class="w-6 h-6"></i></button>-->
+
+            <button id="openPlaylistButton"><i data-lucide="menu"
+                                               class="w-6 h-6"></i></button>
         </div>
 
     </div>

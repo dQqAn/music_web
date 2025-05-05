@@ -1,7 +1,7 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
-import {downloadSound, getSound, soundListWaveSurfers} from '../soundList.js'
+import {downloadSound, getSound, getStoredSoundIDs, soundListWaveSurfers} from '../soundList.js'
 import {setupPlaylistDiv} from '../playlist.js'
 import {createFavDiv} from '../favourite.js'
 import {setSoundInfos} from '../sound/sound.js'
@@ -343,12 +343,80 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     //endregion
 
+    //region Playlist Box
+    const playlistOverlayContent = document.getElementById('playlistOverlayContent')
+    const playlistOverlay = document.getElementById('playlistOverlay')
+    const openPlaylist = document.getElementById('openPlaylistButton')
+    const closePlaylist = document.getElementById('closePlaylistOverlay')
+
+    if (playlistOverlay) {
+        playlistOverlay.addEventListener("click", (e) => {
+            if (e.target === playlistOverlay) {
+                playlistOverlayContent.innerHTML = ""
+                playlistOverlay.classList.add("hidden")
+            }
+        });
+        if (openPlaylist) {
+            openPlaylist.addEventListener("click", (e) => {
+                playlistOverlay.classList.remove("hidden")
+                createPlaylistContent(playlistOverlayContent, getStoredSoundIDs())
+            });
+        }
+        if (closePlaylist) {
+            closePlaylist.addEventListener("click", (e) => {
+                playlistOverlayContent.innerHTML = ""
+                playlistOverlay.classList.add("hidden")
+            });
+        }
+    }
+    //endregion
+
     lucide.createIcons();
 });
 
 const stemsListWaveSurfers = {}
 const muteStemsListWaveSurfers = {}
 const singleStemsListWaveSurfers = {}
+
+async function createPlaylistContent(playlistOverlayContent, soundIDs) {
+    playlistOverlayContent.innerHTML = "";
+
+    for (const soundID of soundIDs) {
+        const listItem = document.createElement('div');
+        listItem.className = "w-full flex flex-col items-start mt-2 mb-2 p-2 border-b border-gray-300";
+
+        const soundInfos = document.createElement('div');
+        soundInfos.className = "text-base text-gray-800 flex flex-col gap-2";
+
+        const imageContainer = document.createElement('div');
+        imageContainer.className = "w-12 h-12 bg-gray-700 rounded overflow-hidden";
+
+        const img = document.createElement('img');
+        img.id = `soundImage_${soundID}`;
+        img.className = "w-full h-full object-cover";
+        img.alt = "";
+
+        imageContainer.appendChild(img);
+
+        const nameP = document.createElement('p');
+        nameP.id = `soundName_${soundID}`;
+
+        const artistDiv = document.createElement('div');
+        artistDiv.id = `soundArtistName_${soundID}`;
+
+        soundInfos.appendChild(imageContainer);
+        soundInfos.appendChild(nameP);
+        soundInfos.appendChild(artistDiv);
+
+        listItem.appendChild(soundInfos);
+        playlistOverlayContent.appendChild(listItem);
+
+        const sound = await getSound(soundID);
+        setSoundInfos(sound, img.id, nameP.id, artistDiv.id);
+
+        //todo
+    }
+}
 
 async function createStemsContent(stemsOverlayContent, stems, soundID) {
     const sound = await getSound(soundID);

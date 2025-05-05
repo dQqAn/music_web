@@ -6,12 +6,87 @@ import {toSlug} from '../js/index/index.js'
 
 export const soundListWaveSurfers = {}
 
+//region Playlist IDs
+//region Original IDs
+const SOUND_IDS_KEY = 'soundIDs';
+
+export function getStoredSoundIDs() {
+    const data = localStorage.getItem(SOUND_IDS_KEY);
+    return data ? JSON.parse(data) : [];
+}
+
+function addSoundID(id) {
+    const ids = getStoredSoundIDs();
+    if (!ids.includes(id)) {
+        ids.push(id);
+        localStorage.setItem(SOUND_IDS_KEY, JSON.stringify(ids));
+    }
+}
+
+function removeSoundID(id) {
+    let ids = getStoredSoundIDs();
+    ids = ids.filter(storedId => storedId !== id);
+    localStorage.setItem(SOUND_IDS_KEY, JSON.stringify(ids));
+}
+
+function clearAllSoundIDs() {
+    localStorage.removeItem(SOUND_IDS_KEY);
+}
+
+function isSoundIDStored(id) {
+    const ids = getStoredSoundIDs();
+    return ids.includes(id);
+}
+
+//endregion
+//region Temp IDs
+const TEMP_SOUND_IDS_KEY = 'tempSoundIDs';
+
+function getTempStoredSoundIDs() {
+    const data = localStorage.getItem(TEMP_SOUND_IDS_KEY);
+    return data ? JSON.parse(data) : [];
+}
+
+function addTempSoundID(id) {
+    const ids = getTempStoredSoundIDs();
+    if (!ids.includes(id)) {
+        ids.push(id);
+        localStorage.setItem(TEMP_SOUND_IDS_KEY, JSON.stringify(ids));
+    }
+}
+
+function removeTempSoundID(id) {
+    let ids = getTempStoredSoundIDs();
+    ids = ids.filter(storedId => storedId !== id);
+    localStorage.setItem(TEMP_SOUND_IDS_KEY, JSON.stringify(ids));
+}
+
+function clearTempAllSoundIDs() {
+    localStorage.removeItem(TEMP_SOUND_IDS_KEY);
+}
+
+function isTempSoundIDStored(id) {
+    const ids = getTempStoredSoundIDs();
+    return ids.includes(id);
+}
+
+//endregion
+function replaceSoundIDsWith() {
+    localStorage.setItem(SOUND_IDS_KEY, JSON.stringify(getTempStoredSoundIDs()));
+}
+
+//endregion
+
 export function soundList(containerID, sounds) {
     const container = document.getElementById(containerID)
     if (!container) return;
+
     container.innerHTML = '';
+    clearTempAllSoundIDs()
 
     sounds.forEach(item => {
+        addTempSoundID(item.soundID)
+
         const regions = RegionsPlugin.create()
 
         const listItem = document.createElement('div');
@@ -107,6 +182,9 @@ export function soundList(containerID, sounds) {
             playButton.onclick = () => {
                 const icon = document.querySelector('.icon_' + item.soundID);
                 if (icon.getAttribute('data-lucide') === 'play') {
+
+                    replaceSoundIDsWith()
+
                     const icons = document.querySelectorAll('[data-lucide]');
                     icons.forEach(otherIcon => {
                         if (otherIcon.getAttribute('data-lucide') === 'pause') {
