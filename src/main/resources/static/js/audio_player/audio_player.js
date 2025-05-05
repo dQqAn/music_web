@@ -1,7 +1,14 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
-import {downloadSound, getSound, getStoredSoundIDs, soundListWaveSurfers} from '../soundList.js'
+import {
+    downloadSound,
+    getSound,
+    getStoredSoundIDs,
+    isSoundIDStored,
+    removeSoundID,
+    soundListWaveSurfers
+} from '../soundList.js'
 import {setupPlaylistDiv} from '../playlist.js'
 import {createFavDiv} from '../favourite.js'
 import {setSoundInfos} from '../sound/sound.js'
@@ -156,6 +163,33 @@ document.addEventListener("DOMContentLoaded", async () => {
             mainWaveSurfer.seekTo(0);
             mainWaveSurfer.play();
         }
+
+        if (getStoredSoundIDs().length > 0) {
+            const soundID = mainWaveSurfer.className.split("_").pop();
+            if (isSoundIDStored(soundID)) {
+                removeSoundID(soundID)
+            }
+
+            const localSoundID = getStoredSoundIDs()[0]
+            const src = `/stream/sound/${encodeURIComponent(localSoundID)}`;
+            mainWaveSurfer.load(src)
+            mainWaveSurfer.className = "main_waveSurfer_" + localSoundID
+
+            const listIcon = document.querySelector('.icon_' + localSoundID);
+            if (listIcon) {
+                listIcon.setAttribute('data-lucide', 'pause');
+                lucide.createIcons();
+            }
+
+            mainWaveSurfer.once('ready', () => {
+                const rateInput = document.getElementById('mainRateInput');
+                if (rateInput) {
+                    mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
+                }
+                mainWaveSurfer.play()
+            })
+        }
+
     });
     mainWaveSurfer.on('ready', async () => {
         mainWaveReady = true;

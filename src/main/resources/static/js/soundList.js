@@ -23,7 +23,7 @@ function addSoundID(id) {
     }
 }
 
-function removeSoundID(id) {
+export function removeSoundID(id) {
     let ids = getStoredSoundIDs();
     ids = ids.filter(storedId => storedId !== id);
     localStorage.setItem(SOUND_IDS_KEY, JSON.stringify(ids));
@@ -33,7 +33,7 @@ function clearAllSoundIDs() {
     localStorage.removeItem(SOUND_IDS_KEY);
 }
 
-function isSoundIDStored(id) {
+export function isSoundIDStored(id) {
     const ids = getStoredSoundIDs();
     return ids.includes(id);
 }
