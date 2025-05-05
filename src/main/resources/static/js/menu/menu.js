@@ -425,13 +425,17 @@ export function filterSounds(page) {
         maxDuration = outputResult.maxSeconds
     }
 
+    const tags = [...categorySelectedItems];
+    const onlyDuration = tags.length === 1 && tags[0].tag === "duration";
+    const selectedTags = onlyDuration ? [] : tags.map(item => item.tag);
+
     fetch(`/database/filterSounds?page=${page}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            selectedTags: [...categorySelectedItems].map(item => item.tag),
+            selectedTags: selectedTags,
             minDuration: minDuration,
             maxDuration: maxDuration
         })
