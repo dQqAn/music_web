@@ -145,6 +145,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     //endregion
 
     //region Listeners
+    let isRepeatEnabled = true;
+    const repeatButton = document.getElementById('musicBoxRepeat')
+    repeatButton.addEventListener('click', () => {
+        isRepeatEnabled = !isRepeatEnabled;
+        repeatButton.classList.toggle('text-blue-600', isRepeatEnabled);
+    });
+    mainWaveSurfer.on('finish', () => {
+        if (isRepeatEnabled) {
+            mainWaveSurfer.seekTo(0);
+            mainWaveSurfer.play();
+        }
+    });
     mainWaveSurfer.on('ready', async () => {
         mainWaveReady = true;
         if (stemsOverlayContent) {

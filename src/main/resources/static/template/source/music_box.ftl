@@ -111,7 +111,7 @@
             <button class="hover:text-pink-400" id="musicBoxSkipForward"><i data-lucide="skip-forward"
                                                                             class="w-6 h-6"></i></button>
 
-            <button class="hover:text-pink-400" id="musicBoxRepeat"><i data-lucide="repeat" class="w-6 h-6"></i>
+            <button class="" id="musicBoxRepeat"><i data-lucide="repeat" class="w-6 h-6"></i>
             </button>
             <#--            <button class="hover:text-pink-400"><i data-lucide="repeat" class="w-6 h-6"></i></button>-->
             <#--            <button class="hover:text-pink-400"><i data-lucide="repeat-1" class="w-6 h-6"></i></button>-->

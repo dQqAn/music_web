@@ -16,7 +16,7 @@ data class Stem(
 
 object StemsTable : Table("stems") {
     val soundID = varchar("soundID", 100)
-    val name = varchar("name", 100)
+    val name = varchar("name", 300)
     val stemID = varchar("stemID", 100)
     val stemPath = varchar("stemPath", 100)
     val id = integer("id").autoIncrement()
