@@ -6,18 +6,19 @@ async function getFavStatus(soundID) {
 
 export async function createFavDiv(favDivID, soundID, main = false) {
     const isFav = await getFavStatus(soundID);
-    const favText = isFav ? "Unfav" : "Fav";
+    const favText = isFav ? "heart" : "heart-off";
 
     const favID = main ? "main-fav-btn-" + soundID : "fav-btn-" + soundID
     document.getElementById(favDivID).innerHTML = `
                     <button id=${favID} >
-                         ${favText}
+                         <i id="playPauseIcon" data-lucide="${favText}" class="${'fav_' + soundID} w-6 h-6"></i>
                      </button>
                 `;
     const favBtn = document.getElementById(favID)
     favBtn.onclick = () => {
         changeSoundFavouriteStatus(soundID, favID)
     }
+    lucide.createIcons();
 }
 
 async function changeSoundFavouriteStatus(soundID, favID) {
@@ -38,9 +39,10 @@ async function changeSoundFavouriteStatus(soundID, favID) {
         const result = await response.json();
         const newStatus = result.favouriteStatus;
 
-        const btn = document.getElementById(favID);
-        if (btn) {
-            btn.textContent = newStatus ? "Unfav" : "Fav";
+        const favIcon = document.querySelector('.fav_' + soundID)
+        if (favIcon) {
+            favIcon.setAttribute('data-lucide', newStatus ? "heart" : "heart-off");
+            lucide.createIcons();
         }
     } catch (error) {
         console.error('Error');

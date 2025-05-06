@@ -11,7 +11,7 @@
                 <div class="text-xs " id="mainArtistsName">Artist Name</div>
             </div>
 
-            <div class="ml-10 gap-x-4">
+            <div class="ml-10 gap-x-4 content-center items-center">
                 <button class="" id="musicBoxSkipBack"><i data-lucide="skip-back" class="w-6 h-6"></i>
                 </button>
 
@@ -66,10 +66,13 @@
         </div>
 
         <div class="content-center items-center justify-end ">
-            <div class="flex ml-4 gap-x-4">
-                <button id="openPlaylistButton"><i data-lucide="menu"
-                                                   class="w-6 h-6"></i></button>
+            <div class="flex ml-4 gap-x-4 content-center items-center">
+                <button id="openPlaylistButton">
+                    <i data-lucide="list-music" class="w-6 h-6"></i>
+                </button>
+
                 <div id="mainFavDiv"></div>
+
                 <div id="mainPlaylistDiv">
                     <button id="mainPlaylistBtn">Add Playlist</button>
 
