@@ -102,7 +102,7 @@ export function soundList(containerID, sounds) {
         listItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
 
         const infos = document.createElement('div')
-        infos.className = "content-center items-center justify-start m-2 w-50"
+        infos.className = "content-center items-center justify-start m-2"
         infos.innerHTML = `
                 <a href="/sound/?${toSlug(item.name)}&soundID=${item.soundID}">
                     <p>${item.name}</p>      
@@ -113,13 +113,38 @@ export function soundList(containerID, sounds) {
                     </p>
                 `).join("")}
             `;
-        listItem.appendChild(infos)
+
+        const durationInfos = document.createElement('div');
+        durationInfos.className = "content-center items-center"
+        durationInfos.innerHTML = `
+                    <p id="time_${item.soundID}">0:00</p>
+                    <p id="duration_${item.soundID}">0:00</p>
+                `;
+
+        const categories = document.createElement('div')
+        categories.className = "content-center items-center justify-center"
+        categories.innerHTML = `
+                ${item.categories.slice(0, 3).map(item => `
+                    <p>
+                        <a href="/category/${encodeURIComponent(item)}">${item}</a>
+                    </p>
+                `).join("")}
+            `;
+
+
+        const leftDiv = document.createElement('div');
+        leftDiv.className = "flex w-50"
+
+        leftDiv.appendChild(infos);
+        leftDiv.appendChild(durationInfos);
+        leftDiv.appendChild(categories);
+        listItem.appendChild(leftDiv)
         container.appendChild(listItem)
 
         const waveSurferDiv = document.createElement('div');
         waveSurferDiv.id = 'div_' + item.soundID
         waveSurferDiv.className = "w-full content-center items-center justify-center relative w-200"
-        waveSurferDiv.style.border = "1px solid #ddd";
+        // waveSurferDiv.style.border = "1px solid #ddd";
 
         listItem.appendChild(waveSurferDiv);
         container.appendChild(listItem);
@@ -164,19 +189,13 @@ export function soundList(containerID, sounds) {
 
         soundListWaveSurfers[item.soundID] = listWaveSurfer
 
-        const durationInfos = document.createElement('div');
-        durationInfos.className = "content-center items-center"
-        durationInfos.innerHTML = `
-                    <p id="time_${item.soundID}">0:00</p>
-                    <p id="duration_${item.soundID}">0:00</p>
-                `;
         const playButton = document.createElement('button')
         playButton.className = "pointer content-center items-center"
         playButton.innerHTML = `<i data-lucide='play' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
 
         const rightDiv = document.createElement('div');
         rightDiv.className = "flex w-20 content-center items-center justify-end m-2 space-x-2"
-        rightDiv.appendChild(durationInfos);
+        // rightDiv.appendChild(durationInfos);
         rightDiv.appendChild(playButton);
         listItem.appendChild(rightDiv);
         container.appendChild(listItem);
