@@ -35,7 +35,7 @@
         <input
                 type="text"
                 id="searchInput"
-                placeholder="Search..."
+                placeholder="Search sound..."
                 class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
         />
         <div

@@ -76,7 +76,7 @@
                 <div id="mainPlaylistDiv">
                     <button id="mainPlaylistBtn">Add Playlist</button>
 
-                    <div class="bg-fuchsia-100 dark:bg-neutral-950 text-neutral-950 dark:text-fuchsia-500 max-h-100"
+                    <div class="rounded-2xl bg-fuchsia-100 dark:bg-neutral-950 text-neutral-950 dark:text-fuchsia-500 max-h-100"
                          id="mainPlaylistContainer" style="
                         display: none;
                         position: fixed;
