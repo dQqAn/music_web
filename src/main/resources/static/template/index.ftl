@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="${lang}">
+<html lang="${lang}" data-theme="dark" style="visibility:hidden">
 <head>
     <title>Music Web</title>
     <#--    <base href="https://www.site.com/">-->
@@ -8,7 +8,6 @@
     <meta name="description" content="Music Web">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="../js/common.css" rel="stylesheet">
-    <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
     <script src="../js/language/language.js" defer></script>
 
@@ -29,22 +28,25 @@
 
 <#include "source/header.ftl">
 
-<main role="main">
+<main role="main" class="min-h-screen flex flex-col">
     <#setting url_escaping_charset="UTF-8">
 
-    <div class="search_box">
-        <label for="searchInput">Search</label>
+    <div class="search_box space-y-2">
         <input
                 type="text"
                 id="searchInput"
                 placeholder="Search..."
-                class="border"
+                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
         />
-        <div id="searchResults" class="search-dropdown" style="display: none;"></div>
+        <div
+                id="searchResults"
+                class="search-dropdown mt-2 border rounded-md p-2 text-sm hidden max-w-md bg-fuchsia-100 dark:bg-neutral-950 mx-auto"
+        ></div>
     </div>
 
-    <div class="main_box">
-        <div id="menuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white w-80 max-h-fit">
+    <div class="flex">
+        <div id="menuWrapper" class="bg-fuchsia-100 dark:bg-neutral-950 text-neutral-950 dark:text-fuchsia-500
+         hidden md:flex flex-col border rounded-lg  w-80 max-h-fit">
             <div class="gap-4 w-full max-w-md mx-auto p-4">
                 <div class="mb-4">
                     <input id="categorySearchInput" type="text" placeholder="Search..."
@@ -53,7 +55,7 @@
 
                 <div class="flex justify-between items-center mb-2">
                     <h2 class="text-lg font-semibold">Selected Items</h2>
-                    <button id="categoryClearSelection" class="text-red-600 text-sm">Clear</button>
+                    <button id="categoryClearSelection" class="text-sm">Clear</button>
                 </div>
             </div>
 
@@ -61,10 +63,10 @@
                 <div id="selectedItemsContainer" class="flex flex-wrap gap-2 mb-4"></div>
 
                 <div id="categoryBackButtonContainer" class="mb-2 hidden">
-                    <button id="categoryBackButton" class="text-blue-600 text-sm">← Back</button>
+                    <button id="categoryBackButton" class="text-sm">← Back</button>
                 </div>
 
-                <div id="categoryMenuContainer" class="bg-white rounded shadow p-4"></div>
+                <div id="categoryMenuContainer" class=" rounded p-4"></div>
 
                 <div id="mainPagination" class="pointer pagination gap-2 mb-4"></div>
             </div>
@@ -83,26 +85,27 @@
             </div>
             <div id="menuSubmitDiv">
                 <button id="menuSubmitButton"
-                        class="show-selected-btn bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition w-full mt-4">
+                        class="show-selected-btn border-t p-2 w-full mt-4">
                     Show Selected Tags
                 </button>
             </div>
         </div>
 
-        <div class="main_content relative pb-20">
-            <div id="soundList"></div>
+        <div class="w-full">
+            <div class="flex-1 pb-20 w-full">
+                <div class="w-full" id="soundList"></div>
+            </div>
 
-            <div class="pointer pagination" id="pagination"></div>
+            <div id="pagination" class="pointer pagination py-4 text-center"></div>
         </div>
-
-        <#include "source/stems.ftl">
-        <#include "source/playlist_box.ftl">
     </div>
+
+    <#include "source/stems.ftl">
+    <#include "source/playlist_box.ftl">
 </main>
 
-<footer>
-    <#include "source/music_box.ftl">
-</footer>
+
+<#include "source/music_box.ftl">
 
 <script>
 </script>

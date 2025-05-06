@@ -134,11 +134,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         region.setOptions({id: regionId})
 
         const wrapper = document.createElement('div')
-        wrapper.className = 'flex items-center gap-2 text-white text-xs'
+        wrapper.className = 'flex items-center gap-2 text-xs'
 
         const button = document.createElement('button')
         button.textContent = 'X'
-        button.className = 'bg-red-600 text-white'
+        button.className = 'bg-red-600'
         button.addEventListener('click', (e) => {
             if (region) region.remove()
         })
@@ -431,7 +431,7 @@ async function createPlaylistContent(playlistOverlayContent, soundIDs) {
         listItem.className = "w-full flex flex-col items-start mt-2 mb-2 p-2 border-b border-gray-300";
 
         const soundInfos = document.createElement('div');
-        soundInfos.className = "text-base text-gray-800 flex flex-col gap-2";
+        soundInfos.className = "text-base flex flex-col gap-2";
 
         const imageContainer = document.createElement('div');
         imageContainer.className = "w-12 h-12 bg-gray-700 rounded overflow-hidden";
@@ -774,11 +774,11 @@ const createRegion = (regionCount, regions, start, end, extraOptions = {}) => {
     })
 
     /*const wrapper = document.createElement('div')
-    wrapper.className = 'flex items-center gap-2 text-white text-xs'
+    wrapper.className = 'flex items-center gap-2 text-xs'
 
     const button = document.createElement('button')
     button.textContent = `X`
-    button.className = 'bg-red-600 text-white'
+    button.className = 'bg-red-600'
     button.addEventListener('click', (e) => {
         if (region) region.remove()
     })

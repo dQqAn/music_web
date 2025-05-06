@@ -98,11 +98,6 @@ footer {
     max-height: 100px;
 }
 
-.hf-box button {
-    border: none;
-    padding: 10px 20px;
-}
-
 .pagination {
     justify-content: center;
     align-items: center;

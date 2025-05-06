@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 results.forEach(item => {
                     const div = document.createElement("div");
-                    div.className = "result-item pointer";
+                    div.className = "pointer";
                     div.textContent = item.name + " - " + item.artist;
                     div.onclick = () => {
                         window.location.href = `/sound/?${toSlug(item.name)}&soundID=${item.soundID}`;

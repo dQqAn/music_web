@@ -1,11 +1,28 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import {clearAllSelections, filterMenu, renderMenu} from "../menu/menu.js";
 
+const imageInput = document.getElementById("imageInput");
+const soundInput = document.getElementById("soundInput");
+const stemInput = document.getElementById("stemInput");
+
+soundInput.addEventListener("change", function () {
+    const fileName = this.files.length > 0 ? this.files[0].name : "No file chosen";
+    document.getElementById("selectedSoundName").textContent = fileName;
+});
+
+imageInput.addEventListener("change", function () {
+    const fileName = this.files.length > 0 ? this.files[0].name : "No file chosen";
+    document.getElementById("selectedImageName").textContent = fileName;
+});
+
+stemInput.addEventListener("change", function () {
+    const fileName = this.files.length > 0 ? this.files[0].name : "No file chosen";
+    document.getElementById("selectedStemName").textContent = fileName;
+});
+
 document.getElementById("uploadForm").addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const imageInput = document.getElementById("imageInput");
-    const soundInput = document.getElementById("soundInput");
     const soundName = document.getElementById("soundName");
 
     const fileInfo = document.getElementById("fileInfo")
@@ -30,9 +47,6 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
         formData.append("stemFiles[]", entry.files[0]);
     });
 
-    // formData.append("mood", JSON.stringify([...moodsSelectedTags]));
-    // formData.append("instrument", JSON.stringify([...instrumentsSelectedTags]));
-
     fileInfo.style.display = "none";
     errorInfo.style.display = "none";
 
@@ -43,7 +57,7 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
         });
         const data = await response.json();
         if (response.status === 200) {
-            document.getElementById("fileName").textContent = data.fileName;
+            document.getElementById("fileStatus").textContent = data.fileStatus;
             fileInfo.style.display = "block";
         } else {
             errorMessage.textContent = data.message;
@@ -61,10 +75,6 @@ let categorySelectedItems = new Set();
 let categoryNavigationStack = [];
 let categoryCurrentItems = [];
 let categoryRootItems = [];
-
-//Instruments
-let instrumentsMenuData = [];
-let instrumentsRootItems = [];
 
 let loops = []
 let loopsCounter = 0
@@ -87,8 +97,9 @@ const addStemButton = document.getElementById("addStem");
 document.addEventListener('DOMContentLoaded', async () => {
     const startingTime = document.getElementById('startingTime')
     const endingTime = document.getElementById('endingTime')
-    const selectedLoops = document.getElementById('artistSelectedLoops')
-    // const soundBox = document.getElementById('artistSingleSoundBox')
+    const artistSelectedLoopsDiv = document.getElementById('artistSelectedLoopsDiv')
+    const artistLoopList = document.getElementById('artistLoopList')
+    const soundBox = document.getElementById('artistSingleSoundBox')
     const addLoop = document.getElementById('addLoop')
 
     addStemButton.addEventListener("click", () => {
@@ -113,9 +124,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const fileName = file.name.toLowerCase()
             const isValid = fileName.endsWith('.mp3') || fileName.endsWith('.wav')
             if (isValid) {
+                soundBox.style.display = "block"
                 waveSurfer.loadBlob(file)
             }
         } else {
+            soundBox.style.display = "none"
             waveSurfer.stop()
             waveSurfer.empty()
         }
@@ -129,7 +142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const loopId = 'loop_' + loopsCounter
         const loopItem = document.createElement('div')
-        loopItem.className = 'flex items-center gap-2 mb-1'
+        loopItem.className = 'flex justify-center items-center gap-2 border p-2 rounded';
         loopItem.id = loopId
 
         const loopText = document.createElement('p')
@@ -137,22 +150,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const loopRemoveButton = document.createElement('button')
         loopRemoveButton.textContent = 'X'
-        loopRemoveButton.className = 'bg-red-600 text-white px-2 py-0.5 rounded text-xs'
+        loopRemoveButton.className = 'px-2 py-0.5 rounded text-xs border'
 
         loopRemoveButton.addEventListener('click', () => {
             loops = loops.filter(item => item.id !== loopId)
             loopItem.remove()
+
+            if (loops.length < 1) {
+                artistSelectedLoopsDiv.style.display = "none";
+            }
         })
 
         loopItem.appendChild(loopText)
         loopItem.appendChild(loopRemoveButton)
-        selectedLoops.appendChild(loopItem)
+        artistLoopList.appendChild(loopItem)
 
         loops.push({
             id: loopId,
             start: startTime,
             end: endTime
         })
+
+        if (loops.length > 0) {
+            artistSelectedLoopsDiv.style.display = "block"
+        }
 
         startingTime.value = 0
         endingTime.value = 0
@@ -177,9 +198,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             categoryRootItems = data[categoryDataName];
             renderMenu('categoryBackButton', categoryRootItems, categoryMenuData, 'categoryMenuContainer', categorySelectedItems, categoryNavigationStack,
                 categoryCurrentItems, 'category', categoryDataName, 'selectedItemsContainer', 'categoryBackButtonContainer');
-
-            // instrumentsMenuData = data.instruments;
-            // instrumentsRootItems = data.instruments;
         })
 })
 

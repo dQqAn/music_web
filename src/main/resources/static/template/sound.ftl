@@ -7,8 +7,8 @@
     <meta name="description" content="Sound">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="../js/common.css" rel="stylesheet">
-    <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
+    <script src="../js/language/language.js" defer></script>
     <link href="../js/sound/sound.css" rel="stylesheet">
     <script type="module" src="../js/sound/sound.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
@@ -57,17 +57,15 @@
         <div id="soundPlaylistDiv">
             <button id="soundPlaylistBtn">Add Playlist</button>
 
-            <div class="text-black" id="soundPlaylistContainer" style="
+            <div id="soundPlaylistContainer" style="
                         display: none;
                         position: fixed;
                         top: 50%;
                         left: 50%;
                         transform: translate(-50%, -50%);
-                        background-color: white;
                         border: 1px solid #ccc;
                         z-index: 1000;
                         padding: 20px;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
                         max-width: 90%;
                         max-height: 80%;
                         overflow-y: auto;
@@ -98,11 +96,10 @@
     </div>
 
     <#include "source/stems.ftl">
+    <#include "source/playlist_box.ftl">
 </main>
 
-<footer>
-    <#include "source/music_box.ftl">
-</footer>
+<#include "source/music_box.ftl">
 
 <script>
 </script>

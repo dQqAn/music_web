@@ -7,12 +7,14 @@
     <meta name="description" content="Admin Register">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="../js/common.css" rel="stylesheet">
-    <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
+    <script src="../js/language/language.js" defer></script>
     <link href="../js/admin_register/admin_register.css" rel="stylesheet">
     <script src="../js/admin_register/admin_register.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
 
+    <link href="../tailwind/output.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
     <style>
     </style>
 </head>
@@ -42,11 +44,11 @@
                 Artist
             </label>
 
-            <div id="databaseMessage" style="color: green; display: none;">User added.</div>
+            <div id="databaseMessage" style="display: none;">User added.</div>
 
-            <div id="roleError" style="color: red; display: none;">Please select a role.</div>
+            <div id="roleError" style="display: none;">Please select a role.</div>
 
-            <div id="errorRegister" style="color: red; display: none;">
+            <div id="errorRegister" style="display: none;">
                 <p id="errorMessage"></p>
             </div>
 

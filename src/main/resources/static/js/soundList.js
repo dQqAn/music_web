@@ -102,7 +102,7 @@ export function soundList(containerID, sounds) {
         listItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
 
         const infos = document.createElement('div')
-        infos.className = "content-center items-center justify-start m-2"
+        infos.className = "content-center items-center justify-start m-2 w-50"
         infos.innerHTML = `
                 <a href="/sound/?${toSlug(item.name)}&soundID=${item.soundID}">
                     <p>${item.name}</p>      
@@ -118,7 +118,7 @@ export function soundList(containerID, sounds) {
 
         const waveSurferDiv = document.createElement('div');
         waveSurferDiv.id = 'div_' + item.soundID
-        waveSurferDiv.className = "w-full content-center items-center justify-center relative"
+        waveSurferDiv.className = "w-full content-center items-center justify-center relative w-200"
         waveSurferDiv.style.border = "1px solid #ddd";
 
         listItem.appendChild(waveSurferDiv);
@@ -165,12 +165,22 @@ export function soundList(containerID, sounds) {
         soundListWaveSurfers[item.soundID] = listWaveSurfer
 
         const durationInfos = document.createElement('div');
+        durationInfos.className = "content-center items-center"
         durationInfos.innerHTML = `
                     <p id="time_${item.soundID}">0:00</p>
                     <p id="duration_${item.soundID}">0:00</p>
                 `;
-        listItem.appendChild(durationInfos);
+        const playButton = document.createElement('button')
+        playButton.className = "pointer content-center items-center"
+        playButton.innerHTML = `<i data-lucide='play' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
+
+        const rightDiv = document.createElement('div');
+        rightDiv.className = "flex w-20 content-center items-center justify-end m-2 space-x-2"
+        rightDiv.appendChild(durationInfos);
+        rightDiv.appendChild(playButton);
+        listItem.appendChild(rightDiv);
         container.appendChild(listItem);
+
         const timeID = 'time_' + item.soundID
         const durationID = 'duration_' + item.soundID
         const timeEl = document.getElementById(timeID)
@@ -181,11 +191,6 @@ export function soundList(containerID, sounds) {
         const src = `/stream/sound/${encodeURIComponent(item.soundID)}`;
         listWaveSurfer.load(src)
         listWaveSurfer.className = "waveSurfer_" + item.soundID
-        // listWaveSurfer.id = "waveSurfer_" + item.soundID
-
-        const playButton = document.createElement('button')
-        playButton.className = "pointer"
-        playButton.innerHTML = `<i data-lucide='play' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
 
         listWaveSurfer.once('ready', () => {
             playButton.onclick = () => {
@@ -262,13 +267,6 @@ export function soundList(containerID, sounds) {
                 }
             });
         })*/
-
-        const controllerDiv = document.createElement('div')
-        controllerDiv.className = "content-center items-center justify-end m-2"
-        controllerDiv.appendChild(playButton)
-
-        listItem.appendChild(controllerDiv)
-        container.appendChild(listItem)
     });
 
     const paginationDiv = document.createElement('div')

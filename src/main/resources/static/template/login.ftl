@@ -7,10 +7,13 @@
     <meta name="description" content="Staff Login">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="../js/common.css" rel="stylesheet">
-    <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
+    <script src="../js/language/language.js" defer></script>
     <link href="../js/login/login.css" rel="stylesheet">
     <script src="../js/login/login.js" defer></script>
+
+    <link href="../tailwind/output.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
 <body>
 
@@ -18,9 +21,9 @@
 
 <main role="main">
     <div class="">
-        <form id="loginForm">
+        <form id="loginForm" class="gap-y-6">
             <h2>Sign In</h2>
-            <div class="form-group">
+            <div class="form-group mt-12">
                 <label for="email">Email:</label>
                 <input id="email" name="email" required type="email">
             </div>
@@ -28,18 +31,18 @@
                 <label for="password">Password:</label>
                 <input id="password" name="password" required type="password">
             </div>
-            <div class="form-group">
+            <div class="form-group mt-12">
                 <button type="submit">Confirm</button>
             </div>
-            <div class="toggle-link">
+            <div class="toggle-link mt-12">
                 <a href="#" onclick="showRegisterForm()">Sign Up</a>
             </div>
-            <div class="message" id="loginMessageArea"></div>
+            <div class="message mt-12" id="loginMessageArea"></div>
         </form>
 
-        <form id="registerForm" style="display:none;">
+        <form id="registerForm" class="mt-12 gap-y-6" style="display:none;">
             <h2>Sign Up</h2>
-            <div class="form-group">
+            <div class="form-group mt-12">
                 <label for="regEmail">Email:</label>
                 <input id="regEmail" name="regEmail" required type="email">
             </div>
@@ -59,13 +62,13 @@
                 <label for="secondPassword">Confirm Password:</label>
                 <input id="secondPassword" name="secondPassword" required type="password">
             </div>
-            <div class="form-group">
+            <div class="form-group mt-12">
                 <button type="submit">Confirm</button>
             </div>
-            <div class="toggle-link">
+            <div class="toggle-link mt-12">
                 <a href="#" onclick="showLoginForm()">Sign In</a>
             </div>
-            <div class="message" id="regMessageArea"></div>
+            <div class="message mt-12" id="regMessageArea"></div>
         </form>
     </div>
 

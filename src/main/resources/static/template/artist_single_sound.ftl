@@ -8,8 +8,8 @@
     <meta name="description" content="Music Web">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="../js/common.css" rel="stylesheet">
-    <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
+    <script src="../js/language/language.js" defer></script>
     <link href="../js/artist_single_sound/artist_single_sound.css" rel="stylesheet">
     <script type="module" src="../js/artist_single_sound/artist_single_sound.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
@@ -24,84 +24,114 @@
 <main role="main">
     <#setting url_escaping_charset="UTF-8">
 
-    <div class="main_box">
-        <form id="uploadForm" enctype="multipart/form-data">
-            <input required class="border rounded" type="file" id="imageInput" name="imageFile" accept=".png, .jpg"/>
-            <input required class="border rounded" type="file" id="soundInput" name="soundFile" accept=".mp3, .wav"/>
+    <div class="main_box gap-y-10 mt-12">
+        <form class="flex gap-8 content-center items-center w-fit mx-auto" id="uploadForm"
+              enctype="multipart/form-data">
+            <div class="flex content-center items-center gap-4">
+                <label for="imageInput" class="inline-block px-4 py-2 border rounded cursor-pointer">
+                    Select an image
+                </label>
+                <span id="selectedImageName" class="text-sm "></span>
+                <input required class="hidden" type="file" id="imageInput" name="imageFile" accept=".png, .jpg"/>
+            </div>
 
-            <label for="soundName">Sound Name:</label>
-            <input class="border rounded" id="soundName" name="soundName" required type="text">
+            <div class="flex content-center items-center gap-4">
+                <label for="soundInput" class="inline-block px-4 py-2 border rounded cursor-pointer">
+                    Select a sound
+                </label>
+                <span id="selectedSoundName" class="text-sm "></span>
+                <input
+                        required
+                        class="hidden"
+                        type="file"
+                        id="soundInput"
+                        name="soundFile"
+                        accept=".mp3, .wav"
+                />
+            </div>
+
+            <div class="flex content-center items-center gap-4">
+                <label for="soundName">Sound Name:</label>
+                <input class="border rounded" id="soundName" name="soundName" required type="text">
+            </div>
 
             <button class="border rounded" type="submit">Upload Sound</button>
         </form>
 
-        <div id="artistSingleSoundStems">
-            <label for="stemName">Stem Name:</label>
-            <input class="border rounded" id="stemName" name="stemName" type="text">
+        <div id="artistSingleSoundBox" class="container rounded h-30 w-100"
+             style="display: none; position: relative;"></div>
 
-            <input class="border rounded" type="file" id="stemInput" name="stemFile" accept=".mp3, .wav"/>
-
-            <button id="addStem" class="border rounded">Add Stem</button>
-
-            <div id="selectedStems"></div>
+        <div class="border rounded" id="fileInfo" style="display: none;">
+            <p>File name: <span id="fileStatus"></span></p>
         </div>
 
-        <div class="border rounded" id="fileInfo" style="display: none; color: black;">
-            <p>File name: <span id="fileName"></span></p>
-        </div>
-
-        <div class="border rounded" id="errorInfo" style="display: none; color: red;">
+        <div class="border rounded" id="errorInfo" style="display: none;">
             <p id="errorMessage"></p>
         </div>
     </div>
 
-    <div>
-        <div class="flex p-10">
-            <label for="startingTime">Starting Time:</label>
-            <input class="border rounded" id="startingTime" name="startingTime" type="number">
-            <label for="endingTime">Ending Time:</label>
-            <input class="border rounded" id="endingTime" name="endingTime" type="number">
+    <div class="flex content-center items-center gap-4 w-fit mx-auto mt-12">
+        <div class="flex content-center items-center gap-4">
+            <label for="stemInput" class="inline-block px-4 py-2 border rounded cursor-pointer">
+                Select a stem
+            </label>
+            <span id="selectedStemName" class="text-sm"></span>
+            <input class="hidden" type="file" id="stemInput" name="stemFile" accept=".mp3, .wav"/>
+        </div>
+
+        <div class="flex content-center items-center gap-4">
+            <label for="stemName">Stem Name:</label>
+            <input class="border rounded" id="stemName" name="stemName" type="text">
+        </div>
+
+        <button id="addStem" class="border rounded">Add Stem</button>
+
+        <div id="selectedStems"></div>
+    </div>
+
+    <div class="content-center items-center w-fit mx-auto gap-y-10 gap-8 mt-12">
+        <div class="flex gap-10 gap-y-10">
+            <div class="flex content-center items-center w-fit mx-auto gap-8">
+                <label for="startingTime">Starting Time:</label>
+                <input class="border rounded" id="startingTime" name="startingTime" type="number">
+            </div>
+            <div class="flex content-center items-center w-fit mx-auto gap-8">
+                <label for="endingTime">Ending Time:</label>
+                <input class="border rounded" id="endingTime" name="endingTime" type="number">
+            </div>
+
             <button class="border rounded" id="addLoop">Add</button>
         </div>
-        <div class="border rounded p-10" id="artistSelectedLoops">Selected Loops</div>
-        <div id="artistSingleSoundBox" class="container rounded max-h-50" style="position: relative;"></div>
+        <div class="hidden border rounded max-h-50 overflow-y-auto w-100 mx-auto mt-12" id="artistSelectedLoopsDiv">
+            <h3 class="font-semibold mb-2">Selected Loops</h3>
+            <div id="artistLoopList" class="flex flex-col gap-2"></div>
+        </div>
     </div>
 
-    <div class="m-10">
-        <div class="mb-4">
-            <input id="categorySearchInput" type="text" placeholder="Search..." class="w-full p-2 border rounded">
+    <div class="border border-neutral-950 w-100 content-center items-center mx-auto gap-y-10 p-10 mt-12 mb-50">
+        <div class="mb-10">
+            <input id="categorySearchInput" type="text" placeholder="Search..." class="w-full border rounded">
         </div>
 
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex justify-between items-center">
             <h2 class="text-lg font-semibold">Selected Items</h2>
-            <button id="categoryClearSelection" class="text-red-600 text-sm">Clear</button>
+            <button id="categoryClearSelection" class="text-sm">Clear</button>
         </div>
 
-        <div id="selectedItemsContainer" class="flex flex-wrap gap-2 mb-4"></div>
+        <div id="selectedItemsContainer" class="flex flex-wrap gap-2 mb-10"></div>
 
-        <div id="categoryBackButtonContainer" class="mb-2 hidden">
-            <button id="categoryBackButton" class="text-blue-600 text-sm">← Back</button>
+        <div id="categoryBackButtonContainer" class="hidden">
+            <button id="categoryBackButton" class="text-sm">← Back</button>
         </div>
 
-        <div id="categoryMenuContainer" class="bg-white rounded shadow p-4 overflow-y-auto max-h-128 pb-20"></div>
+        <div id="categoryMenuContainer" class="rounded overflow-y-auto h-auto max-h-128"></div>
     </div>
 
-    <#--<div id="categoryMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
-        <div id="categoryMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
-    </div>
-
-    <div id="moodsMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
-        <div id="moodsMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
-    </div>
-
-    <div id="instrumentsMenuWrapper" class="hidden md:flex flex-col border rounded-lg bg-white">
-        <div id="instrumentsMenuContainer" class="gap-4 w-full max-w-md mx-auto p-4"></div>
-    </div>-->
+    <#include "source/stems.ftl">
+    <#include "source/playlist_box.ftl">
 </main>
 
-<footer>
-    <#include "source/music_box.ftl">
-</footer>
+<#include "source/music_box.ftl">
 
 <script>
 </script>

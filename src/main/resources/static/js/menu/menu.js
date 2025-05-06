@@ -313,14 +313,14 @@ function updateSelectedItems(selectedItemsContainer, selectedItems) {
         const selectedName = selected.name
 
         const item = document.createElement('div');
-        item.className = 'flex items-center bg-blue-200 text-blue-800 px-2 py-1 rounded text-sm space-x-1';
+        item.className = 'flex items-center bg-fuchsia-50 bg-fuchsia-300 text-neutral-950 dark:bg-fuchsia-50 text-neutral-950 text-neutral-950 px-2 py-1 rounded text-sm space-x-1';
 
         const tagName = document.createElement('span');
         tagName.textContent = selectedName;
 
         const removeBtn = document.createElement('button');
         removeBtn.innerHTML = '×';
-        removeBtn.className = 'text-red-600 font-bold';
+        removeBtn.className = 'text-neutral-950 dark:text-fuchsia-500 font-bold';
         removeBtn.addEventListener('click', () => {
             selectedItems.delete(selected);
             uncheckCheckbox(selectedTag);

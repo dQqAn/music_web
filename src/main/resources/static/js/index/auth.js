@@ -7,12 +7,12 @@ async function checkLoginStatus() {
     if (result === "ACTIVE") {
         route.href = "/dashboard"
         route.innerHTML = `
-                <p>Dashboard</p>
+                <p class="pointer rounded-lg border-b border-b-neutral-950 dark:border-b-fuchsia-500 hover:border-transparent dark:hover:text-fuchsia-50">Dashboard</p>
             `;
     } else {
         route.href = "/login"
         route.innerHTML = `
-                <p>Login</p>
+                <p class="pointer rounded-lg border-b border-b-neutral-950 dark:border-b-fuchsia-500 hover:border-transparent dark:hover:text-fuchsia-50">Login</p>
             `;
     }
     user_section.appendChild(route)

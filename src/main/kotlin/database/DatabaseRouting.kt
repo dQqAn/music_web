@@ -444,7 +444,7 @@ private fun Routing.artistRoute(
                                     }
                                 }
 
-                                call.respond(HttpStatusCode.OK, mapOf("fileName" to "ok"))
+                                call.respond(HttpStatusCode.OK, mapOf("fileStatus" to "OK"))
                             } else {
                                 call.respond(HttpStatusCode.Conflict, mapOf("message" to "Error database"))
                             }

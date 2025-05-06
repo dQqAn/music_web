@@ -7,11 +7,14 @@
     <meta name="description" content="Moderator Pending Approval">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="../js/common.css" rel="stylesheet">
-    <link href="../js/theme/dark.css" rel="stylesheet" id="theme-link">
     <script src="../js/theme/theme.js" defer></script>
+    <script src="../js/language/language.js" defer></script>
     <link href="../js/moderator_pending_approval/moderator_pending_approval.css" rel="stylesheet">
     <script type="module" src="../js/moderator_pending_approval/moderator_pending_approval.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
+
+    <link href="../tailwind/output.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 
     <style>
     </style>

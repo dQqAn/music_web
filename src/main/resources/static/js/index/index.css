@@ -73,16 +73,6 @@
     width: 300px;
 }
 
-.result-item {
-    padding: 8px;
-    border-bottom: 1px solid #ccc;
-    width: 100%;
-}
-
-.result-item:hover {
-    background-color: #f2f2f2;
-}
-
 .search_box {
     position: relative;
     display: flex;
@@ -96,11 +86,9 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: white;
     border: 1px solid #ccc;
     border-top: none;
     z-index: 1000;
     max-height: 200px;
     overflow-y: auto;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }

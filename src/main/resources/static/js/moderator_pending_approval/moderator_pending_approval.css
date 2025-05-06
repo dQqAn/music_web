@@ -21,7 +21,6 @@
 }
 
 .sounds_table th {
-    background-color: #f2f2f2;
     white-space: nowrap;
     position: sticky; /* Başlıkları sabit tutar */
     top: 0; /* Sayfanın üstüne yapışır */
@@ -30,10 +29,6 @@
 
 .sounds_table td {
     white-space: nowrap;
-}
-
-.sounds_table tbody tr:hover {
-    background-color: #f5f5f5;
 }
 
 /* Küçük ekranlar için (örneğin mobil cihazlar) */
