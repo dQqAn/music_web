@@ -29,10 +29,10 @@
 
 <#include "source/header.ftl">
 
-<main role="main" class="min-h-screen flex flex-col">
+<main role="main" class="flex flex-col">
     <#setting url_escaping_charset="UTF-8">
 
-    <div class="flex">
+    <div class="flex flex-1">
         <div id="menuWrapper" class="bg-fuchsia-100 dark:bg-neutral-950 text-neutral-950 dark:text-fuchsia-500
          hidden md:flex flex-col border rounded-lg  w-80 max-h-fit">
             <div class="gap-4 w-full max-w-md mx-auto p-4">
@@ -56,7 +56,7 @@
 
                 <div id="categoryMenuContainer" class=" rounded p-4"></div>
 
-                <div id="mainPagination" class="pointer pagination gap-2 mb-4"></div>
+                <#--                <div id="mainPagination" class="pointer pagination gap-2 mb-4"></div>-->
             </div>
 
             <div class="gap-4 w-full max-w-md mx-auto p-4">
@@ -79,19 +79,17 @@
             </div>
         </div>
 
-        <div class="w-full">
-            <div class="flex-1 pb-20 w-full">
-                <div class="w-full" id="soundList"></div>
-            </div>
+        <div class="flex flex-1 flex-col w-full">
+            <div class="w-full flex-1" id="soundList"></div>
 
-            <div id="pagination" class="pointer pagination py-4 text-center"></div>
+            <div id="pagination" class="pointer pagination py-4 text-center z-100 mb-40">
+            </div>
         </div>
     </div>
 
     <#include "source/stems.ftl">
     <#include "source/playlist_box.ftl">
 </main>
-
 
 <#include "source/music_box.ftl">
 

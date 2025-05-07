@@ -282,10 +282,10 @@ export function soundList(containerID, sounds) {
         })*/
     });
 
-    const paginationDiv = document.createElement('div')
+    /*const paginationDiv = document.createElement('div')
     paginationDiv.id = "pagination"
     paginationDiv.className = "pointer pagination"
-    container.appendChild(paginationDiv)
+    container.appendChild(paginationDiv)*/
 }
 
 /*function seek(e, mainWave, listItemWave, listItemContainer) {

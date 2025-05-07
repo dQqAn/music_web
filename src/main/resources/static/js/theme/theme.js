@@ -45,6 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     });
 
+    const html_body = document.querySelector("html, body");
+    html_body.classList.add(
+        "w-full",
+        "h-full"
+    );
+
     const inputs = document.querySelectorAll('input[type="password"], input[type="email"], input[type="text"]');
     inputs.forEach(el => {
         el.classList.add(
