@@ -99,55 +99,53 @@ export function soundList(containerID, sounds) {
         const regions = RegionsPlugin.create()
 
         const listItem = document.createElement('div');
-        listItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
+        listItem.className = "w-full flex justify-between mt-4 mb-4 p-2 h-15"
 
         const infos = document.createElement('div')
-        infos.className = "content-center items-center justify-start m-2"
+        infos.className = "content-center items-center justify-start m-2 w-30"
         infos.innerHTML = `
                 <a href="/sound/?${toSlug(item.name)}&soundID=${item.soundID}">
-                    <p>${item.name}</p>      
+                    <h5>${item.name}</h5>      
                 </a>
                 ${item.artistInfos.map(artist => `
-                    <p>
-                      <a href="/artistProfile/${artist.id}">${artist.name}</a>
-                    </p>
+                    <h1>
+                      <a class="text-neutral-600 dark:text-fuchsia-300" href="/artistProfile/${artist.id}">${artist.name}</a>
+                    </h1>
                 `).join("")}
             `;
 
         const durationInfos = document.createElement('div');
-        durationInfos.className = "content-center items-center"
+        durationInfos.className = "content-center items-center w-20"
         durationInfos.innerHTML = `
                     <p id="time_${item.soundID}">0:00</p>
                     <p id="duration_${item.soundID}">0:00</p>
                 `;
 
-        const categories = document.createElement('div')
-        categories.className = "content-center items-center justify-center"
-        categories.innerHTML = `
-                ${item.categories.slice(0, 3).map(item => `
-                    <p>
-                        <a href="/category/${encodeURIComponent(item)}">${item}</a>
-                    </p>
-                `).join("")}
-            `;
-
+        const playButton = document.createElement('button')
+        playButton.className = "pointer content-center items-center w-8 h-8"
+        playButton.innerHTML = `<i data-lucide='play' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
 
         const leftDiv = document.createElement('div');
-        leftDiv.className = "flex w-50"
+        leftDiv.className = "flex w-50 content-center items-center m-4 justify-between"
 
+        const img = document.createElement('img')
+        img.className = "w-12 h-12"
+        img.src = item.image1Path
+
+        const centerDiv = document.createElement('div');
+        centerDiv.className = "flex max-w-150 justify-center content-center items-center space-x-6"
+
+        leftDiv.appendChild(img);
+        leftDiv.appendChild(playButton);
         leftDiv.appendChild(infos);
-        leftDiv.appendChild(durationInfos);
-        leftDiv.appendChild(categories);
+        centerDiv.appendChild(createCategoryElement(item));
         listItem.appendChild(leftDiv)
+        listItem.appendChild(centerDiv)
         container.appendChild(listItem)
 
         const waveSurferDiv = document.createElement('div');
         waveSurferDiv.id = 'div_' + item.soundID
-        waveSurferDiv.className = "w-full content-center items-center justify-center relative w-200"
-        // waveSurferDiv.style.border = "1px solid #ddd";
-
-        listItem.appendChild(waveSurferDiv);
-        container.appendChild(listItem);
+        waveSurferDiv.className = "w-full content-center items-center relative max-w-150"
 
         /*const soundListHoverDiv = document.createElement('div');
         soundListHoverDiv.innerHTML = `
@@ -189,14 +187,10 @@ export function soundList(containerID, sounds) {
 
         soundListWaveSurfers[item.soundID] = listWaveSurfer
 
-        const playButton = document.createElement('button')
-        playButton.className = "pointer content-center items-center"
-        playButton.innerHTML = `<i data-lucide='play' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
-
         const rightDiv = document.createElement('div');
-        rightDiv.className = "flex w-20 content-center items-center justify-end m-2 space-x-2"
-        // rightDiv.appendChild(durationInfos);
-        rightDiv.appendChild(playButton);
+        rightDiv.className = "flex w-150 content-center items-center justify-end m-2 space-x-2"
+        rightDiv.appendChild(durationInfos);
+        rightDiv.appendChild(waveSurferDiv);
         listItem.appendChild(rightDiv);
         container.appendChild(listItem);
 
@@ -327,4 +321,60 @@ export async function getSound(soundID) {
 
     const data = await response.json();
     return data.sound;
+}
+
+function createCategoryElement(item) {
+    const categories = document.createElement('div');
+    categories.className = "relative flex items-center space-x-2 w-max";
+
+    const visibleCategories = item.categories.slice(0, 3);
+    const hiddenCategories = item.categories.slice(3);
+
+    const categoryGroup = document.createElement('div');
+    categoryGroup.className = "flex space-x-2";
+
+    visibleCategories.forEach(cat => {
+        const p = document.createElement('p');
+        p.className = "hover:underline dark:hover:text-white hover:text-fuchsia-500";
+        p.innerHTML = `<a href="/category/${encodeURIComponent(cat)}">${cat}</a>`;
+        categoryGroup.appendChild(p);
+    });
+
+    categories.appendChild(categoryGroup);
+
+    if (hiddenCategories.length > 0) {
+        const moreBtn = document.createElement('button');
+        moreBtn.id = "moreBtn";
+        moreBtn.innerText = "▼";
+        moreBtn.className = "text-neutral-950 text-sm cursor-pointer";
+
+        const popup = document.createElement('div');
+        popup.id = "popup";
+        popup.className = "absolute left-0 top-full mt-1 bg-fuchsia-100 dark:bg-neutral-950 border rounded p-2 hidden z-10";
+
+        hiddenCategories.forEach(cat => {
+            const p = document.createElement('p');
+            p.className = "hover:underline dark:hover:text-white hover:text-fuchsia-500";
+            p.innerHTML = `<a href="/category/${encodeURIComponent(cat)}">${cat}</a>`;
+            popup.appendChild(p);
+        });
+
+        moreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popup.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+            popup.classList.add('hidden');
+        });
+
+        const wrapper = document.createElement('div');
+        wrapper.className = "relative";
+        wrapper.appendChild(moreBtn);
+        wrapper.appendChild(popup);
+
+        categories.appendChild(wrapper);
+    }
+
+    return categories;
 }
