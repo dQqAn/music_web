@@ -96,7 +96,6 @@
         <#--        <div id="soundCategories"></div>-->
     </div>
 
-    <#include "source/stems.ftl">
     <#include "source/playlist_box.ftl">
 </main>
 

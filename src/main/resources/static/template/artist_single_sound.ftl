@@ -128,7 +128,6 @@
         <div id="categoryMenuContainer" class="rounded overflow-y-auto h-auto max-h-128"></div>
     </div>
 
-    <#include "source/stems.ftl">
     <#include "source/playlist_box.ftl">
 </main>
 

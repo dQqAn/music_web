@@ -54,7 +54,6 @@
 
     <div id="favSoundList"></div>
 
-    <#include "source/stems.ftl">
     <#include "source/playlist_box.ftl">
 </main>
 
