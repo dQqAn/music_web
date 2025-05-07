@@ -12,6 +12,7 @@
     <link href="../js/admin_register/admin_register.css" rel="stylesheet">
     <script src="../js/admin_register/admin_register.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
+    <script type="module" src="../js/header.js" defer></script>
 
     <link href="../tailwind/output.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest" defer></script>

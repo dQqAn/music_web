@@ -12,6 +12,7 @@
     <link href="../js/sound/sound.css" rel="stylesheet">
     <script type="module" src="../js/sound/sound.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
+    <script type="module" src="../js/header.js" defer></script>
 
     <link href="../tailwind/output.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest" defer></script>

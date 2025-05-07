@@ -9,6 +9,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="../js/common.css" rel="stylesheet">
     <script src="../js/theme/theme.js" defer></script>
+    <script type="module" src="../js/header.js" defer></script>
     <script src="../js/language/language.js" defer></script>
 
     <link href="../js/audio_player/audio_player.css" rel="stylesheet">
@@ -30,19 +31,6 @@
 
 <main role="main" class="min-h-screen flex flex-col">
     <#setting url_escaping_charset="UTF-8">
-
-    <div class="search_box space-y-2">
-        <input
-                type="text"
-                id="searchInput"
-                placeholder="Search sound..."
-                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-        />
-        <div
-                id="searchResults"
-                class="search-dropdown mt-2 border rounded-md p-2 text-sm hidden max-w-md bg-fuchsia-100 dark:bg-neutral-950 mx-auto"
-        ></div>
-    </div>
 
     <div class="flex">
         <div id="menuWrapper" class="bg-fuchsia-100 dark:bg-neutral-950 text-neutral-950 dark:text-fuchsia-500

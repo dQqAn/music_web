@@ -13,6 +13,7 @@
     <link href="../js/artist_single_sound/artist_single_sound.css" rel="stylesheet">
     <script type="module" src="../js/artist_single_sound/artist_single_sound.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
+    <script type="module" src="../js/header.js" defer></script>
 
     <link href="../tailwind/output.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest" defer></script>

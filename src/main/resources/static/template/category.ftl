@@ -10,6 +10,7 @@
     <script src="../js/theme/theme.js" defer></script>
     <script src="../js/language/language.js" defer></script>
     <script src="../js/index/auth.js" defer></script>
+    <script type="module" src="../js/header.js" defer></script>
 
     <link href="../js/category/category.css" rel="stylesheet">
     <script src="../js/category/category.js" defer></script>

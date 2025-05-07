@@ -8,6 +8,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="../js/common.css" rel="stylesheet">
     <script src="../js/theme/theme.js" defer></script>
+    <script type="module" src="../js/header.js" defer></script>
     <script src="../js/language/language.js" defer></script>
     <link href="../js/login/login.css" rel="stylesheet">
     <script src="../js/login/login.js" defer></script>
