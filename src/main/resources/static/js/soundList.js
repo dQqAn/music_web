@@ -3,6 +3,7 @@ import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.es
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
 import {formatTime, mainWaveSurfer} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/header.js'
+import {createFavDiv} from '../js/favourite.js'
 
 export const soundListWaveSurfers = {}
 
@@ -86,14 +87,14 @@ function replaceSoundIDsWith(soundID) {
 
 //endregion
 
-export function soundList(containerID, sounds) {
+export async function soundList(containerID, sounds) {
     const container = document.getElementById(containerID)
     if (!container) return;
 
     container.innerHTML = '';
     clearTempAllSoundIDs()
 
-    sounds.forEach(item => {
+    for (const item of sounds) {
         addTempSoundID(item.soundID)
 
         const regions = RegionsPlugin.create()
@@ -187,10 +188,22 @@ export function soundList(containerID, sounds) {
 
         soundListWaveSurfers[item.soundID] = listWaveSurfer
 
+        const downloadButton = document.createElement('button')
+        downloadButton.innerHTML = `<i data-lucide='arrow-down-to-line' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
+        downloadButton.onclick = () => {
+            downloadSound(item.soundID)
+        }
+
+        const favDiv = document.createElement('div')
+        favDiv.id = 'fav-btn-' + item.soundID
+
         const rightDiv = document.createElement('div');
         rightDiv.className = "flex w-150 content-center items-center justify-end m-2 space-x-2"
+
         rightDiv.appendChild(durationInfos);
         rightDiv.appendChild(waveSurferDiv);
+        rightDiv.appendChild(downloadButton);
+        rightDiv.appendChild(favDiv);
         listItem.appendChild(rightDiv);
         container.appendChild(listItem);
 
@@ -259,6 +272,8 @@ export function soundList(containerID, sounds) {
             }
         });
 
+        await createFavDiv(favDiv.id, item.soundID, false)
+
         /*listWaveSurfer.on('ready', () => {
             let isDragging = false;
             waveSurferDiv.addEventListener('mousedown', (e) => {
@@ -280,7 +295,7 @@ export function soundList(containerID, sounds) {
                 }
             });
         })*/
-    });
+    }
 
     /*const paginationDiv = document.createElement('div')
     paginationDiv.id = "pagination"

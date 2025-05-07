@@ -1052,34 +1052,10 @@
         }
     }
 
-    .hover\:text-black {
-        &:hover {
-            @media (hover: hover) {
-                color: var(--color-black);
-            }
-        }
-    }
-
-    .hover\:text-blue-600 {
-        &:hover {
-            @media (hover: hover) {
-                color: var(--color-blue-600);
-            }
-        }
-    }
-
     .hover\:text-fuchsia-500 {
         &:hover {
             @media (hover: hover) {
                 color: var(--color-fuchsia-500);
-            }
-        }
-    }
-
-    .hover\:text-neutral-950 {
-        &:hover {
-            @media (hover: hover) {
-                color: var(--color-neutral-950);
             }
         }
     }
@@ -1181,31 +1157,11 @@
         }
     }
 
-    .dark\:hover\:text-neutral-950 {
-        &:where([data-theme=dark], [data-theme=dark] *) {
-            &:hover {
-                @media (hover: hover) {
-                    color: var(--color-neutral-950);
-                }
-            }
-        }
-    }
-
     .dark\:hover\:text-white {
         &:where([data-theme=dark], [data-theme=dark] *) {
             &:hover {
                 @media (hover: hover) {
                     color: var(--color-white);
-                }
-            }
-        }
-    }
-
-    .hover\:dark\:text-fuchsia-500 {
-        &:hover {
-            @media (hover: hover) {
-                &:where([data-theme=dark], [data-theme=dark] *) {
-                    color: var(--color-fuchsia-500);
                 }
             }
         }
