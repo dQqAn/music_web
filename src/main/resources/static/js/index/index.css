@@ -74,21 +74,7 @@
 }
 
 .search_box {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
 }
 
 .search-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    border: 1px solid #ccc;
-    border-top: none;
-    z-index: 1000;
-    max-height: 200px;
-    overflow-y: auto;
 }

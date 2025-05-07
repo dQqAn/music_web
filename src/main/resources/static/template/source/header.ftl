@@ -1,5 +1,10 @@
 <header class="">
-    <div class="search_box space-y-2">
+    <div class="search_box space-y-2"
+         style="position: relative;
+         display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;">
         <input
                 type="text"
                 id="searchInput"
@@ -9,6 +14,15 @@
         <div
                 id="searchResults"
                 class="search-dropdown mt-2 border rounded-md p-2 text-sm hidden max-w-md bg-fuchsia-100 dark:bg-neutral-950 mx-auto"
+                style="position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;"
         ></div>
     </div>
 
