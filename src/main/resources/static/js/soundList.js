@@ -4,6 +4,7 @@ import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/region
 import {formatTime, mainWaveSurfer} from '../js/audio_player/audio_player.js';
 import {toSlug} from '../js/header.js'
 import {createFavDiv} from '../js/favourite.js'
+import {createStemsContent} from '../js/stems.js'
 
 export const soundListWaveSurfers = {}
 
@@ -200,6 +201,11 @@ export async function soundList(containerID, sounds) {
         const rightDiv = document.createElement('div');
         rightDiv.className = "flex w-150 content-center items-center justify-end m-2 space-x-2"
 
+        const stemsButton = document.createElement('button')
+        stemsButton.className = "pointer content-center items-center w-8 h-8"
+        stemsButton.innerHTML = `<i data-lucide='audio-lines' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
+
+        rightDiv.appendChild(stemsButton);
         rightDiv.appendChild(durationInfos);
         rightDiv.appendChild(waveSurferDiv);
         rightDiv.appendChild(downloadButton);
@@ -271,6 +277,8 @@ export async function soundList(containerID, sounds) {
                 }
             }
         });
+
+        createStemsContent(stemsButton, item.soundID)
 
         await createFavDiv(favDiv.id, item.soundID, false)
 
