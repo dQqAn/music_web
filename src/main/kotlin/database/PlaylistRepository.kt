@@ -4,6 +4,7 @@ import com.example.model.Playlist
 import com.example.model.PlaylistTable
 import com.example.model.toPlaylist
 import com.example.util.UserPlaylists
+import com.example.util.UserPlaylistsNameAndID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
@@ -173,6 +174,21 @@ class PlaylistRepository(database: Database) {
                 }
                 .distinctBy { it.playlist.playlistID }
         }
+
+    suspend fun getPlaylistNameAndID(userID: Int): List<UserPlaylistsNameAndID> = suspendTransaction {
+        val allPlaylists = PlaylistTable.selectAll().where {
+            (PlaylistTable.userID eq userID)
+        }.orderBy(PlaylistTable.name to SortOrder.ASC)
+            .map { it.toPlaylist() }
+
+        allPlaylists
+            .map { playlist ->
+                UserPlaylistsNameAndID(
+                    playlist.id.toString(),
+                    playlist.name
+                )
+            }
+    }
 
     suspend fun userPlaylistWithSoundID(userID: Int, soundID: String): List<String> = suspendTransaction {
         PlaylistTable.selectAll().where {

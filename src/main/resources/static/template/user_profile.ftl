@@ -49,10 +49,12 @@
 
     <div class="flex justify-evenly">
         <button class="pointer" id="favouritesBtn" data-user-id="${user.id}">Favourites</button>
-        <button class="pointer" onclick="loadPlaylists('${user.id}')">Playlists</button>
+        <button class="pointer" id="userProfilePlaylistButton">Playlists</button>
     </div>
 
-    <div id="favSoundList"></div>
+    <div id="userProfileContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4"></div>
+
+    <div id="pagination" class="pointer pagination py-4 text-center z-40 mb-40"></div>
 
     <#include "source/playlist_box.ftl">
 </main>

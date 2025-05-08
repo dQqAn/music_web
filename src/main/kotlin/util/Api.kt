@@ -399,6 +399,15 @@ fun Application.databaseApi() {
                 call.respond(results)
             }
 
+            get("/database/userPlaylistIDs") {
+                val userSession = call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.NotFound)
+                if (userSession.role != Role.USER.toString()) {
+                    return@get call.respond(HttpStatusCode.BadRequest, "User does not exists")
+                }
+                val playlists = playlistRepository.getPlaylistNameAndID(userSession.id)
+                call.respond(playlists)
+            }
+
             get("/database/user_playlist") {
                 val userSession =
                     call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
@@ -478,6 +487,9 @@ data class FavouriteStatusResponse(val favouriteStatus: Boolean)
 
 @Serializable
 data class UserPlaylists(val playlist: Playlist, val soundStatus: Boolean)
+
+@Serializable
+data class UserPlaylistsNameAndID(val playlistID: String, val name: String)
 
 @Serializable
 data class FullMenu(
