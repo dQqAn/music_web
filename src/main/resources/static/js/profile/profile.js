@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const favouritesBtn = document.getElementById('favouritesBtn');
     favouritesBtn.addEventListener('click', () => {
         const userId = favouritesBtn.dataset.userId;
-        loadFavourites(userId, 'userProfileContainer', 1);
+        loadFavourites(userId, 'favSoundList', 1);
     });
 
     const userProfilePlaylistButton = document.getElementById('userProfilePlaylistButton')

@@ -21,9 +21,7 @@ export async function createFavDiv(favDivID, soundID, main = false) {
                 `;
     const favBtn = document.getElementById(favID)
     favBtn.onclick = () => {
-        if (isFav) {
-            changeSoundFavouriteStatus(soundID, favID)
-        }
+        changeSoundFavouriteStatus(soundID, favID)
     }
     lucide.createIcons();
 }
