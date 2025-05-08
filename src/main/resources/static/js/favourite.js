@@ -11,7 +11,7 @@ export async function createFavDiv(favDivID, soundID, main = false) {
     const favID = main ? "main-fav-btn-" + soundID : "fav-btn-" + soundID
     document.getElementById(favDivID).innerHTML = `
                     <button id=${favID} >
-                         <i id="playPauseIcon" data-lucide="${favText}" class="${favID} w-6 h-6"></i>
+                         <i data-lucide="${favText}" class="${favID} w-6 h-6"></i>
                      </button>
                 `;
     const favBtn = document.getElementById(favID)
