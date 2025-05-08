@@ -24,11 +24,13 @@
 
 <#include "source/header.ftl">
 
-<main role="main">
-    <div class="flex flex-1 flex-col w-full">
-        <div class="w-full flex-1" id="soundList"></div>
+<main role="main" class="flex flex-col">
+    <div class="flex flex-1">
+        <div class="flex flex-1 flex-col w-full">
+            <div class="w-full flex-1" id="soundList"></div>
 
-        <div id="pagination" class="pointer pagination py-4 text-center z-40 mb-40">
+            <div id="pagination" class="pointer pagination py-4 text-center z-40 mb-40">
+            </div>
         </div>
     </div>
 

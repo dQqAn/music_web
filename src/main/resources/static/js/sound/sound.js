@@ -55,7 +55,7 @@ export function setSoundInfos(sound, soundImageDivID, soundNameDivID, artistsNam
     const name = document.getElementById(soundNameDivID)
     const artists = document.getElementById(artistsNameDivID)
 
-    image.src = '/' + sound.image1Path
+    image.src = sound.image1Path
     image.classList.add('content-center')
     name.textContent = sound.name
     name.classList.add('content-center')
