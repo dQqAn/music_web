@@ -400,10 +400,12 @@ fun Application.databaseApi() {
             }
 
             get("/database/user_playlist") {
-                val userSession = call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.NotFound)
+                val userSession =
+                    call.sessions.get<UserSession>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
                 val id = userSession.id
-                val soundID = call.parameters["soundID"]
-                if (soundID.isNullOrBlank()) {
+                val soundID =
+                    call.request.queryParameters["soundID"] ?: return@get call.respond(HttpStatusCode.NotFound)
+                if (soundID.isBlank()) {
                     val results = playlistRepository.allUserPlaylist(id)
                     call.respond(results)
                 } else {
