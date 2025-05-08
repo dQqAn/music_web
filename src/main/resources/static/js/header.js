@@ -30,7 +30,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     results.forEach(item => {
                         const div = document.createElement("div");
                         div.className = "pointer";
-                        div.textContent = item.name + " - " + item.artist;
+
+                        div.innerHTML = item.name + " - " + item.artistInfos.map(artist =>
+                            `<a class="text-neutral-600 dark:text-fuchsia-300" href="/artistProfile/${artist.id}">${artist.name}</a>`
+                        ).join(", ");
+
                         div.onclick = () => {
                             window.location.href = `/sound/?${toSlug(item.name)}&soundID=${item.soundID}`;
                         };
