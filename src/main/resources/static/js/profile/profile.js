@@ -2,15 +2,22 @@ import {updatePagination} from '../pagination.js';
 import {soundList} from '../soundList.js'
 
 document.addEventListener("DOMContentLoaded", () => {
+    const favContainer = document.getElementById('favSoundList')
+    const playlistContainer = document.getElementById('userPlaylistContainer')
+
     const favouritesBtn = document.getElementById('favouritesBtn');
     favouritesBtn.addEventListener('click', () => {
+        favContainer.innerHTML = ''
+        playlistContainer.innerHTML = ''
         const userId = favouritesBtn.dataset.userId;
         loadFavourites(userId, 'favSoundList', 1);
     });
 
     const userProfilePlaylistButton = document.getElementById('userProfilePlaylistButton')
     userProfilePlaylistButton.addEventListener('click', () => {
-        loadPlaylists('userProfileContainer')
+        favContainer.innerHTML = ''
+        playlistContainer.innerHTML = ''
+        loadPlaylists('userPlaylistContainer')
     })
 });
 
@@ -64,7 +71,7 @@ async function loadPlaylists(containerID) {
 
         playlists.forEach(item => {
             const card = document.createElement("div");
-            card.className = "rounded-lg shadow p-4 flex flex-col items-center";
+            card.className = "rounded-lg border-6 border-neutral-950 p-4 flex flex-col items-center";
 
             card.innerHTML = `
                 <h3 class="text-lg font-semibold" id="${item.playlistID}">${item.name}</h3>
