@@ -56,7 +56,10 @@ export function setSoundInfos(sound, soundImageDivID, soundNameDivID, artistsNam
     const artists = document.getElementById(artistsNameDivID)
 
     image.src = '/' + sound.image1Path
+    image.classList.add('content-center')
     name.textContent = sound.name
+    name.classList.add('content-center')
+    artists.classList.add('content-center')
     artists.innerHTML = `
                     ${sound.artistInfos.map(artist => `
                         <p>

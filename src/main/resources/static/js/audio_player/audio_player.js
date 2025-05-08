@@ -357,10 +357,10 @@ async function createPlaylistContent(playlistOverlayContent, soundIDs) {
 
     for (const [index, soundID] of soundIDs.entries()) {
         const listItem = document.createElement('div');
-        listItem.className = "w-full flex flex-col items-start mt-2 mb-2 p-2 border-b border-gray-300";
+        listItem.className = "w-full flex flex-col mt-2 mb-2 p-2 border-b border-gray-300";
 
         const soundInfos = document.createElement('div');
-        soundInfos.className = "text-base flex flex-col gap-2";
+        soundInfos.className = "flex gap-2 justify-between content-center";
 
         const imageContainer = document.createElement('div');
         imageContainer.className = "w-12 h-12 bg-gray-700 rounded overflow-hidden";
@@ -378,16 +378,6 @@ async function createPlaylistContent(playlistOverlayContent, soundIDs) {
         const artistDiv = document.createElement('div');
         artistDiv.id = `soundArtistName_${soundID}`;
 
-        soundInfos.appendChild(imageContainer);
-        soundInfos.appendChild(nameP);
-        soundInfos.appendChild(artistDiv);
-
-        listItem.appendChild(soundInfos);
-        playlistOverlayContent.appendChild(listItem);
-
-        const sound = await getSound(soundID);
-        setSoundInfos(sound, img.id, nameP.id, artistDiv.id);
-
         const playButton = document.createElement('button')
         const mainSoundID = mainWaveSurfer.className.split("_").pop();
         if ((mainSoundID === soundID) && mainWaveSurfer.isPlaying()) {
@@ -396,8 +386,16 @@ async function createPlaylistContent(playlistOverlayContent, soundIDs) {
             playButton.innerHTML = `<i data-lucide='play' class="${'playlist_icon_' + soundID} w-6 h-6"></i>`;
         }
 
-        listItem.appendChild(playButton);
+        soundInfos.appendChild(imageContainer);
+        soundInfos.appendChild(nameP);
+        soundInfos.appendChild(artistDiv);
+        soundInfos.appendChild(playButton);
+
+        listItem.appendChild(soundInfos);
         playlistOverlayContent.appendChild(listItem);
+
+        const sound = await getSound(soundID);
+        setSoundInfos(sound, img.id, nameP.id, artistDiv.id);
 
         playButton.onclick = () => {
             const icons = document.querySelectorAll('[data-lucide]');
