@@ -25,7 +25,9 @@
                 <button class="" id="musicBoxRepeat"><i data-lucide="repeat" class="w-6 h-6"></i>
                 </button>
 
-                <button id="openStemsOverlay">Stems</button>
+                <button id="openStemsOverlay">
+                    <i data-lucide='audio-lines' class="w-6 h-6"></i>
+                </button>
             </div>
 
         </div>
@@ -38,7 +40,7 @@
                 <p id="mainDuration">0:00</p>
             </div>
 
-            <div id="music_box" class="container" style="position: relative;">
+            <div id="music_box" class="w-200" style="position: relative;">
                 <div class="flex items-center space-y-2">
                     <div class="flex space-x-2">
                         <label>

@@ -59,8 +59,12 @@
             <button class="border rounded" type="submit">Upload Sound</button>
         </form>
 
-        <div id="artistSingleSoundBox" class="container rounded h-30 w-100"
-             style="display: none; position: relative;"></div>
+        <div class="w-full flex justify-center">
+            <div id="artistSingleSoundBox"
+                 class="flex justify-center items-center h-20 w-[600px] rounded"
+                 style="display: block; position: relative;">
+            </div>
+        </div>
 
         <div class="border rounded" id="fileInfo" style="display: none;">
             <p>File name: <span id="fileStatus"></span></p>
