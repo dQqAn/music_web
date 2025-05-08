@@ -11,7 +11,7 @@ export async function createFavDiv(favDivID, soundID, main = false) {
     const favID = main ? "main-fav-btn-" + soundID : "fav-btn-" + soundID
     document.getElementById(favDivID).innerHTML = `
                     <button id=${favID} >
-                         <i id="playPauseIcon" data-lucide="${favText}" class="${'fav_' + soundID} w-6 h-6"></i>
+                         <i id="playPauseIcon" data-lucide="${favText}" class="${favID} w-6 h-6"></i>
                      </button>
                 `;
     const favBtn = document.getElementById(favID)
@@ -39,9 +39,15 @@ async function changeSoundFavouriteStatus(soundID, favID) {
         const result = await response.json();
         const newStatus = result.favouriteStatus;
 
-        const favIcon = document.querySelector('.fav_' + soundID)
+        const favIcon = document.querySelector('.fav-btn-' + soundID)
         if (favIcon) {
             favIcon.setAttribute('data-lucide', newStatus ? "heart" : "heart-off");
+            lucide.createIcons();
+        }
+
+        const favIcon2 = document.querySelector('.main-fav-btn-' + soundID)
+        if (favIcon2) {
+            favIcon2.setAttribute('data-lucide', newStatus ? "heart" : "heart-off");
             lucide.createIcons();
         }
     } catch (error) {
