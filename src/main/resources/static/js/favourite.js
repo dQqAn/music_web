@@ -1,7 +1,12 @@
 async function getFavStatus(soundID) {
-    const res = await fetch(`/sound/checkFav/${soundID}`);
-    const data = await res.json();
-    return data.favouriteStatus;
+    try {
+        const res = await fetch(`/sound/checkFav/${soundID}`);
+        const data = await res.json();
+        return data.favouriteStatus;
+    } catch (error) {
+        console.error('soundList Error:', error);
+        return false
+    }
 }
 
 export async function createFavDiv(favDivID, soundID, main = false) {
@@ -16,7 +21,9 @@ export async function createFavDiv(favDivID, soundID, main = false) {
                 `;
     const favBtn = document.getElementById(favID)
     favBtn.onclick = () => {
-        changeSoundFavouriteStatus(soundID, favID)
+        if (isFav) {
+            changeSoundFavouriteStatus(soundID, favID)
+        }
     }
     lucide.createIcons();
 }

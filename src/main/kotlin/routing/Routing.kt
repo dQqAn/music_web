@@ -47,12 +47,12 @@ fun Application.basicRouting() {
         get("/sound/checkFav/{soundID}") {
             val soundID = call.parameters["soundID"] ?: return@get call.respond(HttpStatusCode.BadRequest)
             val userSession = call.sessions.get<UserSession>()
-            if (userSession != null) {
-                val favouriteStatus = favouriteRepository.checkFavourite(soundID, userSession.id)
-                call.respond(mapOf("favouriteStatus" to favouriteStatus))
-            } else {
-                call.respond(HttpStatusCode.NotFound)
+            if (userSession == null) {
+                return@get call.respond(mapOf("favouriteStatus" to false))
             }
+
+            val favouriteStatus = favouriteRepository.checkFavourite(soundID, userSession.id)
+            call.respond(mapOf("favouriteStatus" to favouriteStatus))
         }
 
         get("/sound/") {

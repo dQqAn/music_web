@@ -445,14 +445,20 @@ export function filterSounds(page) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         return response.json();
-    }).then(data => {
+    }).then(async data => {
         const sounds = Array.isArray(data) ? data : (data.sounds || []);
-        soundList('soundList', sounds)
+
+        try {
+            await soundList('soundList', sounds)
+        } catch (error) {
+            console.error('soundList Error:', error);
+            throw error;
+        }
 
         lucide.createIcons();
         window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
 
-        soundListSize(categorySelectedItems, minDuration, maxDuration).then(r => {
+        await soundListSize(categorySelectedItems, minDuration, maxDuration).then(r => {
                 const totalPages = Math.floor((r + 10 - 1) / 10);
                 updatePagination("pagination", page, totalPages, (p) => {
                     filterSounds(p);
