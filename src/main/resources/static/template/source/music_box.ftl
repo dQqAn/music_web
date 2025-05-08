@@ -108,7 +108,7 @@
                         </div>
 
                         <div id="mainPlaylistResult" class="h-60 mt-8 border-t" style="display: none;"></div>
-                        <button id="mainAddToPlaylistBtn">Submit</button>
+                        <button class="w-full content-center justify-center" id="mainAddToPlaylistBtn">Submit</button>
                     </div>
                 </div>
 
