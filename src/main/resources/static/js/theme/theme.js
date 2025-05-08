@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (main) {
         main.classList.add(
             "bg-fuchsia-50",
-            "dark:bg-neutral-600",
+            "dark:bg-neutral-800",
             "text-neutral-950",
             "dark:text-fuchsia-500"
         );
