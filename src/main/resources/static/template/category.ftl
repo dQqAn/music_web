@@ -13,7 +13,7 @@
     <script type="module" src="../js/header.js" defer></script>
 
     <link href="../js/category/category.css" rel="stylesheet">
-    <script src="../js/category/category.js" defer></script>
+    <script type="module" src="../js/category/category.js" defer></script>
 
     <link href="../tailwind/output.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest" defer></script>
@@ -25,8 +25,17 @@
 <#include "source/header.ftl">
 
 <main role="main">
+    <div class="flex flex-1 flex-col w-full">
+        <div class="w-full flex-1" id="soundList"></div>
 
+        <div id="pagination" class="pointer pagination py-4 text-center z-40 mb-40">
+        </div>
+    </div>
+
+    <#include "source/playlist_box.ftl">
 </main>
+
+<#include "source/music_box.ftl">
 
 <script>
 </script>

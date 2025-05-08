@@ -67,6 +67,19 @@ fun Application.basicRouting() {
             )
             call.respond(FreeMarkerContent("sound.ftl", model))
         }
+
+        get("/category/{name}") {
+            val name = call.parameters["name"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val lang = call.request.cookies["lang"] ?: "tr"
+            val supportedLang = if (lang in listOf("en", "tr")) lang else "tr"
+            val words = loadWords(supportedLang)
+
+            val model = mapOf(
+                "words" to words,
+                "lang" to supportedLang
+            )
+            call.respond(FreeMarkerContent("category.ftl", model))
+        }
     }
 }
 

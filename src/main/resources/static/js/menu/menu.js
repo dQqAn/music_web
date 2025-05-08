@@ -415,7 +415,7 @@ function menuSubmit(menuSubmitBtnID) {
     });
 }
 
-export function filterSounds(page) {
+export function filterSounds(page, categoryTag = null) {
     let minDuration = null
     let maxDuration = null
     if (isDurationChanged) {
@@ -427,7 +427,12 @@ export function filterSounds(page) {
 
     const tags = [...categorySelectedItems];
     const onlyDuration = tags.length === 1 && tags[0].tag === "duration";
-    const selectedTags = onlyDuration ? [] : tags.map(item => item.tag);
+    let selectedTags = []
+    if (!categoryTag) {
+        selectedTags = onlyDuration ? [] : tags.map(item => item.tag);
+    } else {
+        selectedTags.push(categoryTag)
+    }
 
     fetch(`/database/filterSounds?page=${page}`, {
         method: 'POST',
