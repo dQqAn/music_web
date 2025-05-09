@@ -6,10 +6,7 @@ import com.example.auth.UserStatus
 import com.example.auth.auth
 import com.example.model.*
 import com.example.routing.loadWords
-import com.example.util.DotEnvironment
-import com.example.util.EncryptionSystem
-import com.example.util.HashingSystem
-import com.example.util.loadMetaItems
+import com.example.util.*
 import com.mpatric.mp3agic.Mp3File
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -29,6 +26,7 @@ import org.koin.ktor.ext.inject
 import java.io.BufferedInputStream
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeoutException
 import javax.sound.sampled.AudioFileFormat
 import javax.sound.sampled.AudioSystem
 
@@ -419,18 +417,21 @@ private fun Routing.artistRoute(
                                     soundPath = soundFile.path,
                                     image1Path = "'\'" + imageFile.path,
                                     duration = duration,
+                                    bpm = 0,
                                     soundID = soundID
                                 )
                             )
                             if (checkSound != -1) {
-                                regionsRepository.addRegions(
-                                    Regions(
-                                        soundID = soundID,
-                                        regions = loops.map { listOf(it.start.toString(), it.end.toString()) }
+                                if (loops.isNotEmpty()) {
+                                    regionsRepository.addRegions(
+                                        Regions(
+                                            soundID = soundID,
+                                            regions = loops.map { listOf(it.start.toString(), it.end.toString()) }
+                                        )
                                     )
-                                )
+                                }
 
-                                if (stemNames.size == stemFiles.size) {
+                                if (stemFiles.isNotEmpty() && stemNames.isNotEmpty() && stemNames.size == stemFiles.size) {
                                     stemNames.zip(stemFiles).forEach { (name, file) ->
                                         val uuidPart = file.name.substringBefore("_")
                                         stemsRepository.addStem(
@@ -445,6 +446,14 @@ private fun Routing.artistRoute(
                                 }
 
                                 call.respond(HttpStatusCode.OK, mapOf("fileStatus" to "OK"))
+
+                                val bpm = detectTempo(soundFile)
+                                bpm?.let {
+                                    val bpmSoundID = soundRepository.addBpm(soundID, bpm)
+                                    if (bpmSoundID == null) {
+                                        throw TimeoutException("Python BPM script timed out.")
+                                    }
+                                }
                             } else {
                                 call.respond(HttpStatusCode.Conflict, mapOf("message" to "Error database"))
                             }

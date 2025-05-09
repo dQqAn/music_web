@@ -37,6 +37,18 @@ class SoundRepository(database: Database) {
             .map { row -> row.toSound() }
     }
 
+    suspend fun addBpm(soundID: String, bpm: Int): Int? = suspendTransaction {
+        try {
+            val updatedRows = SoundTable.update(where = { SoundTable.soundID eq soundID }) {
+                it[this.bpm] = bpm
+            }
+            if (updatedRows > 0) 1 else null
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     suspend fun updateStatus(soundID: String, soundStatus: SoundStatus): String? = suspendTransaction {
         try {
             val updatedRows = SoundTable.update(where = { SoundTable.soundID eq soundID }) {

@@ -19,10 +19,11 @@ data class Sound(
     var image1Path: String,
     var duration: Int,
     val soundID: String,
+    val bpm: Int?,
     val id: Int = -1
 )
 
-@Serializable
+/*@Serializable
 data class SoundBasic(
     val name: String,
     val artistInfos: List<ArtistInfos>,
@@ -30,7 +31,7 @@ data class SoundBasic(
     val image1Path: String,
     val soundID: String,
     val favouriteStatus: Boolean
-)
+)*/
 
 enum class SoundStatus {
     BANNED, WAITING, UNDER_CONTROL, PASSIVE, ACTIVE
@@ -46,6 +47,7 @@ object SoundTable : Table("sound") {
     val soundPath = varchar("soundPath", 512)
     var image1Path = varchar("image1Path", 512)
     var duration = integer("duration")
+    var bpm = integer("bpm").nullable()
     val soundID = varchar("soundID", 50)
     val id = integer("id").autoIncrement()
     override val primaryKey = PrimaryKey(id, name = "sound_pk")
@@ -61,6 +63,7 @@ fun ResultRow.toSound(): Sound = Sound(
     soundPath = this[SoundTable.soundPath],
     image1Path = this[SoundTable.image1Path],
     duration = this[SoundTable.duration],
+    bpm = this[SoundTable.bpm],
     soundID = this[SoundTable.soundID],
     id = this[SoundTable.id]
 )
@@ -75,5 +78,6 @@ fun InsertStatement<Number>.fromSound(sound: Sound) {
     this[SoundTable.soundPath] = sound.soundPath
     this[SoundTable.image1Path] = sound.image1Path
     this[SoundTable.duration] = sound.duration
+    this[SoundTable.bpm] = sound.bpm
     this[SoundTable.soundID] = sound.soundID
 }
