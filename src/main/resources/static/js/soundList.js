@@ -205,6 +205,10 @@ export async function soundList(containerID, sounds) {
         stemsButton.className = "pointer content-center items-center w-8 h-8"
         stemsButton.innerHTML = `<i data-lucide='audio-lines' class="${'icon_' + item.soundID} w-6 h-6"></i>`;
 
+        const bpmText = document.createElement('p')
+        bpmText.textContent = 'BPM: ' + item.bpm
+
+        rightDiv.appendChild(bpmText);
         rightDiv.appendChild(stemsButton);
         rightDiv.appendChild(durationInfos);
         rightDiv.appendChild(waveSurferDiv);
