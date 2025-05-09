@@ -121,7 +121,8 @@ class SoundRepository(database: Database) {
         page: Int,
         selectedTags: List<String>,
         minDuration: Int?,
-        maxDuration: Int?
+        maxDuration: Int?,
+        bpm: Int?
     ): List<Sound> = suspendTransaction {
         val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
 
@@ -137,6 +138,10 @@ class SoundRepository(database: Database) {
             conditions += SoundTable.duration lessEq maxDuration
         }
 
+        if (bpm != null) {
+            conditions += SoundTable.bpm lessEq bpm
+        }
+
         SoundTable.selectAll()
             .where {
                 conditions.reduce { acc, op -> acc and op }
@@ -148,7 +153,8 @@ class SoundRepository(database: Database) {
     suspend fun filteredSoundsSize(
         selectedTags: List<String>,
         minDuration: Int?,
-        maxDuration: Int?
+        maxDuration: Int?,
+        bpm: Int?
     ): Int = suspendTransaction {
         val conditions = mutableListOf(Op.build { SoundTable.status eq SoundStatus.ACTIVE.toString() })
 
@@ -162,6 +168,10 @@ class SoundRepository(database: Database) {
         if (minDuration != null && maxDuration != null) {
             conditions += SoundTable.duration greaterEq minDuration
             conditions += SoundTable.duration lessEq maxDuration
+        }
+
+        if (bpm != null) {
+            conditions += SoundTable.bpm lessEq bpm
         }
 
         SoundTable.selectAll()

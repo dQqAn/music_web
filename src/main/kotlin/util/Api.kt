@@ -292,7 +292,8 @@ fun Application.databaseApi() {
                 page = page,
                 selectedFilters.categorySelectedTags,
                 selectedFilters.minDuration,
-                selectedFilters.maxDuration
+                selectedFilters.maxDuration,
+                selectedFilters.bpm
             )
             call.respond(HttpStatusCode.OK, mapOf("sounds" to sounds))
         }
@@ -306,7 +307,8 @@ fun Application.databaseApi() {
                 soundRepository.filteredSoundsSize(
                     selectedFilters.categorySelectedTags,
                     minDuration,
-                    maxDuration
+                    maxDuration,
+                    selectedFilters.bpm
                 )
             )
         }
@@ -479,7 +481,8 @@ private data class SelectedSoundIdsToPlaylists(
 data class SelectedFilters(
     val categorySelectedTags: List<String>,
     val minDuration: Int? = null,
-    val maxDuration: Int? = null
+    val maxDuration: Int? = null,
+    val bpm: Int? = null,
 )
 
 @Serializable

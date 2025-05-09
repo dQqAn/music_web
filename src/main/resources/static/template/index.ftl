@@ -71,6 +71,15 @@
                 </div>
                 <div id="durationOutput"></div>
             </div>
+
+            <div class="gap-4 w-full max-w-md mx-auto p-4">
+                <h3>Bpm</h3>
+                <div>
+                    <input id="bpmSlider" name="bpmSlider" type="range" min="0" max="200" step="20">
+                </div>
+                <div id="bpmOutput"></div>
+            </div>
+
             <div id="menuSubmitDiv">
                 <button id="menuSubmitButton"
                         class="show-selected-btn border-t p-2 w-full mt-4">

@@ -6,9 +6,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         //region Duration
         minSlider.value = minSliderValue
         maxSlider.value = maxSliderValue
-        minSlider.addEventListener('input', () => updateDisplay(true));
-        maxSlider.addEventListener('input', () => updateDisplay(true));
-        updateDisplay(false);
+        minSlider.addEventListener('input', () => updateDurationDisplay(true));
+        maxSlider.addEventListener('input', () => updateDurationDisplay(true));
+        updateDurationDisplay(false);
+        //endregion
+
+        //region Bpm
+        bpmSlider.value = 0
+        bpmSlider.addEventListener('input', () => updateBpmDisplay(true))
+        updateBpmDisplay(false)
         //endregion
 
         //region Tag Menu
@@ -147,11 +153,11 @@ function formatDuration(seconds) {
 let isDurationChanged = false;
 const minSlider = document.getElementById('minDuration');
 const maxSlider = document.getElementById('maxDuration');
-const output = document.getElementById('durationOutput');
+const durationOutputText = document.getElementById('durationOutput');
 const minSliderValue = 0
 const maxSliderValue = 600
 
-function updateDisplay(durationChanges) {
+function updateDurationDisplay(durationChanges) {
     if (minSlider && maxSlider) {
         let min = parseInt(minSlider.value);
         let max = parseInt(maxSlider.value);
@@ -161,12 +167,12 @@ function updateDisplay(durationChanges) {
             [min, max] = [max, min];
         }
 
-        output.textContent = formatDuration(min) + '-' + formatDuration(max);
+        durationOutputText.textContent = formatDuration(min) + '-' + formatDuration(max);
 
         isDurationChanged = durationChanges === true
 
         if (isDurationChanged) {
-            updateSelected('duration', output.textContent)
+            updateSelected('duration', durationOutputText.textContent, isDurationChanged)
         }
     }
 }
@@ -175,12 +181,40 @@ function resetDuration() {
     if (minSlider && maxSlider) {
         minSlider.value = minSliderValue
         maxSlider.value = maxSliderValue
-        updateDisplay(false)
+        updateDurationDisplay(false)
     }
 }
 
-function updateSelected(tag, name) {
-    if (isDurationChanged) {
+//endregion
+
+//region BPM
+const bpmSlider = document.getElementById('bpmSlider')
+const bpmOutputText = document.getElementById('bpmOutput');
+let isBpmChanged = false;
+
+function resetBpm() {
+    if (bpmSlider) {
+        bpmSlider.value = 0
+        updateBpmDisplay(false)
+    }
+}
+
+function updateBpmDisplay(bpmChanges) {
+    if (bpmSlider) {
+        bpmOutputText.textContent = bpmSlider.value;
+
+        isBpmChanged = bpmChanges === true
+
+        if (isBpmChanged) {
+            updateSelected('bpm', bpmOutputText.textContent, isBpmChanged)
+        }
+    }
+}
+
+//endregion
+
+function updateSelected(tag, name, isChanged) {
+    if (isChanged) {
         const exists = [...categorySelectedItems].some(item => item.tag === tag);
         if (!exists) {
             categorySelectedItems.add({tag: tag, name: name});
@@ -202,8 +236,6 @@ function deleteItemByTag(tag, selectedItems) {
         }
     }
 }
-
-//endregion
 
 //region Tag Menu
 let categoryMenuData = [];
@@ -368,6 +400,7 @@ export function clearAllSelections(selectedItemsContainer, selectedItems, hasDur
     selectedItems.clear();
     if (hasDurationProgressiveBar) {
         resetDuration()
+        resetBpm()
     }
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
     updateSelectedItems(selectedItemsContainer, selectedItems);
@@ -430,6 +463,12 @@ export function filterSounds(page, categoryTag = null) {
         maxDuration = outputResult.maxSeconds
     }
 
+    let bpm = null
+    if (isBpmChanged) {
+        const output = document.getElementById('bpmOutput');
+        bpm = parseInt(output.textContent, 10)
+    }
+
     let categorySelectedTags = []
 
     if (categoryTag) {
@@ -449,7 +488,8 @@ export function filterSounds(page, categoryTag = null) {
         body: JSON.stringify({
             categorySelectedTags: categorySelectedTags,
             minDuration: minDuration,
-            maxDuration: maxDuration
+            maxDuration: maxDuration,
+            bpm: bpm
         })
     }).then(response => {
         if (!response.ok) {
