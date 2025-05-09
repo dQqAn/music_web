@@ -359,6 +359,12 @@ function updateSelectedItems(selectedItemsContainer, selectedItems) {
         removeBtn.innerHTML = '×';
         removeBtn.className = 'text-neutral-950 dark:text-fuchsia-500 font-bold';
         removeBtn.addEventListener('click', () => {
+            if (selected.tag === 'bpm') {
+                resetBpm()
+            }
+            if (selected.tag === 'duration') {
+                resetDuration()
+            }
             selectedItems.delete(selected);
             uncheckCheckbox(selectedTag);
             updateSelectedItems(selectedItemsContainer, selectedItems);
