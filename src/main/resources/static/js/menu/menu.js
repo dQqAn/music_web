@@ -86,13 +86,18 @@ function loadMenuItems(clearButtonName, rootItems, items, menuContainerID, selec
 
 export async function soundListSize(selectedItems = [], minDuration = 0, maxDuration = 0) {
     try {
+        let items = []
+        if (selectedItems.length > 0) {
+            items = selectedItems
+        }
+
         const response = await fetch(`/database/filterSoundsSize`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                selectedTags: [...selectedItems].map(item => item.tag),
+                categorySelectedTags: items,
                 minDuration: minDuration,
                 maxDuration: maxDuration
             })
@@ -425,13 +430,15 @@ export function filterSounds(page, categoryTag = null) {
         maxDuration = outputResult.maxSeconds
     }
 
-    const tags = [...categorySelectedItems];
-    const onlyDuration = tags.length === 1 && tags[0].tag === "duration";
-    let selectedTags = []
-    if (!categoryTag) {
-        selectedTags = onlyDuration ? [] : tags.map(item => item.tag);
+    let categorySelectedTags = []
+
+    if (categoryTag) {
+        categorySelectedTags.push(categoryTag)
     } else {
-        selectedTags.push(categoryTag)
+        const excludedTags = ['duration', 'bpm']; // range inputs
+        categorySelectedTags = [...categorySelectedItems]
+            .map(item => item.tag)
+            .filter(tag => !excludedTags.includes(tag));
     }
 
     fetch(`/database/filterSounds?page=${page}`, {
@@ -440,7 +447,7 @@ export function filterSounds(page, categoryTag = null) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            selectedTags: selectedTags,
+            categorySelectedTags: categorySelectedTags,
             minDuration: minDuration,
             maxDuration: maxDuration
         })
@@ -463,7 +470,7 @@ export function filterSounds(page, categoryTag = null) {
         lucide.createIcons();
         window.history.pushState({page: page}, `Page ${page}`, `?page=${page}`);
 
-        await soundListSize(categorySelectedItems, minDuration, maxDuration).then(r => {
+        await soundListSize(categorySelectedTags, minDuration, maxDuration).then(r => {
                 const totalPages = Math.floor((r + 10 - 1) / 10);
                 updatePagination("pagination", page, totalPages, (p) => {
                     filterSounds(p);

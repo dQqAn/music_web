@@ -415,7 +415,7 @@ private fun Routing.artistRoute(
                                     moods = moodList,
                                     instruments = instrumentList,
                                     soundPath = soundFile.path,
-                                    image1Path = "'\'" + imageFile.path,
+                                    image1Path = "/" + imageFile.path,
                                     duration = duration,
                                     bpm = 0,
                                     soundID = soundID
