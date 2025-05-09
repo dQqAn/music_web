@@ -44,7 +44,7 @@ export function isSoundIDStored(id) {
 //region Temp IDs
 const TEMP_SOUND_IDS_KEY = 'tempSoundIDs';
 
-function getTempStoredSoundIDs() {
+export function getTempStoredSoundIDs() {
     const data = localStorage.getItem(TEMP_SOUND_IDS_KEY);
     return data ? JSON.parse(data) : [];
 }
@@ -67,13 +67,13 @@ function clearTempAllSoundIDs() {
     localStorage.removeItem(TEMP_SOUND_IDS_KEY);
 }
 
-function isTempSoundIDStored(id) {
+export function isTempSoundIDStored(id) {
     const ids = getTempStoredSoundIDs();
     return ids.includes(id);
 }
 
 //endregion
-function replaceSoundIDsWith(soundID) {
+export function replaceSoundIDsWith(soundID) {
     const tempIDs = getTempStoredSoundIDs();
     const index = tempIDs.indexOf(soundID);
 

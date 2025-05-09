@@ -1,7 +1,16 @@
 import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
-import {getSound, getStoredSoundIDs, isSoundIDStored, removeSoundID, soundListWaveSurfers} from '../soundList.js'
+import {
+    getSound,
+    getStoredSoundIDs,
+    getTempStoredSoundIDs,
+    isSoundIDStored,
+    isTempSoundIDStored,
+    removeSoundID,
+    replaceSoundIDsWith,
+    soundListWaveSurfers
+} from '../soundList.js'
 import {setupPlaylistDiv} from '../playlist.js'
 import {createFavDiv} from '../favourite.js'
 import {setSoundInfos} from '../sound/sound.js'
@@ -25,6 +34,8 @@ export const mainWaveSurfer = WaveSurfer.create({
 })
 
 const musicBoxPlayPause = document.querySelector('#musicBoxPlayPause')
+const musicBoxSkipBack = document.querySelector('#musicBoxSkipBack')
+const musicBoxSkipForward = document.querySelector('#musicBoxSkipForward')
 let currentTrack = {
     soundID: "",
     playlistID: "",
@@ -213,6 +224,38 @@ document.addEventListener("DOMContentLoaded", async () => {
             mainWaveSurfer.setPlaybackRate(rateInput.valueAsNumber);
             mainWaveSurfer.playPause()
         }
+        musicBoxSkipBack.onclick = () => {
+            const soundID = mainWaveSurfer.className.split("_").pop();
+            if (isTempSoundIDStored(soundID)) {
+                const tempIDs = getTempStoredSoundIDs();
+                const index = tempIDs.indexOf(soundID);
+
+                if (index !== -1) {
+                    const targetID = index > 0 ? tempIDs[index - 1] : tempIDs[0];
+                    replaceSoundIDsWith(targetID);
+
+                    const src = `/stream/sound/${encodeURIComponent(targetID)}`;
+                    mainWaveSurfer.load(src)
+                    mainWaveSurfer.className = "main_waveSurfer_" + targetID
+                }
+            }
+        };
+        musicBoxSkipForward.onclick = () => {
+            const soundID = mainWaveSurfer.className.split("_").pop();
+            if (isTempSoundIDStored(soundID)) {
+                const tempIDs = getTempStoredSoundIDs();
+                const index = tempIDs.indexOf(soundID);
+
+                if (index !== -1 && index < tempIDs.length - 1) {
+                    const nextID = tempIDs[index + 1];
+                    replaceSoundIDsWith(nextID);
+
+                    const src = `/stream/sound/${encodeURIComponent(nextID)}`;
+                    mainWaveSurfer.load(src)
+                    mainWaveSurfer.className = "main_waveSurfer_" + nextID
+                }
+            }
+        };
     })
     mainWaveSurfer.on('decode', (duration) => {
         mainWaveReady = false;
