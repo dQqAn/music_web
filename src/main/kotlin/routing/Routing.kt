@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.httpsredirect.*
 import io.ktor.server.plugins.statuspages.*
@@ -19,6 +20,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
 import java.util.*
 
 fun Application.basicRouting() {
@@ -30,6 +32,16 @@ fun Application.basicRouting() {
         install(HttpsRedirect) {
             sslPort = 8444
             permanentRedirect = true
+        }
+
+        install(CallLogging) {
+            level = Level.DEBUG
+        }
+
+        route(".well-known") {
+            get("{...}") {
+                call.respondText("{}", ContentType.Application.Json)
+            }
         }
 
         get("/") {

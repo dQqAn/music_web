@@ -4,13 +4,23 @@
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="INFO">
+
+    <logger name="io.ktor.server.plugins.callloging" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT"/>
-    </root>
+    </logger>
+
+    <logger name="io.ktor.server.routing" level="DEBUG"/>
+    <logger name="io.ktor.server.request" level="DEBUG"/>
+    <logger name="io.ktor.server.plugins" level="DEBUG"/>
+
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
 
     <logger name="com.example.MyApplication" level="warn" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
 </configuration>

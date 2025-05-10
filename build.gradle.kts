@@ -67,6 +67,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-server-status-pages-jvm")
     implementation("io.ktor:ktor-server-auth-jvm")
+    implementation("io.ktor:ktor-server-call-logging")
 
     //Database
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
@@ -76,6 +77,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
     implementation("org.postgresql:postgresql:42.7.4")
     implementation("com.h2database:h2:2.1.214")
+    implementation("com.zaxxer:HikariCP:6.3.0")
 
     //Audio
     implementation("com.mpatric:mp3agic:0.9.1")

@@ -12,6 +12,8 @@ import com.example.util.HashingSystem
 import com.example.util.loadMetaItems
 import com.example.util.sound.detectTempo
 import com.mpatric.mp3agic.Mp3File
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -37,12 +39,17 @@ import javax.sound.sampled.AudioSystem
 fun Application.configureDatabase(): Database {
     val dotenvInject by inject<DotEnvironment>()
     val dotenv = dotenvInject.getDotEnv()
-    return Database.connect(
-        url = dotenv["databaseURL"],
-        driver = dotenv["databaseDriver"],
-        user = dotenv["databaseUser"],
+
+    val hikari = HikariConfig().apply {
+        jdbcUrl = dotenv["databaseURL"]
+        driverClassName = dotenv["databaseDriver"]
+        username = dotenv["databaseUser"]
         password = dotenv["databasePW"]
-    )
+
+        maximumPoolSize = 30     // eşzamanlı sorgu sayısı
+        connectionTimeout = 2000   // ms – bekle, sonra 500 döndür
+    }
+    return Database.connect(HikariDataSource(hikari))
 }
 
 fun Application.databaseRouting() {
