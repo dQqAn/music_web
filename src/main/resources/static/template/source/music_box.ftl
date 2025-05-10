@@ -67,13 +67,17 @@
             </div>
         </div>
 
-        <div class="items-center justify-end ">
-            <div class="flex gap-x-4 justify-center">
+        <div class="items-center justify-end">
+            <div class="flex items-center gap-x-4 justify-center h-full">
+                <button id="mainDownloadButton">D</button>
+
                 <button id="openPlaylistButton">
                     <i data-lucide="list-music" class="w-6 h-6"></i>
                 </button>
 
                 <div id="mainFavDiv"></div>
+
+                <div id="mainStretchDiv"></div>
 
                 <div id="mainPlaylistDiv">
                     <button id="mainPlaylistBtn">Add Playlist</button>

@@ -2,6 +2,8 @@ import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js
 import HoverPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/hover.esm.js'
 import RegionsPlugin from 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.esm.js'
 import {
+    createListMenu,
+    downloadSound,
     getSound,
     getStoredSoundIDs,
     getTempStoredSoundIDs,
@@ -215,6 +217,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                     'mainAddToPlaylistBtn', 'mainCreatePlaylist',
                     'mainPlaylistContainer', 'mainPlaylistCloseBtn',
                     'mainPlaylistResult', 'mainPlaylistInput')
+
+                const mainDownloadButton = document.getElementById('mainDownloadButton')
+                mainDownloadButton.onclick = () => {
+                    downloadSound(sound.soundID)
+                }
+
+                const mainStretchDiv = document.getElementById('mainStretchDiv')
+                mainStretchDiv.appendChild(createListMenu(sound))
             }
         }
         //endregion

@@ -426,7 +426,7 @@ function createCategoryElement(item) {
     return categories;
 }
 
-function createListMenu(sound) {
+export function createListMenu(sound) {
     const wrapper = document.createElement("div");
     wrapper.className = "relative inline-block";
 
@@ -485,6 +485,8 @@ function createListMenu(sound) {
 
     submitButton.addEventListener('click', async (e) => {
         e.stopPropagation();
+
+        stretchOutput.classList.remove("hidden")
 
         const duration = parseInt(input.value, 10)
         if (isNaN(duration)) return;
