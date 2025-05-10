@@ -90,7 +90,7 @@ async function stemsContent(stemsOverlayContent, stems, soundID, stemsListWaveSu
     mainStemItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
 
     const mainInfos = document.createElement('div')
-    mainInfos.className = "content-center items-center justify-start m-2"
+    mainInfos.className = "items-center justify-start m-2"
     mainInfos.innerHTML = `
                 <div class="flex items-center justify-center">
                     <div class="w-12 h-12 bg-gray-700 rounded overflow-hidden">
@@ -118,7 +118,7 @@ async function stemsContent(stemsOverlayContent, stems, soundID, stemsListWaveSu
     }
 
     const mainStemWaveSurferDiv = document.createElement('div');
-    mainStemWaveSurferDiv.className = "w-full content-center items-center justify-center relative"
+    mainStemWaveSurferDiv.className = "w-full items-center justify-center relative"
     mainStemWaveSurferDiv.style.border = "1px solid #ddd";
 
     mainStemItem.appendChild(mainStemWaveSurferDiv)
@@ -206,7 +206,7 @@ async function stemsContent(stemsOverlayContent, stems, soundID, stemsListWaveSu
         listItem.className = "w-full flex justify-between mt-4 mb-4 p-2"
 
         const infos = document.createElement('div')
-        infos.className = "content-center items-center justify-start m-2"
+        infos.className = "items-center justify-start m-2"
         infos.innerHTML = `
                 <p>${stem.name}</p>
             `;
@@ -215,7 +215,7 @@ async function stemsContent(stemsOverlayContent, stems, soundID, stemsListWaveSu
 
         const waveSurferDiv = document.createElement('div');
         waveSurferDiv.id = 'div_' + stem.stemID
-        waveSurferDiv.className = "w-full content-center items-center justify-center relative"
+        waveSurferDiv.className = "w-full items-center justify-center relative"
         waveSurferDiv.style.border = "1px solid #ddd";
 
         listItem.appendChild(waveSurferDiv)

@@ -17,7 +17,7 @@ fun stretch(
     }
 
     val script = if (useTorch) TORCH_SCRIPT else LIBROSA_SCRIPT
-    val output = File(input.parent, "${input.nameWithoutExtension}_str.wav")
+    val output = File("uploads/stretch/${input.nameWithoutExtension}_stretch.wav")
 
     val cmd = mutableListOf(PY, script, input.absolutePath, output.absolutePath)
     if (rate != null) cmd += listOf("--rate", rate.toString())

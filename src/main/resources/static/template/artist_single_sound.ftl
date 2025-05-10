@@ -26,9 +26,9 @@
     <#setting url_escaping_charset="UTF-8">
 
     <div class="main_box gap-y-10 mt-12">
-        <form class="flex gap-8 content-center items-center w-fit mx-auto" id="uploadForm"
+        <form class="flex gap-8 items-center w-fit mx-auto" id="uploadForm"
               enctype="multipart/form-data">
-            <div class="flex content-center items-center gap-4">
+            <div class="flex items-center gap-4">
                 <label for="imageInput" class="inline-block px-4 py-2 border rounded cursor-pointer">
                     Select an image
                 </label>
@@ -36,7 +36,7 @@
                 <input required class="hidden" type="file" id="imageInput" name="imageFile" accept=".png, .jpg"/>
             </div>
 
-            <div class="flex content-center items-center gap-4">
+            <div class="flex items-center gap-4">
                 <label for="soundInput" class="inline-block px-4 py-2 border rounded cursor-pointer">
                     Select a sound
                 </label>
@@ -51,7 +51,7 @@
                 />
             </div>
 
-            <div class="flex content-center items-center gap-4">
+            <div class="flex items-center gap-4">
                 <label for="soundName">Sound Name:</label>
                 <input class="border rounded" id="soundName" name="soundName" required type="text">
             </div>
@@ -75,8 +75,8 @@
         </div>
     </div>
 
-    <div class="flex content-center items-center gap-4 w-fit mx-auto mt-12">
-        <div class="flex content-center items-center gap-4">
+    <div class="flex items-center gap-4 w-fit mx-auto mt-12">
+        <div class="flex items-center gap-4">
             <label for="stemInput" class="inline-block px-4 py-2 border rounded cursor-pointer">
                 Select a stem
             </label>
@@ -84,7 +84,7 @@
             <input class="hidden" type="file" id="stemInput" name="stemFile" accept=".mp3, .wav"/>
         </div>
 
-        <div class="flex content-center items-center gap-4">
+        <div class="flex items-center gap-4">
             <label for="stemName">Stem Name:</label>
             <input class="border rounded" id="stemName" name="stemName" type="text">
         </div>
@@ -94,13 +94,13 @@
         <div id="selectedStems"></div>
     </div>
 
-    <div class="content-center items-center w-fit mx-auto gap-y-10 gap-8 mt-12">
+    <div class=" items-center w-fit mx-auto gap-y-10 gap-8 mt-12">
         <div class="flex gap-10 gap-y-10">
-            <div class="flex content-center items-center w-fit mx-auto gap-8">
+            <div class="flex items-center w-fit mx-auto gap-8">
                 <label for="startingTime">Starting Time:</label>
                 <input class="border rounded" id="startingTime" name="startingTime" type="number">
             </div>
-            <div class="flex content-center items-center w-fit mx-auto gap-8">
+            <div class="flex items-center w-fit mx-auto gap-8">
                 <label for="endingTime">Ending Time:</label>
                 <input class="border rounded" id="endingTime" name="endingTime" type="number">
             </div>
@@ -113,7 +113,7 @@
         </div>
     </div>
 
-    <div class="border border-neutral-950 w-100 content-center items-center mx-auto gap-y-10 p-10 mt-12 mb-50">
+    <div class="border border-neutral-950 w-100 items-center mx-auto gap-y-10 p-10 mt-12 mb-50">
         <div class="mb-10">
             <input id="categorySearchInput" type="text" placeholder="Search..." class="w-full border rounded">
         </div>

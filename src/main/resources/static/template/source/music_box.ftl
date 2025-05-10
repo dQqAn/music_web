@@ -1,7 +1,7 @@
 <footer class="fixed bottom-0 w-full">
     <div class="w-full flex justify-between">
 
-        <div class="flex content-center items-center justify-start gap-x-4">
+        <div class="flex items-center justify-start gap-x-4">
             <div class="w-12 h-12  rounded overflow-hidden">
                 <img id="mainSoundImage" src=""
                      class="w-full h-full object-cover" alt="">
@@ -11,7 +11,7 @@
                 <div class="text-xs " id="mainArtistsName">Artist Name</div>
             </div>
 
-            <div class="ml-10 gap-x-4 content-center items-center">
+            <div class="ml-10 gap-x-4 items-center">
                 <button class="" id="musicBoxSkipBack"><i data-lucide="skip-back" class="w-6 h-6"></i>
                 </button>
 
@@ -67,8 +67,8 @@
             </div>
         </div>
 
-        <div class="content-center items-center justify-end ">
-            <div class="flex ml-4 gap-x-4 content-center items-center">
+        <div class="items-center justify-end ">
+            <div class="flex gap-x-4 justify-center">
                 <button id="openPlaylistButton">
                     <i data-lucide="list-music" class="w-6 h-6"></i>
                 </button>
@@ -108,7 +108,7 @@
                         </div>
 
                         <div id="mainPlaylistResult" class="h-60 mt-8 border-t" style="display: none;"></div>
-                        <button class="w-full content-center justify-center" id="mainAddToPlaylistBtn">Submit</button>
+                        <button class="w-full justify-center" id="mainAddToPlaylistBtn">Submit</button>
                     </div>
                 </div>
 

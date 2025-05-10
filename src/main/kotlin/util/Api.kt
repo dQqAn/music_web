@@ -7,6 +7,7 @@ import com.example.model.MetaDataMenuResponse
 import com.example.model.MetaDataToMenu
 import com.example.model.Playlist
 import com.example.model.SoundStatus
+import com.example.util.sound.stretch
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -66,9 +67,25 @@ fun Application.databaseApi() {
 
             val file = File(soundPath)
             if (file.exists()) {
+                val duration = call.request.queryParameters["duration"]
+                if (call.request.queryParameters["stretchedSound"] == "true"
+                    && duration?.toInt()!! >= 10 && duration.toInt() <= 600
+                ) {
+                    val stretchedFile = stretch(input = file, targetSecs = duration.toDouble())
+                    val encodedName = URLEncoder.encode(stretchedFile.name, "UTF-8").replace("+", "%20")
+                    call.response.header(HttpHeaders.ContentDisposition,
+                        ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, encodedName)
+                            .toString()
+                    )
+                    return@get call.respondFile(stretchedFile)
+                }
+
                 val encodedName = URLEncoder.encode(file.name, "UTF-8").replace("+", "%20")
-                call.response.header(HttpHeaders.ContentDisposition, "attachment; filename=\"$encodedName\"")
-                call.respondFile(file)
+                call.response.header(HttpHeaders.ContentDisposition,
+                    ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, encodedName)
+                        .toString()
+                )
+                return@get call.respondFile(file)
             } else {
                 call.respond(HttpStatusCode.NotFound, "Sound not found")
             }

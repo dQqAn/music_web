@@ -403,7 +403,7 @@ async function createPlaylistContent(playlistOverlayContent, soundIDs) {
         listItem.className = "w-full flex flex-col mt-2 mb-2 p-2 border-b border-gray-300";
 
         const soundInfos = document.createElement('div');
-        soundInfos.className = "flex gap-2 justify-between content-center";
+        soundInfos.className = "flex gap-2 justify-between";
 
         const imageContainer = document.createElement('div');
         imageContainer.className = "w-12 h-12 bg-gray-700 rounded overflow-hidden";
