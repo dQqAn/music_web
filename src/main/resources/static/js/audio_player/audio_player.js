@@ -225,6 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 const mainStretchDiv = document.getElementById('mainStretchDiv')
                 mainStretchDiv.appendChild(createListMenu(sound))
+                lucide.createIcons();
             }
         }
         //endregion

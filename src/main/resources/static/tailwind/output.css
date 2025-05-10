@@ -489,6 +489,10 @@
         max-height: calc(var(--spacing) * 128);
     }
 
+    .max-h-\[90vh\] {
+        max-height: 90vh;
+    }
+
     .max-h-fit {
         max-height: fit-content;
     }
@@ -756,6 +760,10 @@
 
     .gap-y-10 {
         row-gap: calc(var(--spacing) * 10);
+    }
+
+    .overflow-auto {
+        overflow: auto;
     }
 
     .overflow-hidden {

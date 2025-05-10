@@ -442,6 +442,7 @@ export function createListMenu(sound) {
         bg-fuchsia-100 dark:bg-neutral-950
         text-neutral-950 dark:text-fuchsia-500
         border rounded p-3
+        max-h-[90vh] overflow-auto
     `;
 
     const input = document.createElement("input");
@@ -513,15 +514,27 @@ export function createListMenu(sound) {
     function positionPopup() {
         const btnRect = button.getBoundingClientRect();
         const popWidth = popup.offsetWidth || 256;
-
-        let desiredLeft = btnRect.left + btnRect.width / 2 - popWidth / 3;
+        const popHeight = popup.offsetHeight || 150;
 
         const margin = 8;
         const maxLeft = window.innerWidth - popWidth - margin;
+        let desiredLeft = btnRect.left + btnRect.width / 2 - popWidth / 2;
         desiredLeft = Math.max(margin, Math.min(desiredLeft, maxLeft));
 
+        let desiredTop;
+        const spaceBelow = window.innerHeight - btnRect.bottom;
+        const spaceAbove = btnRect.top;
+
+        if (spaceBelow >= popHeight + margin) {
+            desiredTop = btnRect.bottom + margin;
+        } else if (spaceAbove >= popHeight + margin) {
+            desiredTop = btnRect.top - popHeight - margin;
+        } else {
+            desiredTop = window.innerHeight / 2 - popHeight / 2;
+        }
+
         popup.style.left = `${desiredLeft}px`;
-        popup.style.top = `${btnRect.bottom + 8}px`;     // button bottom position
+        popup.style.top = `${desiredTop}px`;
     }
 
     return wrapper;
